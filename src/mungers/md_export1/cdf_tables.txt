@@ -1,0 +1,7 @@
+CDFTable	ExternalIdentifier	InternalFieldName	Enumerations	OtherFields
+Office	row["Office Name"] + ';' + row["Office District	Name"]	Name	{}	{}
+ReportingUnit	row["County"] + ';' + row["Election District"] + ';' +row["Election Precinct"]	Name	{}	{}
+Party	row["Party"]	Name	{}	{}
+Candidate	row["Candidate Name"]	Name	{}	{}
+CandidateContest	row["Office Name"]	Name	{}	{}
+BallotMeasureContest	row["Office Name"]	Name	{}	{}
