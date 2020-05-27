@@ -8,7 +8,7 @@ from sqlalchemy.orm import sessionmaker
 
 
 if __name__ == '__main__':
-	project_root = '/Users/Steph-Airbook/Documents/CampaignScientific/NSF2019/State_Data/results_analysis/src/'
+	project_root = r'C:\Users\jsru2\Desktop\GitHub\election_anomaly\src'
 
 	j_path = os.path.join(project_root,'jurisdictions')
 
@@ -16,7 +16,7 @@ if __name__ == '__main__':
 	juris = ui.pick_juris_from_filesystem(project_root,j_path,check_files=False)
 
 	# pick db to use
-	db_paramfile = '/Users/Steph-Airbook/Documents/CampaignScientific/NSF2019/database.ini'
+	db_paramfile = r'C:\Users\jsru2\Desktop\GitHub\election_anomaly\src\jurisdictions\database.ini'
 	db_name = ui.pick_database(project_root,db_paramfile)
 
 	# connect to db

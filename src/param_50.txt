@@ -1,0 +1,5 @@
+project_root	C:\Users\jsru2\Desktop\GitHub\election_anomaly\src
+juris_name	CO
+db_paramfile	C:\Users\jsru2\Desktop\GitHub\election_anomaly\src\jurisdictions\database.ini	
+db_name	CO
+munger_name co_general18

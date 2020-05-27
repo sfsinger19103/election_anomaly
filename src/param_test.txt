@@ -1,0 +1,17 @@
+[050]
+project_root=/Users/Steph-Airbook/Documents/CampaignScientific/NSF2019/State_Data/results_analysis/src/
+data_path=/Users/Steph-Airbook/Documents/Temp/results_pct_20181106.txt
+juris_name=North Carolina
+db_paramfile=/Users/Steph-Airbook/Documents/CampaignScientific/NSF2019/database.ini
+munger_name=NEW_nc18g_pre
+db_name=NC
+
+
+[100]
+project_root=/Users/Steph-Airbook/Documents/CampaignScientific/NSF2019/State_Data/results_analysis/src/
+juris_name=North Carolinadb_paramfile=/Users/Steph-Airbook/Documents/CampaignScientific/NSF2019/database.ini
+db_name=NC
+target_dir=/Users/Steph-Airbook/Documents/Temp/NC
+top_reporting_unit=North Carolina
+sub_reporting_unit_type=county
+atomic_ru_type=precinct
