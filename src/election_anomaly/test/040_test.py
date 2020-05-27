@@ -11,12 +11,30 @@ if __name__ == '__main__':
 			"an automatic munger that will load your data into a database in the 
 			"NIST common data format.""")
 
-	project_root = '/Users/Steph-Airbook/Documents/CampaignScientific/NSF2019/State_Data/results_analysis/src/'
+	interact = input('Run interactively (y/n)?\n')
+	if interact == 'y':
+		project_root = ui.get_project_root()
+		db_paramfile = ui.pick_paramfile()
+		db_name = ui.pick_database(project_root,db_paramfile)
+		print("pick the the raw data file")
+		raw_file_path = ui.pick_filepath(initialdir=project_root)
+
+
+	else:
+		d = ui.config(section='parameters',msg='Pick a paramfile for 050.')
+		project_root = d['project_root']
+		db_paramfile = d['db_paramfile']
+		db_name = d['db_name']
+		raw_file_path = d['data_path']
+
+
+
+	# project_root = r'C:\Users\jsru2\Desktop\GitHub\election_anomaly\src'
 
 	# pick db to use
-	db_paramfile = '/Users/Steph-Airbook/Documents/CampaignScientific/NSF2019/database.ini'
+	# db_paramfile = r'C:\Users\jsru2\Desktop\GitHub\election_anomaly\src\jurisdictions\database.ini'
 
-	db_name = 'Philadelphia'
+	#db_name = 'NC'
 
 	# connect to db
 	eng = dbr.sql_alchemy_connect(paramfile=db_paramfile,db_name=db_name)
@@ -25,17 +43,18 @@ if __name__ == '__main__':
 
 
 	# datafile & info
-	raw_file_dir = '/Users/Steph-Airbook/Documents/Temp/Philadelphia/data/'
-
-	#raw_file_path = os.path.join(raw_file_dir,'small20181106.txt')
-	raw_file_path = os.path.join(raw_file_dir,'2018_general.csv')
+	# raw_file_dir = r'/Users/Steph-Airbook/Documents/Temp/Philadelphia/data/'
+	#
+	# #raw_file_path = os.path.join(raw_file_dir,'small20181106.txt')
+	# raw_file_path = os.path.join(raw_file_dir,'2018_general.csv')
+	#raw_file_path = r'C:\Users\jsru2\Desktop\GitHub\election_anomaly\src\jurisdictions\NC\data\2018g\nc_general\results_pct_20181106.txt'
 
 	# pick munger
 	munger = ui.pick_munger(mungers_dir=os.path.join(project_root,'mungers'),
 							project_root=project_root,session=sess)
 	sep = munger.separator.replace('\\t','\t')  # TODO find right way to read \t
 	encoding = munger.encoding
-	juris_short_name = 'Phila'
+	juris_short_name = 'NC'
 	juris = ui.pick_juris_from_filesystem(project_root,juris_name=juris_short_name)
 
 
