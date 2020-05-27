@@ -9,7 +9,22 @@ if __name__ == '__main__':
 			"an automatic munger that will load your data into a database in the 
 			"NIST common data format.""")
 
-	project_root = ui.get_project_root()
+	interact = input('Run interactively (y/n)?\n')
+	if interact == 'y':
+		project_root = ui.get_project_root()
+		juris_name = None
+		db_paramfile = ui.pick_paramfile()
+		db_name = ui.pick_database(project_root,db_paramfile)
+		munger_name = None
+
+	else:
+		d = ui.config(section='parameters',msg='Pick a paramfile for 050.')
+		project_root = d['project_root']
+		juris_name = d['juris_name']
+		db_paramfile = d['db_paramfile']
+		db_name = d['db_name']
+		munger_name = d['munger_name']
+
 
 	j_path = os.path.join(project_root,'jurisdictions')
 

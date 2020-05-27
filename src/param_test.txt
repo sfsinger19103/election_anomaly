@@ -1,15 +1,19 @@
-[050]
-project_root=/Users/Steph-Airbook/Documents/CampaignScientific/NSF2019/State_Data/results_analysis/src/
-data_path=/Users/Steph-Airbook/Documents/Temp/results_pct_20181106.txt
+[parameters]
+project_root=C:\Users\jsru2\Desktop\GitHub\election_anomaly\src
+data_path=C:\Users\jsru2\Desktop\GitHub\election_anomaly\src\jurisdictions\CO\data\2018GEPrecinctLevelResults.csv
 juris_name=North Carolina
-db_paramfile=/Users/Steph-Airbook/Documents/CampaignScientific/NSF2019/database.ini
+db_paramfile=C:\Users\jsru2\Desktop\GitHub\election_anomaly\src\jurisdictions\database.ini
 munger_name=NEW_nc18g_pre
 db_name=NC
-
+top_reporting_unit=North Carolina
+sub_reporting_unit_type=county
+atomic_ru_type=precinct
+target_dir=C:\Users\jsru2\Desktop\GitHub\election_anomaly\src\Temp\NC
 
 [100]
-project_root=/Users/Steph-Airbook/Documents/CampaignScientific/NSF2019/State_Data/results_analysis/src/
-juris_name=North Carolinadb_paramfile=/Users/Steph-Airbook/Documents/CampaignScientific/NSF2019/database.ini
+project_root=C:\Users\jsru2\Desktop\GitHub\election_anomaly\src
+juris_name=North Carolina
+db_paramfile=C:\Users\jsru2\Desktop\GitHub\election_anomaly\src\jurisdictions\database.ini
 db_name=NC
 target_dir=/Users/Steph-Airbook/Documents/Temp/NC
 top_reporting_unit=North Carolina
