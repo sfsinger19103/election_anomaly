@@ -1,4 +1,4 @@
-[parameters]
+[election_anomaly]
 project_root=C:\Users\jsru2\Desktop\GitHub\election_anomaly\src
 data_path=C:\Users\jsru2\Desktop\GitHub\election_anomaly\src\jurisdictions\CO\data\2018GEPrecinctLevelResults.csv
 juris_name=North Carolina
@@ -10,12 +10,3 @@ sub_reporting_unit_type=county
 atomic_ru_type=precinct
 target_dir=C:\Users\jsru2\Desktop\GitHub\election_anomaly\src\Temp\NC
 
-[100]
-project_root=C:\Users\jsru2\Desktop\GitHub\election_anomaly\src
-juris_name=North Carolina
-db_paramfile=C:\Users\jsru2\Desktop\GitHub\election_anomaly\src\jurisdictions\database.ini
-db_name=NC
-target_dir=/Users/Steph-Airbook/Documents/Temp/NC
-top_reporting_unit=North Carolina
-sub_reporting_unit_type=county
-atomic_ru_type=precinct
