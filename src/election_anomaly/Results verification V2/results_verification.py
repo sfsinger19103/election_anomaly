@@ -5,15 +5,15 @@ import pandas as pd
 import numpy as np
 import xlrd
 
-f_path = r'C:\Users\jsru2\Desktop\GitHub\election_anomaly\src\election_anomaly\Results verification V2\TYPEtotal_STATUSunknown.txt'
-fmod_path = r'C:\Users\jsru2\Desktop\GitHub\election_anomaly\src\election_anomaly\Results verification V2\TYPEtotal_STATUSunknown_mod2.txt'
+#f_path = r'C:\Users\jsru2\Desktop\GitHub\election_anomaly\src\election_anomaly\Results verification V2\TYPEtotal_STATUSunknown.txt'
+#fmod_path = r'C:\Users\jsru2\Desktop\GitHub\election_anomaly\src\election_anomaly\Results verification V2\TYPEtotal_STATUSunknown_mod2.txt'
 
 #read the results file and the modified results file
 
-#f_path = input(f'Enter file path of results file.\n')
+f_path = input(f'Enter file path of results file.\n')
 Typetotal_df = pd.read_csv(f_path,sep='\t')
 
-#fmod_path = input(f'Enter file path of modified results file.\n')
+fmod_path = input(f'Enter file path of modified results file.\n')
 TypetotalMod_df = pd.read_csv(fmod_path,sep='\t')
 
 """Find rows which are different between two DataFrames."""
