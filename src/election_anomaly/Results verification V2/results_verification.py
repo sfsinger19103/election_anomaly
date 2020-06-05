@@ -10,6 +10,8 @@ import xlrd
 
 #read the results file and the modified results file
 
+#TODO help navigate the user to the file location. Use code from UI
+
 f_path = input(f'Enter file path of results file.\n')
 Typetotal_df = pd.read_csv(f_path,sep='\t')
 
@@ -20,8 +22,6 @@ TypetotalMod_df = pd.read_csv(fmod_path,sep='\t')
 comparison_df = Typetotal_df.merge(TypetotalMod_df, indicator=True, how='outer')
 
 
-#diff_df = comparison_df[comparison_df['_merge'] != 'both']
-
 """
 Case 1: A [contest, reportingunit] pair in both the files and same.  Good
 Case 2: A [contest, reportingunit] pair in both the files and count not same. Show differences.
@@ -29,14 +29,15 @@ Case 3: A [contest, reportingunit] pair in TypetotalMod_df not in Typetotal_df. 
 Case 4: A [contest, reportingunit] pair in Typetotal_df not in TypetotalMod_df. Check the downloaded results file. 
 """
 
-
+#TODO ask if the user want to see the information.
 #Case 1
 matching_df = comparison_df[comparison_df['_merge'] == 'both']
 #print ("Following contest are correctly analysed")
 print()
 
+
 #case 2
-"""Define coulumns to group by and campare"""
+#Define coulumns to group by and campare
 grp_cols = ['Contest', 'ReportingUnit', 'Selection']
 differences_df = comparison_df.groupby(grp_cols).filter(lambda x: x.Count.count() > 1)
 
@@ -52,8 +53,9 @@ missing_df = comparison_df.groupby(grp_cols).filter(lambda x: x.Count.count() ==
 missing1_df = missing_df[missing_df ['_merge'] == 'right_only']
 print ("Following contest are not analysed by the program")
 print(missing1_df)
-#case 4 - genearlly not possible
 
+
+#case 4 - genearlly not possible
 missing2_df = missing_df[missing_df ['_merge'] == 'left_only']
 print ("Following contest are missing in downloaded results")
 print(missing2_df)
