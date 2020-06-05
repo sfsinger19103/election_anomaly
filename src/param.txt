@@ -1,6 +1,6 @@
 [election_anomaly]
 project_root=C:\Users\jsru2\Desktop\GitHub\election_anomaly\src
-data_path=C:\Users\jsru2\Desktop\GitHub\election_anomaly\src\jurisdictions\PA\data\Official_652020090612AM.xlsx
+data_path=C:\Users\jsru2\Desktop\GitHub\election_anomaly\src\jurisdictions\PA\data\Official_652020102803AM.xlsx
 juris_name=PA
 db_paramfile=C:\Users\jsru2\Desktop\GitHub\election_anomaly\src\jurisdictions\database.ini
 munger_name=pa18g_pre
