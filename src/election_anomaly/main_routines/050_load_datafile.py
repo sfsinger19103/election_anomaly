@@ -26,7 +26,7 @@ if __name__ == '__main__':
 	skip_load = input('Skip jurisdiction info loading (y/n)?\n')
 	if skip_load == 'y':
 		print('Warning: results for contests, selections and reporting units not loaded from jurisdiction\n'
-			  'will not be processed.')
+			'will not be processed.')
 	else:
 		juris.load_juris_to_db(sess,d['project_root'])
 

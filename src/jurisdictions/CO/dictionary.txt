@@ -3200,15 +3200,15 @@ ReportingUnit	Colorado;Yuma County;4016563012 Precinct	Yuma;4016563012
 ReportingUnit	Colorado;Yuma County;4016563013 Precinct	Yuma;4016563013
 ReportingUnit	Colorado;Yuma County;4016563014 Precinct	Yuma;4016563014
 Election	General Election 2018-11-06	11/6/18
-Party	Colorado Democratic Party	Democratic Party
-Party	Colorado Republican Party	Republican Party
-Party	Colorado Green Party	Green Party
-Party	Colorado Unity Party of Colorado	Unity Party of Colorado
-Party	Colorado Libertarian Party	Libertarian Party
-Party	Colorado American Constitution Party	American Constitution Party
-Party	Colorado Approval Voting Party	Approval Voting Party
-Party	Colorado Unaffiliated	Unaffiliated
-Party	Colorado Independent	Independent
+Party	Democratic Party	Democratic Party
+Party	Republican Party	Republican Party
+Party	Green Party	Green Party
+Party	Unity Party of Colorado	Unity Party of Colorado
+Party	Libertarian Party	Libertarian Party
+Party	American Constitution Party	American Constitution Party
+Party	Approval Voting Party	Approval Voting Party
+Party	Unaffiliated	Unaffiliated
+Party	Independent	Independent
 CandidateContest	Colorado;CO State House District 1	State Representative - District 1
 CandidateContest	Colorado;CO State House District 10	State Representative - District 10
 CandidateContest	Colorado;CO State House District 11	State Representative - District 11

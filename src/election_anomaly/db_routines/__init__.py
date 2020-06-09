@@ -299,6 +299,8 @@ def dframe_to_sql(dframe,session,table,index_col='Id',flush=True,raw_to_votecoun
     except sqlalchemy.exc.IntegrityError as e:
         # FIXME: target, pulled from DB, has datetime, while dframe has date,
         #  so record might look like same-name-different-date when it isn't really
+        # FIXME during check of jurisdiction files, find something like US Senate CO having no integer entries
+        #  in its row in CandidateContest.txt
         ignore = input(f'Some record insertions into table {table} failed.\n'
                        f'It may be that the record(s) is already in the table (probably harmless).\n'
                        f'It may be due to bug in handling datetime fields (probably harmless).\n'
