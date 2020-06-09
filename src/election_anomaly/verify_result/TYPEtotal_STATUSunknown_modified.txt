@@ -1,9 +1,9 @@
 contest_type	contest_district_type	Selection	Contest	ReportingUnit	CountItemType	Count
 BallotMeasure	state	No	Assembly Age	Colorado;Adams County	total	111879
-Not Analysed 	Not Analysed 	Not Analysed 	Not Analysed 	Not Analysed 	total	5555
+BallotMeasure 	state 	No 	Unknown	Unknown	total	5555
 BallotMeasure	state	No	Assembly Age	Colorado;Alamosa County	total	3911
 BallotMeasure	state	No	Assembly Age	Colorado;Arapahoe County	total	9999
-BallotMeasure	state	No	Assembly Age	Colorado;Archuleta County	total	4425
+BallotMeasure	state	No	Assembly Age	Colorado;Archuleta County	total	6666
 BallotMeasure	state	No	Assembly Age	Colorado;Baca County	total	1505
 BallotMeasure	state	No	Assembly Age	Colorado;Bent County	total	1388
 BallotMeasure	state	No	Assembly Age	Colorado;Broomfield County	total	21528
