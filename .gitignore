@@ -17,25 +17,3 @@ src/election_anomaly/munge_routines/__pycache__/__init__.cpython-38.pyc
 src/election_anomaly/analyze/__pycache__/__init__.cpython-37.pyc
 src/election_anomaly/db_routines/create_cdf_db/__pycache__/__init__.cpython-37.pyc
 
-src/jurisdictions/NC/data
-src/jurisdictions/NC/output
-src/jurisdictions/NC/tmp
-src/jurisdictions/CO/data
-src/jurisdictions/CO/output
-src/jurisdictions/CO/tmp
-src/jurisdictions/FL/data
-src/jurisdictions/FL/output
-src/jurisdictions/FL/tmp
-src/jurisdictions/MD/data
-src/jurisdictions/MD/output
-src/jurisdictions/MD/tmp
-src/jurisdictions/MI/data
-src/jurisdictions/MI/output
-src/jurisdictions/MI/tmp
-src/jurisdictions/PA/data
-src/jurisdictions/PA/output
-src/jurisdictions/PA/tmp
-src/jurisdictions/Phila/data
-src/jurisdictions/Phila/output
-src/jurisdictions/Phila/tmp
-src/jurisdictions/database.ini
