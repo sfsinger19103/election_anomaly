@@ -2,7 +2,7 @@ from configparser import ConfigParser
 
 import db_routines
 import db_routines as dbr
-import db_routines.create_cdf_db as db_cdf
+import db_routines.Create_CDF_db as db_cdf
 import munge_routines as mr
 import pandas as pd
 import numpy as np
