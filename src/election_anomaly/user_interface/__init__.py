@@ -2,7 +2,7 @@ from configparser import ConfigParser
 
 from election_anomaly import db_routines
 from election_anomaly import db_routines as dbr
-from election_anomaly.db_routines import create_cdf_db as db_cdf
+from election_anomaly.db_routines import Create_CDF_db as db_cdf
 from election_anomaly import munge_routines as mr
 import pandas as pd
 import numpy as np
@@ -823,6 +823,8 @@ def get_runtime_parameters(keys):
 				d[k] = d_from_file[k]
 			except KeyError:
 				print(f'Warning: no value found for {k} in the parameter file.')
+		if 'db_name' in keys:
+			d['db_name'] = pick_database(d['project_root'],d['db_paramfile'], d['db_name'])
 	for k in keys:
 		print(f'{k}: {d[k]}')
 	return d
