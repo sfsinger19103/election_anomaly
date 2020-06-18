@@ -1,3 +1,0 @@
-Election	ReportingUnitType	CountItemType	CountItemStatus	source_db_url	timestamp
-2018 General	county	mixed	unknown	postgresql://postgres:tiktok007@localhost:5432/NC	2020-06-18
-2018 General	precinct	all	unknown	postgresql://postgres:tiktok007@localhost:5432/NC	2020-06-18
