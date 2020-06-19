@@ -1,6 +1,5 @@
 *.pyc
 src/tmp/
-src/Temp/
 local/
 .DS_Store
 src/election_anomaly/__pycache__
