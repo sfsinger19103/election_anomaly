@@ -303,23 +303,33 @@ def read_munger_info_from_files(dir_path):
 
 # TODO combine ensure_jurisdiction_files with ensure_juris_files
 def ensure_jurisdiction_files(juris_path,project_root):
+
+    juris_file_error  = {}
+
     # create jurisdiction directory
     try:
         os.mkdir(juris_path)
     except FileExistsError:
-        print(f'Directory {juris_path} already exists, will be preserved')
+        path_output = 'Directory {'+juris_path+'} already exists, will be preserved'
     else:
-        print(f'Directory {juris_path} created')
+        path_output = 'Directory {'+juris_path+'} created'
+        #todo should the program exit if the directory is created ?
+
 
     # ensure the contents of the jurisdiction directory are correct
-    ensure_juris_files(juris_path,project_root)
-    return
+    juris_file_error = ensure_juris_files(juris_path,project_root)
+    juris_file_error ["directory_status"] = path_output
+    return juris_file_error
 
 
 def ensure_juris_files(juris_path,project_root):
     """Check that the jurisdiction files are complete and consistent with one another.
     Check for extraneous files in Jurisdiction directory.
     Assumes Jurisdiction directory exists. Assumes dictionary.txt is in the template file"""
+
+    #package possible errors from this function into a dictionary and return them
+    error_ensure_juris_files = {}
+
 
     templates_dir = os.path.join(project_root,'templates/jurisdiction_templates')
     # ask user to remove any extraneous files
@@ -328,8 +338,9 @@ def ensure_juris_files(juris_path,project_root):
         extraneous = [f for f in os.listdir(juris_path) if
                       f != 'remark.txt' and f not in os.listdir(templates_dir) and f[0] != '.']
         if extraneous:
-            ui.report_problems(extraneous,msg=f'There are extraneous files in {juris_path}')
-            input(f'Remove all extraneous files; then hit return to continue.')
+            # ui.report_problems(extraneous,msg=f'There are extraneous files in {juris_path}')
+            error_ensure_juris_files["extraneous_files_in_juris_directory"] = extraneous
+            # input(f'Remove all extraneous files; then hit return to continue.')
 
     template_list = [x[:-4] for x in os.listdir(templates_dir)]
 
@@ -337,20 +348,35 @@ def ensure_juris_files(juris_path,project_root):
     ordered_list = ['dictionary','ReportingUnit','Office','CandidateContest']
     template_list = ordered_list + [x for x in template_list if x not in ordered_list]
 
+    file_empty = []
+    column_errors =[]
+    null_columns_dict = {}
+    duplicate_files = []
+
     # ensure necessary all files exist
     for juris_file in template_list:
+
+
         print(f'\nChecking {juris_file}.txt')
+
+        #a list of file empty errors
+
         cf_path = os.path.join(juris_path,f'{juris_file}.txt')
         # if file does not already exist in jurisdiction directory, create from template and invite user to fill
         try:
             temp = pd.read_csv(os.path.join(templates_dir,f'{juris_file}.txt'),sep='\t')
         except pd.errors.EmptyDataError:
-            print(f'Template file {juris_file}.txt has no contents')
+            file_empty.append('Template file {'+juris_file+'}.txt has no contents')
+            # print(f'Template file {juris_file}.txt has no contents')
             temp = pd.DataFrame()
         if not os.path.isfile(cf_path):
             temp.to_csv(cf_path,sep='\t',index=False)
-            input(f'File {juris_file}.txt has just been created.\n'
-                  f'Enter information in the file, then hit return to continue.')
+            file_empty.append('File {'+juris_file+'}.txt has just been created. Enter information in the file')
+
+            # input(f'File {juris_file}.txt has just been created.\n'
+            #       f'Enter information in the file, then hit return to continue.')
+
+
 
         # if file exists, check format against template
         cf_df = pd.read_csv(os.path.join(juris_path,f'{juris_file}.txt'),sep='\t')
@@ -358,38 +384,54 @@ def ensure_juris_files(juris_path,project_root):
         while not format_confirmed:
             if set(cf_df.columns) != set(temp.columns):
                 cols = '\t'.join(temp.columns.to_list())
-                input(f'Columns of {juris_file}.txt need to be (tab-separated):\n'
-                      f' {cols}\n'
-                      f'Edit {juris_file}.txt, and hit return to continue.')
+                column_errors.append(f'Columns of {juris_file}.txt need to be (tab-separated):\n')
+
+                # input(f'Columns of {juris_file}.txt need to be (tab-separated):\n'
+                #       f' {cols}\n'
+                #       f'Edit {juris_file}.txt, and hit return to continue.')
             else:
                 format_confirmed = True
 
         if juris_file == 'ExternalIdentifier':
-            dedupe(cf_path)
+           d, dupe =  dedupe(cf_path)
         elif juris_file == 'dictionary':
-            dedupe(cf_path)
+            d, dupe = dedupe(cf_path)
         else:
             # run dupe check
-            dedupe(cf_path)
-            # check for problematic null entries
-            check_nulls(juris_file,cf_path,project_root)
+            d, dupe = dedupe(cf_path)
+
+        # check for problematic null entries
+        null_columns = check_nulls(juris_file,cf_path,project_root)
+        null_columns_dict[juris_file] = null_columns
+        duplicate_files.append(dupe)
+
+    error_ensure_juris_files["file empty errors"] = file_empty
+    error_ensure_juris_files["column errors"] = column_errors
+    error_ensure_juris_files["null columns"] = null_columns_dict
+    error_ensure_juris_files["duplicate files"] = duplicate_files
+
+    dependency_error = []
+
     # check dependencies
     for juris_file in [x for x in template_list if x != 'remark' and x != 'dictionary']:
         # check dependencies
-        check_dependencies(juris_path,juris_file)
+        d, dep_error = check_dependencies(juris_path,juris_file)
+        dependency_error.append(dep_error)
     # remark
-    rem_path = os.path.join(juris_path,'remark.txt')
-    try:
-        with open(rem_path,'r') as f:
-            remark = f.read()
-        print(f'Current contents of remark.txt is:\n{remark}\n')
-    except FileNotFoundError:
-        open(rem_path, 'a').close()  # create empty file
-    input(
-        f'In the file remark.txt, add or correct anything that '
-        f'user should know about the jurisdiction.\n'
-        f'Then hit return to continue.')
-    return
+    # rem_path = os.path.join(juris_path,'remark.txt')
+    # try:
+    #     with open(rem_path,'r') as f:
+    #         remark = f.read()
+    #     print(f'Current contents of remark.txt is:\n{remark}\n')
+    # except FileNotFoundError:
+    #     open(rem_path, 'a').close()  # create empty file
+    # input(
+    #     f'In the file remark.txt, add or correct anything that '
+    #     f'user should know about the jurisdiction.\n'
+    #     f'Then hit return to continue.')
+
+    error_ensure_juris_files["failed dependencies"] = dependency_error
+    return error_ensure_juris_files
 
 
 # noinspection PyUnresolvedReferences
@@ -543,6 +585,7 @@ def dedupe(f_path,warning='There are duplicates'):
     # TODO allow specificaiton of unique constraints
     df = pd.read_csv(f_path,sep='\t')
     dupes = True
+    dupe=''
     while dupes:
         dupes_df,df = ui.find_dupes(df)
         if dupes_df.empty:
@@ -551,9 +594,9 @@ def dedupe(f_path,warning='There are duplicates'):
         else:
             print(f'WARNING: {warning}\n')
             ui.show_sample(dupes_df,'lines','are duplicates')
-            input(f'Edit the file to remove the duplication, then hit return to continue')
+            dupe = f'Edit {f_path} to remove the duplication, then hit return to continue'
             df = pd.read_csv(f_path,sep='\t')
-    return df
+    return df,dupe
 
 
 def check_nulls(element,f_path,project_root):
@@ -563,6 +606,7 @@ def check_nulls(element,f_path,project_root):
     not_nulls = pd.read_csv(nn_path,sep='\t')
     df = pd.read_csv(f_path,sep='\t')
 
+    null_problems =[]
     nulls = True
     while nulls:
         problems = []
@@ -578,7 +622,9 @@ def check_nulls(element,f_path,project_root):
             input(f'Fix the nulls, then hit enter to continue.')
         else:
             nulls = False
-    return
+        null_problems = problems
+    return null_problems
+
 
 
 def check_dependencies(juris_dir,element):
@@ -589,6 +635,7 @@ def check_dependencies(juris_dir,element):
     f_path = os.path.join(juris_dir,f'{element}.txt')
     assert os.path.isdir(juris_dir)
     element_df = pd.read_csv(f_path,sep='\t',index_col=None)
+    unmatched_error = ''
 
     # Find all dependent columns
     dependent = [c for c in element_df if c in d.keys()]
@@ -618,16 +665,15 @@ def check_dependencies(juris_dir,element):
         else:
             changed_elements.add(element)
             changed_elements.add(target)
-            print(f'Every {c} must be a {target}. This is not optional!!')
-            ui.show_sample(missing,f'{c}s',f'are not yet {target}s')
-            input(f'Please make corrections to {element}.txt or additions to {target}.txt to resolve the problem.\n'
-                  'Then his return to continue.')
-            changed_elements.update(check_dependencies(juris_dir,target))
+            unmatched_error = f'Every {c} must be a {target}. This is not optional!!'
+            #ui.show_sample(missing,f'{c}s',f'are not yet {target}s')
+            # input(f'Please make corrections to {element}.txt or additions to {target}.txt to resolve the problem.\n'
+            #       'Then his return to continue.')
+            # changed_elements.update(check_dependencies(juris_dir,target))
     if dependent:
         print('\n\t'.join(report))
-    if changed_elements:
-        print(f'(Directory is {juris_dir}')
-    return changed_elements
+
+    return changed_elements, unmatched_error
 
 
 def juris_dependency_dictionary():
