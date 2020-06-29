@@ -8,7 +8,7 @@ if __name__ == '__main__':
 		['project_root','juris_name','db_paramfile','db_name'])
 
 	j_path = os.path.join(d['project_root'],'jurisdictions')
-	juris = ui.pick_juris_from_filesystem(
+	juris, juris_error = ui.pick_juris_from_filesystem(
 		d['project_root'],j_path,check_files=False,juris_name=d['juris_name'])
 
 	# connect to db
