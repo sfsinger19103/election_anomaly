@@ -399,10 +399,10 @@ def ensure_juris_files(juris_path,project_root):
         else:
             # run dupe check
             d, dupe = dedupe(cf_path)
+            # check for problematic null entries
+            null_columns = check_nulls(juris_file,cf_path,project_root)
+            null_columns_dict[juris_file] = null_columns
 
-        # check for problematic null entries
-        null_columns = check_nulls(juris_file,cf_path,project_root)
-        null_columns_dict[juris_file] = null_columns
         duplicate_files.append(dupe)
 
     error_ensure_juris_files["file empty errors"] = file_empty
