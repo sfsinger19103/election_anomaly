@@ -12,8 +12,8 @@ if __name__ == '__main__':
 		d['project_root'],j_path,check_files=False,juris_name=d['juris_name'])
 
 	# create db if it does not already exist
-	error = dbr.establish_connection(paramfile=d['db_paramfile'],db_name=d['db_name'])
-	if error:
+	db_error = dbr.establish_connection(paramfile=d['db_paramfile'],db_name=d['db_name'])
+	if db_error:
 		dbr.create_new_db(d['project_root'], d['db_paramfile'], d['db_name'])
 
 	# connect to db

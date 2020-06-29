@@ -87,7 +87,7 @@ class Jurisdiction:
          and is used other places as well.
          path_to_parent_dir is the parent directory of dir_name
         """
-        self.short_name = ui.pick_or_create_directory(path_to_parent_dir,short_name)
+        self.short_name = short_name
         self.path_to_juris_dir = os.path.join(path_to_parent_dir, self.short_name)
 
         with open(os.path.join(self.path_to_juris_dir,'remark.txt'),'r') as f:
@@ -304,15 +304,15 @@ def read_munger_info_from_files(dir_path):
 # TODO combine ensure_jurisdiction_files with ensure_juris_files
 def ensure_jurisdiction_files(juris_path,project_root):
 
-    juris_file_error  = {}
 
+    path_output = ''
     # create jurisdiction directory
     try:
         os.mkdir(juris_path)
     except FileExistsError:
-        path_output = 'Directory {'+juris_path+'} already exists, will be preserved'
+        pass
     else:
-        path_output = 'Directory {'+juris_path+'} created'
+        path_output = 'Directory {'+juris_path+'} created.'
         #todo should the program exit if the directory is created ?
 
 
@@ -357,7 +357,7 @@ def ensure_juris_files(juris_path,project_root):
     for juris_file in template_list:
 
 
-        print(f'\nChecking {juris_file}.txt')
+        # print(f'\nChecking {juris_file}.txt')
 
         #a list of file empty errors
 
@@ -373,10 +373,6 @@ def ensure_juris_files(juris_path,project_root):
             temp.to_csv(cf_path,sep='\t',index=False)
             file_empty.append('File {'+juris_file+'}.txt has just been created. Enter information in the file')
 
-            # input(f'File {juris_file}.txt has just been created.\n'
-            #       f'Enter information in the file, then hit return to continue.')
-
-
 
         # if file exists, check format against template
         cf_df = pd.read_csv(os.path.join(juris_path,f'{juris_file}.txt'),sep='\t')
@@ -384,11 +380,9 @@ def ensure_juris_files(juris_path,project_root):
         while not format_confirmed:
             if set(cf_df.columns) != set(temp.columns):
                 cols = '\t'.join(temp.columns.to_list())
-                column_errors.append(f'Columns of {juris_file}.txt need to be (tab-separated):\n')
+                column_errors.append(f'Columns of {juris_file}.txt need to be (tab-separated):\n '
+                                     f' {cols}\n')
 
-                # input(f'Columns of {juris_file}.txt need to be (tab-separated):\n'
-                #       f' {cols}\n'
-                #       f'Edit {juris_file}.txt, and hit return to continue.')
             else:
                 format_confirmed = True
 
@@ -405,10 +399,10 @@ def ensure_juris_files(juris_path,project_root):
 
         duplicate_files.append(dupe)
 
-    error_ensure_juris_files["file empty errors"] = file_empty
-    error_ensure_juris_files["column errors"] = column_errors
-    error_ensure_juris_files["null columns"] = null_columns_dict
-    error_ensure_juris_files["duplicate files"] = duplicate_files
+    error_ensure_juris_files["file_empty_errors"] = file_empty
+    error_ensure_juris_files["column_errors"] = column_errors
+    error_ensure_juris_files["null_columns"] = null_columns_dict
+    error_ensure_juris_files["duplicate_files"] = duplicate_files
 
     dependency_error = []
 
@@ -430,7 +424,7 @@ def ensure_juris_files(juris_path,project_root):
     #     f'user should know about the jurisdiction.\n'
     #     f'Then hit return to continue.')
 
-    error_ensure_juris_files["failed dependencies"] = dependency_error
+    error_ensure_juris_files["failed_dependencies"] = dependency_error
     return error_ensure_juris_files
 
 
@@ -590,10 +584,10 @@ def dedupe(f_path,warning='There are duplicates'):
         dupes_df,df = ui.find_dupes(df)
         if dupes_df.empty:
             dupes = False
-            print(f'No dupes in {f_path}')
+            # print(f'No dupes in {f_path}')
         else:
-            print(f'WARNING: {warning}\n')
-            ui.show_sample(dupes_df,'lines','are duplicates')
+            # print(f'WARNING: {warning}\n')
+            # ui.show_sample(dupes_df,'lines','are duplicates')
             dupe = f'Edit {f_path} to remove the duplication, then hit return to continue'
             df = pd.read_csv(f_path,sep='\t')
     return df,dupe
@@ -606,24 +600,22 @@ def check_nulls(element,f_path,project_root):
     not_nulls = pd.read_csv(nn_path,sep='\t')
     df = pd.read_csv(f_path,sep='\t')
 
-    null_problems =[]
+    problems = []
+
     nulls = True
     while nulls:
-        problems = []
+
         for nn in not_nulls.not_null_fields.unique():
             # if nn is an Id, name in jurisdiction file is element name
             if nn[-3:] == '_Id':
                 nn = nn[:-3]
             n = df[df[nn].isnull()]
             if not n.empty:
-                ui.show_sample(n,f'Lines in {element} file',f'have illegal nulls in {nn}')
+                # ui.show_sample(n,f'Lines in {element} file',f'have illegal nulls in {nn}')
                 problems.append(nn)
-        if problems:
-            input(f'Fix the nulls, then hit enter to continue.')
-        else:
+        if not problems:
             nulls = False
-        null_problems = problems
-    return null_problems
+    return problems
 
 
 
@@ -635,7 +627,7 @@ def check_dependencies(juris_dir,element):
     f_path = os.path.join(juris_dir,f'{element}.txt')
     assert os.path.isdir(juris_dir)
     element_df = pd.read_csv(f_path,sep='\t',index_col=None)
-    unmatched_error = ''
+    unmatched_error = []
 
     # Find all dependent columns
     dependent = [c for c in element_df if c in d.keys()]
@@ -665,13 +657,10 @@ def check_dependencies(juris_dir,element):
         else:
             changed_elements.add(element)
             changed_elements.add(target)
-            unmatched_error = f'Every {c} must be a {target}. This is not optional!!'
-            #ui.show_sample(missing,f'{c}s',f'are not yet {target}s')
-            # input(f'Please make corrections to {element}.txt or additions to {target}.txt to resolve the problem.\n'
-            #       'Then his return to continue.')
-            # changed_elements.update(check_dependencies(juris_dir,target))
-    if dependent:
-        print('\n\t'.join(report))
+            unmatched_error.append(f'Every {c} must be a {target}. This is not optional!!')
+
+    # if dependent:
+    #     print('\n\t'.join(report))
 
     return changed_elements, unmatched_error
 

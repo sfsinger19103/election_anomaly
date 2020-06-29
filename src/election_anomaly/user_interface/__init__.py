@@ -217,26 +217,7 @@ def pick_juris_from_filesystem(project_root,juriss_dir='jurisdictions',juris_nam
 	missing_values = {}
 
 	path_to_jurisdictions = os.path.join(project_root,juriss_dir)
-	# if no jurisdiction name provided, ask user to pick from file system
-	# if juris_name is None:
-	# 	# ask user to pick from the available ones
-	# 	print('Pick the filesystem directory for your jurisdiction.')
-	# 	choice_list = [x for x in os.listdir(path_to_jurisdictions) if
-	# 				os.path.isdir(os.path.join(path_to_jurisdictions,x))]
-	# 	juris_idx,juris_name = pick_one(choice_list,None,item='jurisdiction')
-	#
-	# 	# if nothing picked, ask user for alphanumeric name and create necessary files
-	# 	if not juris_idx:
-	# 		juris_name = get_alphanumeric_from_user('Enter a directory name for your jurisdiction files.')
-	# 		juris_path = os.path.join(path_to_jurisdictions,juris_name)
-	# 		sf.ensure_jurisdiction_files(juris_path,project_root)
-	# 	elif check_files:
-	# 		juris_path = os.path.join(path_to_jurisdictions,juris_name)
-	# 		sf.ensure_jurisdiction_files(juris_path,project_root)
-	# 	else:
-	# 		print(
-	# 			f'WARNING: if necessary files are missing from the directory {juris_name},\nsystem may fail.')
-	# else:
+
 	if check_files:
 		juris_path = os.path.join(path_to_jurisdictions,juris_name)
 		missing_values = sf.ensure_jurisdiction_files(juris_path,project_root)
