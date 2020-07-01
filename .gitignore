@@ -1,5 +1,6 @@
 *.pyc
 src/tmp/
+src/election_anomaly/main_routines/run_time.par
 local/
 .DS_Store
 src/election_anomaly/__pycache__
