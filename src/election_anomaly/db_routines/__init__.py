@@ -73,9 +73,9 @@ def append_to_composing_reporting_unit_join(session,ru):
     return cruj_dframe
 
 
-def establish_connection(paramfile, db_name='postgres'):
-    """Return a db connection object; if <paramfile> fails,
-    return corrected <paramfile>"""
+def test_connection(paramfile, db_name='postgres'):
+    """Test the connection; fails if database.ini file doesn't exist
+    or doesn't have right section header, or if connection to db fails"""
     try:
         params = ui.config(paramfile)
     except MissingSectionHeaderError as e:

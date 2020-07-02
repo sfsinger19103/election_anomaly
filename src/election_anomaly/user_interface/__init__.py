@@ -215,7 +215,7 @@ def pick_database(project_root,paramfile=None,db_name=None):
 	In any case, returns the name of the DB."""
 	if not paramfile:
 		paramfile = pick_paramfile()
-	[con, paramfile] = dbr.establish_connection(paramfile=paramfile)
+	[con, paramfile] = dbr.test_connection(paramfile=paramfile)
 	print(f'Connection established to database {con.info.dbname}')
 	cur = con.cursor()
 	db_df = dbr.get_database_names(con)

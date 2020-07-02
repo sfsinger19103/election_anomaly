@@ -13,8 +13,9 @@ if __name__ == '__main__':
 	juris = ui.pick_juris_from_filesystem(d['project_root'],juris_name=d['juris_name'])
 
 	# create db if it does not already exist
-	error = dbr.establish_connection(paramfile=d['db_paramfile'],db_name=d['db_name'])
+	error = dbr.test_connection(paramfile=d['db_paramfile'], db_name=d['db_name'])
 	if error:
+		# FIXME if db exists but is empty, no error is thrown, but later program fails.
 		dbr.create_new_db(d['project_root'], d['db_paramfile'], d['db_name'])
 
 	# connect to db
