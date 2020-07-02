@@ -1,0 +1,717 @@
+cdf_element	cdf_internal_name	raw_identifier_value
+ReportingUnit	California;Alameda County	Alameda
+ReportingUnit	California;Alpine County	Alpine
+ReportingUnit	California;Amador County	Amador
+ReportingUnit	California;Butte County	Butte
+ReportingUnit	California;Calaveras County	Calaveras
+ReportingUnit	California;Colusa County	Colusa
+ReportingUnit	California;Contra Costa County	Contra Costa
+ReportingUnit	California;Del Norte County	Del Norte
+ReportingUnit	California;El Dorado County	El Dorado
+ReportingUnit	California;Fresno County	Fresno
+ReportingUnit	California;Glenn County	Glenn
+ReportingUnit	California;Humboldt County	Humboldt
+ReportingUnit	California;Imperial County	Imperial
+ReportingUnit	California;Inyo County	Inyo
+ReportingUnit	California;Kern County	Kern
+ReportingUnit	California;Kings County	Kings
+ReportingUnit	California;Lake County	Lake
+ReportingUnit	California;Lassen County	Lassen
+ReportingUnit	California;Los Angeles County	Los Angeles
+ReportingUnit	California;Madera County	Madera
+ReportingUnit	California;Marin County	Marin
+ReportingUnit	California;Mariposa County	Mariposa
+ReportingUnit	California;Mendocino County	Mendocino
+ReportingUnit	California;Merced County	Merced
+ReportingUnit	California;Modoc County	Modoc
+ReportingUnit	California;Mono County	Mono
+ReportingUnit	California;Monterey County	Monterey
+ReportingUnit	California;Napa County	Napa
+ReportingUnit	California;Nevada County	Nevada
+ReportingUnit	California;Orange County	Orange
+ReportingUnit	California;Placer County	Placer
+ReportingUnit	California;Plumas County	Plumas
+ReportingUnit	California;Riverside County	Riverside
+ReportingUnit	California;Sacramento County	Sacramento
+ReportingUnit	California;San Benito County	San Benito
+ReportingUnit	California;San Bernardino County	San Bernardino
+ReportingUnit	California;San Diego County	San Diego
+ReportingUnit	California;San Francisco County	San Francisco
+ReportingUnit	California;San Joaquin County	San Joaquin
+ReportingUnit	California;San Luis Obispo County	San Luis Obispo
+ReportingUnit	California;San Mateo County	San Mateo
+ReportingUnit	California;Santa Barbara County	Santa Barbara
+ReportingUnit	California;Santa Clara County	Santa Clara
+ReportingUnit	California;Santa Cruz County	Santa Cruz
+ReportingUnit	California;Shasta County	Shasta
+ReportingUnit	California;Sierra County	Sierra
+ReportingUnit	California;Siskiyou County	Siskiyou
+ReportingUnit	California;Solano County	Solano
+ReportingUnit	California;Sonoma County	Sonoma
+ReportingUnit	California;Stanislaus County	Stanislaus
+ReportingUnit	California;State Totals County	State Totals
+ReportingUnit	California;Sutter County	Sutter
+ReportingUnit	California;Tehama County	Tehama
+ReportingUnit	California;Trinity County	Trinity
+ReportingUnit	California;Tulare County	Tulare
+ReportingUnit	California;Tuolumne County	Tuolumne
+ReportingUnit	California;Ventura County	Ventura
+ReportingUnit	California;Yolo County	Yolo
+ReportingUnit	California;Yuba County	Yuba
+Office	CA Attorney General	Attorney General
+Office	CA Controller	Controller
+Office	CA Governor	Governor
+Office	CA Insurance Commissioner	Insurance Commissioner
+Office	CA Lieutenant Governor	Lieutenant Governor
+Office	CA Secretary of State	Secretary of State
+Office	CA State House District 1	State Assembly Member District 1
+Office	CA State House District 10	State Assembly Member District 10
+Office	CA State House District 11	State Assembly Member District 11
+Office	CA State House District 12	State Assembly Member District 12
+Office	CA State House District 13	State Assembly Member District 13
+Office	CA State House District 14	State Assembly Member District 14
+Office	CA State House District 15	State Assembly Member District 15
+Office	CA State House District 16	State Assembly Member District 16
+Office	CA State House District 17	State Assembly Member District 17
+Office	CA State House District 18	State Assembly Member District 18
+Office	CA State House District 19	State Assembly Member District 19
+Office	CA State House District 2	State Assembly Member District 2
+Office	CA State House District 20	State Assembly Member District 20
+Office	CA State House District 21	State Assembly Member District 21
+Office	CA State House District 22	State Assembly Member District 22
+Office	CA State House District 23	State Assembly Member District 23
+Office	CA State House District 24	State Assembly Member District 24
+Office	CA State House District 25	State Assembly Member District 25
+Office	CA State House District 26	State Assembly Member District 26
+Office	CA State House District 27	State Assembly Member District 27
+Office	CA State House District 28	State Assembly Member District 28
+Office	CA State House District 29	State Assembly Member District 29
+Office	CA State House District 3	State Assembly Member District 3
+Office	CA State House District 30	State Assembly Member District 30
+Office	CA State House District 31	State Assembly Member District 31
+Office	CA State House District 32	State Assembly Member District 32
+Office	CA State House District 33	State Assembly Member District 33
+Office	CA State House District 34	State Assembly Member District 34
+Office	CA State House District 35	State Assembly Member District 35
+Office	CA State House District 36	State Assembly Member District 36
+Office	CA State House District 37	State Assembly Member District 37
+Office	CA State House District 38	State Assembly Member District 38
+Office	CA State House District 39	State Assembly Member District 39
+Office	CA State House District 4	State Assembly Member District 4
+Office	CA State House District 40	State Assembly Member District 40
+Office	CA State House District 41	State Assembly Member District 41
+Office	CA State House District 42	State Assembly Member District 42
+Office	CA State House District 43	State Assembly Member District 43
+Office	CA State House District 44	State Assembly Member District 44
+Office	CA State House District 45	State Assembly Member District 45
+Office	CA State House District 46	State Assembly Member District 46
+Office	CA State House District 47	State Assembly Member District 47
+Office	CA State House District 48	State Assembly Member District 48
+Office	CA State House District 49	State Assembly Member District 49
+Office	CA State House District 5	State Assembly Member District 5
+Office	CA State House District 50	State Assembly Member District 50
+Office	CA State House District 51	State Assembly Member District 51
+Office	CA State House District 52	State Assembly Member District 52
+Office	CA State House District 53	State Assembly Member District 53
+Office	CA State House District 54	State Assembly Member District 54
+Office	CA State House District 55	State Assembly Member District 55
+Office	CA State House District 56	State Assembly Member District 56
+Office	CA State House District 57	State Assembly Member District 57
+Office	CA State House District 58	State Assembly Member District 58
+Office	CA State House District 59	State Assembly Member District 59
+Office	CA State House District 6	State Assembly Member District 6
+Office	CA State House District 60	State Assembly Member District 60
+Office	CA State House District 61	State Assembly Member District 61
+Office	CA State House District 62	State Assembly Member District 62
+Office	CA State House District 63	State Assembly Member District 63
+Office	CA State House District 64	State Assembly Member District 64
+Office	CA State House District 65	State Assembly Member District 65
+Office	CA State House District 66	State Assembly Member District 66
+Office	CA State House District 67	State Assembly Member District 67
+Office	CA State House District 68	State Assembly Member District 68
+Office	CA State House District 69	State Assembly Member District 69
+Office	CA State House District 7	State Assembly Member District 7
+Office	CA State House District 70	State Assembly Member District 70
+Office	CA State House District 71	State Assembly Member District 71
+Office	CA State House District 72	State Assembly Member District 72
+Office	CA State House District 73	State Assembly Member District 73
+Office	CA State House District 74	State Assembly Member District 74
+Office	CA State House District 75	State Assembly Member District 75
+Office	CA State House District 76	State Assembly Member District 76
+Office	CA State House District 77	State Assembly Member District 77
+Office	CA State House District 78	State Assembly Member District 78
+Office	CA State House District 79	State Assembly Member District 79
+Office	CA State House District 8	State Assembly Member District 8
+Office	CA State House District 80	State Assembly Member District 80
+Office	CA State House District 9	State Assembly Member District 9
+Office	CA State Senate District 10	State Senate District 10
+Office	CA State Senate District 12	State Senate District 12
+Office	CA State Senate District 14	State Senate District 14
+Office	CA State Senate District 16	State Senate District 16
+Office	CA State Senate District 18	State Senate District 18
+Office	CA State Senate District 2	State Senate District 2
+Office	CA State Senate District 20	State Senate District 20
+Office	CA State Senate District 22	State Senate District 22
+Office	CA State Senate District 24	State Senate District 24
+Office	CA State Senate District 26	State Senate District 26
+Office	CA State Senate District 28	State Senate District 28
+Office	CA State Senate District 30	State Senate District 30
+Office	CA State Senate District 32	State Senate District 32
+Office	CA State Senate District 34	State Senate District 34
+Office	CA State Senate District 36	State Senate District 36
+Office	CA State Senate District 38	State Senate District 38
+Office	CA State Senate District 4	State Senate District 4
+Office	CA State Senate District 40	State Senate District 40
+Office	CA State Senate District 6	State Senate District 6
+Office	CA State Senate District 8	State Senate District 8
+Office	CA Superintendent of Public Instruction	Superintendent of Public Instruction
+Office	CA Treasurer	Treasurer
+Office	US House CA District 1	United States Representative District 1
+Office	US House CA District 10	United States Representative District 10
+Office	US House CA District 11	United States Representative District 11
+Office	US House CA District 12	United States Representative District 12
+Office	US House CA District 13	United States Representative District 13
+Office	US House CA District 14	United States Representative District 14
+Office	US House CA District 15	United States Representative District 15
+Office	US House CA District 16	United States Representative District 16
+Office	US House CA District 17	United States Representative District 17
+Office	US House CA District 18	United States Representative District 18
+Office	US House CA District 19	United States Representative District 19
+Office	US House CA District 2	United States Representative District 2
+Office	US House CA District 20	United States Representative District 20
+Office	US House CA District 21	United States Representative District 21
+Office	US House CA District 22	United States Representative District 22
+Office	US House CA District 23	United States Representative District 23
+Office	US House CA District 24	United States Representative District 24
+Office	US House CA District 25	United States Representative District 25
+Office	US House CA District 26	United States Representative District 26
+Office	US House CA District 27	United States Representative District 27
+Office	US House CA District 28	United States Representative District 28
+Office	US House CA District 29	United States Representative District 29
+Office	US House CA District 3	United States Representative District 3
+Office	US House CA District 30	United States Representative District 30
+Office	US House CA District 31	United States Representative District 31
+Office	US House CA District 32	United States Representative District 32
+Office	US House CA District 33	United States Representative District 33
+Office	US House CA District 34	United States Representative District 34
+Office	US House CA District 35	United States Representative District 35
+Office	US House CA District 36	United States Representative District 36
+Office	US House CA District 37	United States Representative District 37
+Office	US House CA District 38	United States Representative District 38
+Office	US House CA District 39	United States Representative District 39
+Office	US House CA District 4	United States Representative District 4
+Office	US House CA District 40	United States Representative District 40
+Office	US House CA District 41	United States Representative District 41
+Office	US House CA District 42	United States Representative District 42
+Office	US House CA District 43	United States Representative District 43
+Office	US House CA District 44	United States Representative District 44
+Office	US House CA District 45	United States Representative District 45
+Office	US House CA District 46	United States Representative District 46
+Office	US House CA District 47	United States Representative District 47
+Office	US House CA District 48	United States Representative District 48
+Office	US House CA District 49	United States Representative District 49
+Office	US House CA District 5	United States Representative District 5
+Office	US House CA District 50	United States Representative District 50
+Office	US House CA District 51	United States Representative District 51
+Office	US House CA District 52	United States Representative District 52
+Office	US House CA District 53	United States Representative District 53
+Office	US House CA District 6	United States Representative District 6
+Office	US House CA District 7	United States Representative District 7
+Office	US House CA District 8	United States Representative District 8
+Office	US House CA District 9	United States Representative District 9
+Office	US Senate CA	US Senate - 2
+CandidateContest	CA Attorney General	Attorney General
+CandidateContest	CA Controller	Controller
+CandidateContest	CA Governor	Governor
+CandidateContest	CA Insurance Commissioner	Insurance Commissioner
+CandidateContest	CA Lieutenant Governor	Lieutenant Governor
+CandidateContest	CA Secretary of State	Secretary of State
+CandidateContest	CA State House District 1	State Assembly Member District 1
+CandidateContest	CA State House District 10	State Assembly Member District 10
+CandidateContest	CA State House District 11	State Assembly Member District 11
+CandidateContest	CA State House District 12	State Assembly Member District 12
+CandidateContest	CA State House District 13	State Assembly Member District 13
+CandidateContest	CA State House District 14	State Assembly Member District 14
+CandidateContest	CA State House District 15	State Assembly Member District 15
+CandidateContest	CA State House District 16	State Assembly Member District 16
+CandidateContest	CA State House District 17	State Assembly Member District 17
+CandidateContest	CA State House District 18	State Assembly Member District 18
+CandidateContest	CA State House District 19	State Assembly Member District 19
+CandidateContest	CA State House District 2	State Assembly Member District 2
+CandidateContest	CA State House District 20	State Assembly Member District 20
+CandidateContest	CA State House District 21	State Assembly Member District 21
+CandidateContest	CA State House District 22	State Assembly Member District 22
+CandidateContest	CA State House District 23	State Assembly Member District 23
+CandidateContest	CA State House District 24	State Assembly Member District 24
+CandidateContest	CA State House District 25	State Assembly Member District 25
+CandidateContest	CA State House District 26	State Assembly Member District 26
+CandidateContest	CA State House District 27	State Assembly Member District 27
+CandidateContest	CA State House District 28	State Assembly Member District 28
+CandidateContest	CA State House District 29	State Assembly Member District 29
+CandidateContest	CA State House District 3	State Assembly Member District 3
+CandidateContest	CA State House District 30	State Assembly Member District 30
+CandidateContest	CA State House District 31	State Assembly Member District 31
+CandidateContest	CA State House District 32	State Assembly Member District 32
+CandidateContest	CA State House District 33	State Assembly Member District 33
+CandidateContest	CA State House District 34	State Assembly Member District 34
+CandidateContest	CA State House District 35	State Assembly Member District 35
+CandidateContest	CA State House District 36	State Assembly Member District 36
+CandidateContest	CA State House District 37	State Assembly Member District 37
+CandidateContest	CA State House District 38	State Assembly Member District 38
+CandidateContest	CA State House District 39	State Assembly Member District 39
+CandidateContest	CA State House District 4	State Assembly Member District 4
+CandidateContest	CA State House District 40	State Assembly Member District 40
+CandidateContest	CA State House District 41	State Assembly Member District 41
+CandidateContest	CA State House District 42	State Assembly Member District 42
+CandidateContest	CA State House District 43	State Assembly Member District 43
+CandidateContest	CA State House District 44	State Assembly Member District 44
+CandidateContest	CA State House District 45	State Assembly Member District 45
+CandidateContest	CA State House District 46	State Assembly Member District 46
+CandidateContest	CA State House District 47	State Assembly Member District 47
+CandidateContest	CA State House District 48	State Assembly Member District 48
+CandidateContest	CA State House District 49	State Assembly Member District 49
+CandidateContest	CA State House District 5	State Assembly Member District 5
+CandidateContest	CA State House District 50	State Assembly Member District 50
+CandidateContest	CA State House District 51	State Assembly Member District 51
+CandidateContest	CA State House District 52	State Assembly Member District 52
+CandidateContest	CA State House District 53	State Assembly Member District 53
+CandidateContest	CA State House District 54	State Assembly Member District 54
+CandidateContest	CA State House District 55	State Assembly Member District 55
+CandidateContest	CA State House District 56	State Assembly Member District 56
+CandidateContest	CA State House District 57	State Assembly Member District 57
+CandidateContest	CA State House District 58	State Assembly Member District 58
+CandidateContest	CA State House District 59	State Assembly Member District 59
+CandidateContest	CA State House District 6	State Assembly Member District 6
+CandidateContest	CA State House District 60	State Assembly Member District 60
+CandidateContest	CA State House District 61	State Assembly Member District 61
+CandidateContest	CA State House District 62	State Assembly Member District 62
+CandidateContest	CA State House District 63	State Assembly Member District 63
+CandidateContest	CA State House District 64	State Assembly Member District 64
+CandidateContest	CA State House District 65	State Assembly Member District 65
+CandidateContest	CA State House District 66	State Assembly Member District 66
+CandidateContest	CA State House District 67	State Assembly Member District 67
+CandidateContest	CA State House District 68	State Assembly Member District 68
+CandidateContest	CA State House District 69	State Assembly Member District 69
+CandidateContest	CA State House District 7	State Assembly Member District 7
+CandidateContest	CA State House District 70	State Assembly Member District 70
+CandidateContest	CA State House District 71	State Assembly Member District 71
+CandidateContest	CA State House District 72	State Assembly Member District 72
+CandidateContest	CA State House District 73	State Assembly Member District 73
+CandidateContest	CA State House District 74	State Assembly Member District 74
+CandidateContest	CA State House District 75	State Assembly Member District 75
+CandidateContest	CA State House District 76	State Assembly Member District 76
+CandidateContest	CA State House District 77	State Assembly Member District 77
+CandidateContest	CA State House District 78	State Assembly Member District 78
+CandidateContest	CA State House District 79	State Assembly Member District 79
+CandidateContest	CA State House District 8	State Assembly Member District 8
+CandidateContest	CA State House District 80	State Assembly Member District 80
+CandidateContest	CA State House District 9	State Assembly Member District 9
+CandidateContest	CA State Senate District 10	State Senate District 10
+CandidateContest	CA State Senate District 12	State Senate District 12
+CandidateContest	CA State Senate District 14	State Senate District 14
+CandidateContest	CA State Senate District 16	State Senate District 16
+CandidateContest	CA State Senate District 18	State Senate District 18
+CandidateContest	CA State Senate District 2	State Senate District 2
+CandidateContest	CA State Senate District 20	State Senate District 20
+CandidateContest	CA State Senate District 22	State Senate District 22
+CandidateContest	CA State Senate District 24	State Senate District 24
+CandidateContest	CA State Senate District 26	State Senate District 26
+CandidateContest	CA State Senate District 28	State Senate District 28
+CandidateContest	CA State Senate District 30	State Senate District 30
+CandidateContest	CA State Senate District 32	State Senate District 32
+CandidateContest	CA State Senate District 34	State Senate District 34
+CandidateContest	CA State Senate District 36	State Senate District 36
+CandidateContest	CA State Senate District 38	State Senate District 38
+CandidateContest	CA State Senate District 4	State Senate District 4
+CandidateContest	CA State Senate District 40	State Senate District 40
+CandidateContest	CA State Senate District 6	State Senate District 6
+CandidateContest	CA State Senate District 8	State Senate District 8
+CandidateContest	CA Superintendent of Public Instruction	Superintendent of Public Instruction
+CandidateContest	CA Treasurer	Treasurer
+CandidateContest	US House CA District 1	United States Representative District 1
+CandidateContest	US House CA District 10	United States Representative District 10
+CandidateContest	US House CA District 11	United States Representative District 11
+CandidateContest	US House CA District 12	United States Representative District 12
+CandidateContest	US House CA District 13	United States Representative District 13
+CandidateContest	US House CA District 14	United States Representative District 14
+CandidateContest	US House CA District 15	United States Representative District 15
+CandidateContest	US House CA District 16	United States Representative District 16
+CandidateContest	US House CA District 17	United States Representative District 17
+CandidateContest	US House CA District 18	United States Representative District 18
+CandidateContest	US House CA District 19	United States Representative District 19
+CandidateContest	US House CA District 2	United States Representative District 2
+CandidateContest	US House CA District 20	United States Representative District 20
+CandidateContest	US House CA District 21	United States Representative District 21
+CandidateContest	US House CA District 22	United States Representative District 22
+CandidateContest	US House CA District 23	United States Representative District 23
+CandidateContest	US House CA District 24	United States Representative District 24
+CandidateContest	US House CA District 25	United States Representative District 25
+CandidateContest	US House CA District 26	United States Representative District 26
+CandidateContest	US House CA District 27	United States Representative District 27
+CandidateContest	US House CA District 28	United States Representative District 28
+CandidateContest	US House CA District 29	United States Representative District 29
+CandidateContest	US House CA District 3	United States Representative District 3
+CandidateContest	US House CA District 30	United States Representative District 30
+CandidateContest	US House CA District 31	United States Representative District 31
+CandidateContest	US House CA District 32	United States Representative District 32
+CandidateContest	US House CA District 33	United States Representative District 33
+CandidateContest	US House CA District 34	United States Representative District 34
+CandidateContest	US House CA District 35	United States Representative District 35
+CandidateContest	US House CA District 36	United States Representative District 36
+CandidateContest	US House CA District 37	United States Representative District 37
+CandidateContest	US House CA District 38	United States Representative District 38
+CandidateContest	US House CA District 39	United States Representative District 39
+CandidateContest	US House CA District 4	United States Representative District 4
+CandidateContest	US House CA District 40	United States Representative District 40
+CandidateContest	US House CA District 41	United States Representative District 41
+CandidateContest	US House CA District 42	United States Representative District 42
+CandidateContest	US House CA District 43	United States Representative District 43
+CandidateContest	US House CA District 44	United States Representative District 44
+CandidateContest	US House CA District 45	United States Representative District 45
+CandidateContest	US House CA District 46	United States Representative District 46
+CandidateContest	US House CA District 47	United States Representative District 47
+CandidateContest	US House CA District 48	United States Representative District 48
+CandidateContest	US House CA District 49	United States Representative District 49
+CandidateContest	US House CA District 5	United States Representative District 5
+CandidateContest	US House CA District 50	United States Representative District 50
+CandidateContest	US House CA District 51	United States Representative District 51
+CandidateContest	US House CA District 52	United States Representative District 52
+CandidateContest	US House CA District 53	United States Representative District 53
+CandidateContest	US House CA District 6	United States Representative District 6
+CandidateContest	US House CA District 7	United States Representative District 7
+CandidateContest	US House CA District 8	United States Representative District 8
+CandidateContest	US House CA District 9	United States Representative District 9
+CandidateContest	US Senate CA	US Senate - 2
+Party	Democratic Party	Democratic
+Party	Green Party	Green
+Party	Libertarian Party	Libertarian
+Party	No Party Preference	No Party Preference
+Party	Nonpartisan	Nonpartisan
+Party	Republican Party	Republican
+Candidate	Aasim Yahya	Aasim Yahya
+Candidate	Adam B. Schiff	Adam B. Schiff
+Candidate	Adam C. Gray	Adam C. Gray
+Candidate	Adrin Nazarian	Adrin Nazarian
+Candidate	Aileen Rizo	Aileen Rizo
+Candidate	Aja L. Brown	Aja L. Brown
+Candidate	Aja Smith	Aja Smith
+Candidate	Al L. Hernandez	Al L. Hernandez
+Candidate	Al Muratsuchi	Al Muratsuchi
+Candidate	Alan Geraci	Alan Geraci
+Candidate	Alan Lowenthal	Alan Lowenthal
+Candidate	Alan S. Reynolds	Alan S. Reynolds
+Candidate	Alejandro Fernandez	Alejandro Fernandez
+Candidate	Alex Glew	Alex Glew
+Candidate	Alex Padilla	Alex Padilla
+Candidate	"Alexandria ""Alex"" Coronado"	"Alexandria ""Alex"" Coronado"
+Candidate	Ami Bera	Ami Bera
+Candidate	Ammar Campa-Najjar	Ammar Campa-Najjar
+Candidate	Andreas Borgeas	Andreas Borgeas
+Candidate	Andrew Grant	Andrew Grant
+Candidate	Andrew Janz	Andrew Janz
+Candidate	Andy Vidak	Andy Vidak
+Candidate	Anna Caballero	Anna Caballero
+Candidate	Anna G. Eshoo	Anna G. Eshoo
+Candidate	Anthony Mills	Anthony Mills
+Candidate	Anthony Rendon	Anthony Rendon
+Candidate	Antonio M. Garcia	Antonio M. Garcia
+Candidate	"Antonio Sabato, Jr."	"Antonio Sabato, Jr."
+Candidate	Ash Kalra	Ash Kalra
+Candidate	Audrey Denney	Audrey Denney
+Candidate	Autumn Browne	Autumn Browne
+Candidate	Autumn Burke	Autumn Burke
+Candidate	Barbara Lee	Barbara Lee
+Candidate	Baron Bruno	Baron Bruno
+Candidate	Ben Allen	Ben Allen
+Candidate	Ben Hueso	Ben Hueso
+Candidate	Benito Benny Bernal	Benito Benny Bernal
+Candidate	Betty T. Yee	Betty T. Yee
+Candidate	Bill Essayli	Bill Essayli
+Candidate	Bill Ostrander	Bill Ostrander
+Candidate	Bill Quirk	Bill Quirk
+Candidate	Blanca E. Rubio	Blanca E. Rubio
+Candidate	Bob Brunton	Bob Brunton
+Candidate	Bob Hertzberg	Bob Hertzberg
+Candidate	Bob J. Archuleta	Bob J. Archuleta
+Candidate	Bob Wieckowski	Bob Wieckowski
+Candidate	Brad Sherman	Brad Sherman
+Candidate	Brandon Z. Nelson	Brandon Z. Nelson
+Candidate	Brian Dahle	Brian Dahle
+Candidate	Brian Maienschein	Brian Maienschein
+Candidate	Brian W. Jones	Brian W. Jones
+Candidate	Bryan Witt	Bryan Witt
+Candidate	Buffy Wicks	Buffy Wicks
+Candidate	Burton Brink	Burton Brink
+Candidate	Caleen Sisk	Caleen Sisk
+Candidate	Carla J. Neal	Carla J. Neal
+Candidate	Catharine Baker	Catharine Baker
+Candidate	Cecilia Aguiar-Curry	Cecilia Aguiar-Curry
+Candidate	Chad Mayes	Chad Mayes
+Candidate	Charlie Schaupp	Charlie Schaupp
+Candidate	Chris Holden	Chris Holden
+Candidate	Christian Leonel Valiente	Christian Leonel Valiente
+Candidate	Christina Laskowski	Christina Laskowski
+Candidate	Christine Russell	Christine Russell
+Candidate	Christopher Stare	Christopher Stare
+Candidate	Christy Smith	Christy Smith
+Candidate	Connie Leyva	Connie Leyva
+Candidate	Cottie Petrie-Norris	Cottie Petrie-Norris
+Candidate	Cristina Garcia	Cristina Garcia
+Candidate	Cristina Osme–a	Cristina Osme–a
+Candidate	Dale K. Mensing	Dale K. Mensing
+Candidate	Dan Monte	Dan Monte
+Candidate	Dana Rohrabacher	Dana Rohrabacher
+Candidate	Dante Acosta	Dante Acosta
+Candidate	David Chiu	David Chiu
+Candidate	David G. Valadao	David G. Valadao
+Candidate	David L. Norrdin	David L. Norrdin
+Candidate	DeniAntionette Mazingo	DeniAntionette Mazingo
+Candidate	Devin G. Nunes	Devin G. Nunes
+Candidate	Devon Mathis	Devon Mathis
+Candidate	Diane L. Harkey	Diane L. Harkey
+Candidate	Dianne Feinstein	Dianne Feinstein
+Candidate	Doris Matsui	Doris Matsui
+Candidate	Doug La Malfa	Doug La Malfa
+Candidate	Duncan Hunter	Duncan Hunter
+Candidate	Ed Chau	Ed Chau
+Candidate	Ed Hernandez	Ed Hernandez
+Candidate	Eduardo Garcia	Eduardo Garcia
+Candidate	Eleni Kounalakis	Eleni Kounalakis
+Candidate	Elizabeth Heng	Elizabeth Heng
+Candidate	Elizabeth Warren	Elizabeth Warren
+Candidate	Eloise Reyes	Eloise Reyes
+Candidate	Eric Frame	Eric Frame
+Candidate	Eric Swalwell	Eric Swalwell
+Candidate	Evan Low	Evan Low
+Candidate	Fiona Ma	Fiona Ma
+Candidate	Frank A. Scotto	Frank A. Scotto
+Candidate	Frank Bigelow	Frank Bigelow
+Candidate	Freddie Rodriguez	Freddie Rodriguez
+Candidate	G. Burt Lancaster	G. Burt Lancaster
+Candidate	G. Rick Marshall	G. Rick Marshall
+Candidate	Gavin Newsom	Gavin Newsom
+Candidate	Gil Cisneros	Gil Cisneros
+Candidate	Grace Flores Napolitano	Grace Flores Napolitano
+Candidate	Greg Conlon	Greg Conlon
+Candidate	Gregg D. Fritchle	Gregg D. Fritchle
+Candidate	Harley Rouda	Harley Rouda
+Candidate	Harry He	Harry He
+Candidate	Heath Flora	Heath Flora
+Candidate	Henry Gomez Nickel	Henry Gomez Nickel
+Candidate	Holly J. Mitchell	Holly J. Mitchell
+Candidate	"Honor ""Mimi"" Robson"	"Honor ""Mimi"" Robson"
+Candidate	Ian C. Calderon	Ian C. Calderon
+Candidate	"Jacalyn ""Jackie"" Smith"	"Jacalyn ""Jackie"" Smith"
+Candidate	Jackie Speier	Jackie Speier
+Candidate	Jacqui Irwin	Jacqui Irwin
+Candidate	James C. Ramos	James C. Ramos
+Candidate	James Elia	James Elia
+Candidate	James Gallagher	James Gallagher
+Candidate	James Nielsen	James Nielsen
+Candidate	Janet Nguyen	Janet Nguyen
+Candidate	Jared Huffman	Jared Huffman
+Candidate	Jay Obernolte	Jay Obernolte
+Candidate	Jeff Denham	Jeff Denham
+Candidate	Jeff Gonzalez	Jeff Gonzalez
+Candidate	Jeff Griffith	Jeff Griffith
+Candidate	Jeff Stone	Jeff Stone
+Candidate	Jerry McNerney	Jerry McNerney
+Candidate	Jesse Gabriel	Jesse Gabriel
+Candidate	Jessica Martinez	Jessica Martinez
+Candidate	Jessica Morse	Jessica Morse
+Candidate	Jim Cooper	Jim Cooper
+Candidate	Jim Costa	Jim Costa
+Candidate	Jim Frazier	Jim Frazier
+Candidate	Jim Patterson	Jim Patterson
+Candidate	Jim Wood	Jim Wood
+Candidate	Jimmy Gomez	Jimmy Gomez
+Candidate	Jimmy Panetta	Jimmy Panetta
+Candidate	Joaquin Arambula	Joaquin Arambula
+Candidate	Joel Anderson	Joel Anderson
+Candidate	John Briscoe	John Briscoe
+Candidate	John Fitzgerald	John Fitzgerald
+Candidate	John Garamendi	John Garamendi
+Candidate	John H. Cox	John H. Cox
+Candidate	John Moore	John Moore
+Candidate	Johnny J. Nalbandian	Johnny J. Nalbandian
+Candidate	Jordan Cunningham	Jordan Cunningham
+Candidate	Jose Medina	Jose Medina
+Candidate	Jose Sigala	Jose Sigala
+Candidate	Joseph Grcar	Joseph Grcar
+Candidate	Josh Harder	Josh Harder
+Candidate	Josh Lowenthal	Josh Lowenthal
+Candidate	Joshua M. Scott	Joshua M. Scott
+Candidate	Jovanka Beckles	Jovanka Beckles
+Candidate	Joy Silver	Joy Silver
+Candidate	Jrmar Jefferson	Jrmar Jefferson
+Candidate	Juan M. Hidalgo Jr.	Juan M. Hidalgo Jr.
+Candidate	Juan Vargas	Juan Vargas
+Candidate	Judy Chu	Judy Chu
+Candidate	Julia Brownley	Julia Brownley
+Candidate	Julia C Peacock	Julia C Peacock
+Candidate	Justin Fareed	Justin Fareed
+Candidate	Justin James Aguilera	Justin James Aguilera
+Candidate	Justin M. Clark	Justin M. Clark
+Candidate	Justin Mendes	Justin Mendes
+Candidate	Justin Ryan Quigley	Justin Ryan Quigley
+Candidate	Kansen Chu	Kansen Chu
+Candidate	Karen Bass	Karen Bass
+Candidate	Katie Hill	Katie Hill
+Candidate	Katie Porter	Katie Porter
+Candidate	Keith Bogdon	Keith Bogdon
+Candidate	Ken Calvert	Ken Calvert
+Candidate	Ken Cooley	Ken Cooley
+Candidate	Kenneth Mejia	Kenneth Mejia
+Candidate	Kenneth Weston Wright	Kenneth Weston Wright
+Candidate	Kevin De Leon	Kevin De Leon
+Candidate	Kevin Hee Young Jang	Kevin Hee Young Jang
+Candidate	Kevin Kiley	Kevin Kiley
+Candidate	Kevin McCarthy	Kevin McCarthy
+Candidate	Kevin McCarty	Kevin McCarty
+Candidate	Kevin Mullin	Kevin Mullin
+Candidate	Kimberlin Brown Pelzer	Kimberlin Brown Pelzer
+Candidate	Konstantinos Roditis	Konstantinos Roditis
+Candidate	Laura Friedman	Laura Friedman
+Candidate	Laura Wells	Laura Wells
+Candidate	Leslie Hagan-Morgan	Leslie Hagan-Morgan
+Candidate	Lincoln Pickard	Lincoln Pickard
+Candidate	Linda T. S‡nchez	Linda T. S‡nchez
+Candidate	Lisa Remmer	Lisa Remmer
+Candidate	Lisa Romero	Lisa Romero
+Candidate	Lorena Gonzalez Fletcher	Lorena Gonzalez Fletcher
+Candidate	Lou Correa	Lou Correa
+Candidate	Lucille Roybal-Allard	Lucille Roybal-Allard
+Candidate	Luis R. Vargas	Luis R. Vargas
+Candidate	Lupe Espinoza	Lupe Espinoza
+Candidate	Luz Maria Rivas	Luz Maria Rivas
+Candidate	Maggie J. Campbell	Maggie J. Campbell
+Candidate	Malia Cohen	Malia Cohen
+Candidate	Marc Berman	Marc Berman
+Candidate	Marc Levine	Marc Levine
+Candidate	Marggie Castellano	Marggie Castellano
+Candidate	Maria D. Estrada	Maria D. Estrada
+Candidate	Maria Elena Durazo	Maria Elena Durazo
+Candidate	Marie Waldron	Marie Waldron
+Candidate	Mark Burns	Mark Burns
+Candidate	Mark DeSaulnier	Mark DeSaulnier
+Candidate	Mark P. Meuser	Mark P. Meuser
+Candidate	Mark S. Reed	Mark S. Reed
+Candidate	Mark Stone	Mark Stone
+Candidate	Mark Takano	Mark Takano
+Candidate	Marla Livengood	Marla Livengood
+Candidate	Marshall Tuck	Marshall Tuck
+Candidate	Matt Heath	Matt Heath
+Candidate	Matthew Harper	Matthew Harper
+Candidate	Matthew Munson	Matthew Munson
+Candidate	Maxine Waters	Maxine Waters
+Candidate	Melinda Avey	Melinda Avey
+Candidate	Melissa Hurtado	Melissa Hurtado
+Candidate	Melissa Melendez	Melissa Melendez
+Candidate	Michael L. Snyder	Michael L. Snyder
+Candidate	Michelle Duman	Michelle Duman
+Candidate	Michelle Singleton	Michelle Singleton
+Candidate	Miguel Santiago	Miguel Santiago
+Candidate	Mike A. Gipson	Mike A. Gipson
+Candidate	Mike Eng	Mike Eng
+Candidate	Mike Levin	Mike Levin
+Candidate	Mike McGuire	Mike McGuire
+Candidate	Mike Schaefer	Mike Schaefer
+Candidate	Mike Simpfenderfer	Mike Simpfenderfer
+Candidate	Mike Thompson	Mike Thompson
+Candidate	Mimi Walters	Mimi Walters
+Candidate	Mohammad-Ali Mazarei	Mohammad-Ali Mazarei
+Candidate	Morgan Murtaugh	Morgan Murtaugh
+Candidate	Nancy Pelosi	Nancy Pelosi
+Candidate	Nanette Diaz Barrag‡n	Nanette Diaz Barrag‡n
+Candidate	Neil G. Kitchens	Neil G. Kitchens
+Candidate	Nick Nicita	Nick Nicita
+Candidate	Norma J. Torres	Norma J. Torres
+Candidate	Omar Navarro	Omar Navarro
+Candidate	Omar Qudrat	Omar Qudrat
+Candidate	Patricia C. 'Pat' Bates	Patricia C. 'Pat' Bates
+Candidate	Patrick O'Donnell	Patrick O'Donnell
+Candidate	Paul Cook	Paul Cook
+Candidate	Paulina Miranda	Paulina Miranda
+Candidate	Pete Aguilar	Pete Aguilar
+Candidate	Peter Choi	Peter Choi
+Candidate	Phil Ting	Phil Ting
+Candidate	Phillip Chen	Phillip Chen
+Candidate	Phillip Kim	Phillip Kim
+Candidate	Randy Voepel	Randy Voepel
+Candidate	Raul Ruiz	Raul Ruiz
+Candidate	Rebecca Bauer-Kahan	Rebecca Bauer-Kahan
+Candidate	Reggie Jones-Sawyer	Reggie Jones-Sawyer
+Candidate	Ricardo Antonio Benitez	Ricardo Antonio Benitez
+Candidate	Ricardo Lara	Ricardo Lara
+Candidate	Richard Bloom	Richard Bloom
+Candidate	Richard Pan	Richard Pan
+Candidate	Rita Topalian	Rita Topalian
+Candidate	Ro Khanna	Ro Khanna
+Candidate	Rob Bonta	Rob Bonta
+Candidate	Rob Poythress	Rob Poythress
+Candidate	Robert D. Chase	Robert D. Chase
+Candidate	Robert Rivas	Robert Rivas
+Candidate	Rodolfo Cortes Barragan	Rodolfo Cortes Barragan
+Candidate	Ron Cohen	Ron Cohen
+Candidate	Ron J. Bassilian	Ron J. Bassilian
+Candidate	Ronald Paul Kabat	Ronald Paul Kabat
+Candidate	Ronda Baldwin-Kennedy	Ronda Baldwin-Kennedy
+Candidate	Roxanne Beckford Hoge	Roxanne Beckford Hoge
+Candidate	Rudy L. Peters Jr.	Rudy L. Peters Jr.
+Candidate	Rudy Melendez	Rudy Melendez
+Candidate	Rudy Salas	Rudy Salas
+Candidate	Russell Rene Lambert	Russell Rene Lambert
+Candidate	Ruth Musser-Lopez	Ruth Musser-Lopez
+Candidate	Ryan Downing	Ryan Downing
+Candidate	S. Monique Lim—n	S. Monique Lim—n
+Candidate	Sabrina Cervantes	Sabrina Cervantes
+Candidate	Salud Carbajal	Salud Carbajal
+Candidate	Scott Peters	Scott Peters
+Candidate	Scott Rhinehart	Scott Rhinehart
+Candidate	Scott Schmidt	Scott Schmidt
+Candidate	Sean Flynn	Sean Flynn
+Candidate	Shannon Grove	Shannon Grove
+Candidate	Sharon Quirk-Silva	Sharon Quirk-Silva
+Candidate	Shirley N. Weber	Shirley N. Weber
+Candidate	Socorro Cisneros	Socorro Cisneros
+Candidate	Sonia Aery	Sonia Aery
+Candidate	Stephen Slauson	Stephen Slauson
+Candidate	Steve Fox	Steve Fox
+Candidate	Steve Knight	Steve Knight
+Candidate	Steve Poizner	Steve Poizner
+Candidate	Steven C Bailey	Steven C Bailey
+Candidate	Steven S. Choi	Steven S. Choi
+Candidate	Sunday Gover	Sunday Gover
+Candidate	Susan A. Davis	Susan A. Davis
+Candidate	Susan Rubio	Susan Rubio
+Candidate	Susan Talamantes Eggman	Susan Talamantes Eggman
+Candidate	Sydney K. Kamlager	Sydney K. Kamlager
+Candidate	Tasha Boerner Horvath	Tasha Boerner Horvath
+Candidate	Tatiana Matta	Tatiana Matta
+Candidate	Ted Gaines	Ted Gaines
+Candidate	Ted W. Lieu	Ted W. Lieu
+Candidate	Tepring Michelle Piquado	Tepring Michelle Piquado
+Candidate	Theresa Sanford	Theresa Sanford
+Candidate	Tim Donnelly	Tim Donnelly
+Candidate	Tim Grayson	Tim Grayson
+Candidate	TJ Cox	TJ Cox
+Candidate	Todd Gloria	Todd Gloria
+Candidate	Tom Daly	Tom Daly
+Candidate	Tom Hallinan	Tom Hallinan
+Candidate	Tom Lackey	Tom Lackey
+Candidate	Tom McClintock	Tom McClintock
+Candidate	Tom Umberg	Tom Umberg
+Candidate	Toni Holle	Toni Holle
+Candidate	Tony Cardenas	Tony Cardenas
+Candidate	Tony K. Thurmond	Tony K. Thurmond
+Candidate	Tony Vazquez	Tony Vazquez
+Candidate	Tyler Diep	Tyler Diep
+Candidate	"Veronica ""Roni"" Jacobi"	"Veronica ""Roni"" Jacobi"
+Candidate	Vicki L. Nohrden	Vicki L. Nohrden
+Candidate	Victor G. San Vicente	Victor G. San Vicente
+Candidate	Vince Fong	Vince Fong
+Candidate	Wendy Carrillo	Wendy Carrillo
+Candidate	William (Bill) Brough	William (Bill) Brough
+Candidate	Xavier Becerra	Xavier Becerra
+Candidate	Young Kim	Young Kim
+Candidate	Zoe Lofgren	Zoe Lofgren

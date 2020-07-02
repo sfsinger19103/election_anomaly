@@ -6,7 +6,7 @@ import sqlalchemy
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 from psycopg2 import sql
 import sqlalchemy as db
-import sqlalchemy_utils
+import sqlalchemy_utils as sqla_u
 from election_anomaly import user_interface as ui
 from configparser import MissingSectionHeaderError
 import pandas as pd
@@ -107,7 +107,7 @@ def create_new_db(project_root, paramfile, db_name):
     if db_name in db_df.datname.unique():
         desired_db = db_name
         create_new = False
-        # TODO otherwise check that desired_db has right format?
+        # TODO check that desired_db has right format? If not, handle how?
     elif db_name:  # but not in existing
         desired_db = db_name
         create_database(con,cur,desired_db)
@@ -128,7 +128,8 @@ def create_new_db(project_root, paramfile, db_name):
 
 
 def sql_alchemy_connect(paramfile=None,db_name='postgres'):
-    """Returns an engine and a metadata object"""
+    """Connects to database <db_name>, creating it first if necessary.
+    Returns an engine and a metadata object"""
     if not paramfile:
         paramfile = ui.pick_paramfile()
     params = ui.config(paramfile)
@@ -140,6 +141,9 @@ def sql_alchemy_connect(paramfile=None,db_name='postgres'):
 
     # The return value of create_engine() is our connection object
     engine = db.create_engine(url, client_encoding='utf8')
+    if not sqla_u.database_exists(engine.url):
+        sqla_u.create_database(engine.url)
+
     return engine
 
 

@@ -1,0 +1,163 @@
+Name	VotesAllowed	NumberElected	NumberRunoff	IsPartisan	Office	PrimaryParty
+Attorney General	1	1	1	0	Attorney General	
+Controller	1	1	1	0	Controller	
+Governor	1	1	1	0	Governor	
+Insurance Commissioner	1	1	1	0	Insurance Commissioner	
+Lieutenant Governor	1	1	1	0	Lieutenant Governor	
+Secretary of State	1	1	1	0	Secretary of State	
+State Senate District 10	1	1	1	0	State Senate District 10	
+State Senate District 12	1	1	1	0	State Senate District 12	
+State Senate District 14	1	1	1	0	State Senate District 14	
+State Senate District 16	1	1	1	0	State Senate District 16	
+State Senate District 18	1	1	1	0	State Senate District 18	
+State Senate District 2	1	1	1	0	State Senate District 2	
+State Senate District 20	1	1	1	0	State Senate District 20	
+State Senate District 22	1	1	1	0	State Senate District 22	
+State Senate District 24	1	1	1	0	State Senate District 24	
+State Senate District 26	1	1	1	0	State Senate District 26	
+State Senate District 28	1	1	1	0	State Senate District 28	
+State Senate District 30	1	1	1	0	State Senate District 30	
+State Senate District 32	1	1	1	0	State Senate District 32	
+State Senate District 34	1	1	1	0	State Senate District 34	
+State Senate District 36	1	1	1	0	State Senate District 36	
+State Senate District 38	1	1	1	0	State Senate District 38	
+State Senate District 4	1	1	1	0	State Senate District 4	
+State Senate District 40	1	1	1	0	State Senate District 40	
+State Senate District 6	1	1	1	0	State Senate District 6	
+State Senate District 8	1	1	1	0	State Senate District 8	
+Superintendent of Public Instruction	1	1	1	0	Superintendent of Public Instruction	
+Treasurer	1	1	1	0	Treasurer	
+US House CA District 1	1	1	1	0	US House CA District 1	
+US House CA District 10	1	1	1	0	US House CA District 10	
+US House CA District 11	1	1	1	0	US House CA District 11	
+US House CA District 12	1	1	1	0	US House CA District 12	
+US House CA District 13	1	1	1	0	US House CA District 13	
+US House CA District 14	1	1	1	0	US House CA District 14	
+US House CA District 15	1	1	1	0	US House CA District 15	
+US House CA District 16	1	1	1	0	US House CA District 16	
+US House CA District 17	1	1	1	0	US House CA District 17	
+US House CA District 18	1	1	1	0	US House CA District 18	
+US House CA District 19	1	1	1	0	US House CA District 19	
+US House CA District 2	1	1	1	0	US House CA District 2	
+US House CA District 20	1	1	1	0	US House CA District 20	
+US House CA District 21	1	1	1	0	US House CA District 21	
+US House CA District 22	1	1	1	0	US House CA District 22	
+US House CA District 23	1	1	1	0	US House CA District 23	
+US House CA District 24	1	1	1	0	US House CA District 24	
+US House CA District 25	1	1	1	0	US House CA District 25	
+US House CA District 26	1	1	1	0	US House CA District 26	
+US House CA District 27	1	1	1	0	US House CA District 27	
+US House CA District 28	1	1	1	0	US House CA District 28	
+US House CA District 29	1	1	1	0	US House CA District 29	
+US House CA District 3	1	1	1	0	US House CA District 3	
+US House CA District 30	1	1	1	0	US House CA District 30	
+US House CA District 31	1	1	1	0	US House CA District 31	
+US House CA District 32	1	1	1	0	US House CA District 32	
+US House CA District 33	1	1	1	0	US House CA District 33	
+US House CA District 34	1	1	1	0	US House CA District 34	
+US House CA District 35	1	1	1	0	US House CA District 35	
+US House CA District 36	1	1	1	0	US House CA District 36	
+US House CA District 37	1	1	1	0	US House CA District 37	
+US House CA District 38	1	1	1	0	US House CA District 38	
+US House CA District 39	1	1	1	0	US House CA District 39	
+US House CA District 4	1	1	1	0	US House CA District 4	
+US House CA District 40	1	1	1	0	US House CA District 40	
+US House CA District 41	1	1	1	0	US House CA District 41	
+US House CA District 42	1	1	1	0	US House CA District 42	
+US House CA District 43	1	1	1	0	US House CA District 43	
+US House CA District 44	1	1	1	0	US House CA District 44	
+US House CA District 45	1	1	1	0	US House CA District 45	
+US House CA District 46	1	1	1	0	US House CA District 46	
+US House CA District 47	1	1	1	0	US House CA District 47	
+US House CA District 48	1	1	1	0	US House CA District 48	
+US House CA District 49	1	1	1	0	US House CA District 49	
+US House CA District 5	1	1	1	0	US House CA District 5	
+US House CA District 50	1	1	1	0	US House CA District 50	
+US House CA District 51	1	1	1	0	US House CA District 51	
+US House CA District 52	1	1	1	0	US House CA District 52	
+US House CA District 53	1	1	1	0	US House CA District 53	
+US House CA District 6	1	1	1	0	US House CA District 6	
+US House CA District 7	1	1	1	0	US House CA District 7	
+US House CA District 8	1	1	1	0	US House CA District 8	
+US House CA District 9	1	1	1	0	US House CA District 9	
+US Senate - 2	1	1	1	0	US Senate - 2	
+CA State House District 1	1	1	1	0	CA State House District 1	
+CA State House District 10	1	1	1	0	CA State House District 10	
+CA State House District 11	1	1	1	0	CA State House District 11	
+CA State House District 12	1	1	1	0	CA State House District 12	
+CA State House District 13	1	1	1	0	CA State House District 13	
+CA State House District 14	1	1	1	0	CA State House District 14	
+CA State House District 15	1	1	1	0	CA State House District 15	
+CA State House District 16	1	1	1	0	CA State House District 16	
+CA State House District 17	1	1	1	0	CA State House District 17	
+CA State House District 18	1	1	1	0	CA State House District 18	
+CA State House District 19	1	1	1	0	CA State House District 19	
+CA State House District 2	1	1	1	0	CA State House District 2	
+CA State House District 20	1	1	1	0	CA State House District 20	
+CA State House District 21	1	1	1	0	CA State House District 21	
+CA State House District 22	1	1	1	0	CA State House District 22	
+CA State House District 23	1	1	1	0	CA State House District 23	
+CA State House District 24	1	1	1	0	CA State House District 24	
+CA State House District 25	1	1	1	0	CA State House District 25	
+CA State House District 26	1	1	1	0	CA State House District 26	
+CA State House District 27	1	1	1	0	CA State House District 27	
+CA State House District 28	1	1	1	0	CA State House District 28	
+CA State House District 29	1	1	1	0	CA State House District 29	
+CA State House District 3	1	1	1	0	CA State House District 3	
+CA State House District 30	1	1	1	0	CA State House District 30	
+CA State House District 31	1	1	1	0	CA State House District 31	
+CA State House District 32	1	1	1	0	CA State House District 32	
+CA State House District 33	1	1	1	0	CA State House District 33	
+CA State House District 34	1	1	1	0	CA State House District 34	
+CA State House District 35	1	1	1	0	CA State House District 35	
+CA State House District 36	1	1	1	0	CA State House District 36	
+CA State House District 37	1	1	1	0	CA State House District 37	
+CA State House District 38	1	1	1	0	CA State House District 38	
+CA State House District 39	1	1	1	0	CA State House District 39	
+CA State House District 4	1	1	1	0	CA State House District 4	
+CA State House District 40	1	1	1	0	CA State House District 40	
+CA State House District 41	1	1	1	0	CA State House District 41	
+CA State House District 42	1	1	1	0	CA State House District 42	
+CA State House District 43	1	1	1	0	CA State House District 43	
+CA State House District 44	1	1	1	0	CA State House District 44	
+CA State House District 45	1	1	1	0	CA State House District 45	
+CA State House District 46	1	1	1	0	CA State House District 46	
+CA State House District 47	1	1	1	0	CA State House District 47	
+CA State House District 48	1	1	1	0	CA State House District 48	
+CA State House District 49	1	1	1	0	CA State House District 49	
+CA State House District 5	1	1	1	0	CA State House District 5	
+CA State House District 50	1	1	1	0	CA State House District 50	
+CA State House District 51	1	1	1	0	CA State House District 51	
+CA State House District 52	1	1	1	0	CA State House District 52	
+CA State House District 53	1	1	1	0	CA State House District 53	
+CA State House District 54	1	1	1	0	CA State House District 54	
+CA State House District 55	1	1	1	0	CA State House District 55	
+CA State House District 56	1	1	1	0	CA State House District 56	
+CA State House District 57	1	1	1	0	CA State House District 57	
+CA State House District 58	1	1	1	0	CA State House District 58	
+CA State House District 59	1	1	1	0	CA State House District 59	
+CA State House District 6	1	1	1	0	CA State House District 6	
+CA State House District 60	1	1	1	0	CA State House District 60	
+CA State House District 61	1	1	1	0	CA State House District 61	
+CA State House District 62	1	1	1	0	CA State House District 62	
+CA State House District 63	1	1	1	0	CA State House District 63	
+CA State House District 64	1	1	1	0	CA State House District 64	
+CA State House District 65	1	1	1	0	CA State House District 65	
+CA State House District 66	1	1	1	0	CA State House District 66	
+CA State House District 67	1	1	1	0	CA State House District 67	
+CA State House District 68	1	1	1	0	CA State House District 68	
+CA State House District 69	1	1	1	0	CA State House District 69	
+CA State House District 7	1	1	1	0	CA State House District 7	
+CA State House District 70	1	1	1	0	CA State House District 70	
+CA State House District 71	1	1	1	0	CA State House District 71	
+CA State House District 72	1	1	1	0	CA State House District 72	
+CA State House District 73	1	1	1	0	CA State House District 73	
+CA State House District 74	1	1	1	0	CA State House District 74	
+CA State House District 75	1	1	1	0	CA State House District 75	
+CA State House District 76	1	1	1	0	CA State House District 76	
+CA State House District 77	1	1	1	0	CA State House District 77	
+CA State House District 78	1	1	1	0	CA State House District 78	
+CA State House District 79	1	1	1	0	CA State House District 79	
+CA State House District 8	1	1	1	0	CA State House District 8	
+CA State House District 80	1	1	1	0	CA State House District 80	
+CA State House District 9	1	1	1	0	CA State House District 9	

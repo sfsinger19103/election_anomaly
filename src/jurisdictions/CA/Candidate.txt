@@ -1,0 +1,328 @@
+BallotName	Party
+Aasim Yahya	Democratic Party
+Adam B. Schiff	Democratic Party
+Adam C. Gray	Democratic Party
+Adrin Nazarian	Democratic Party
+Aileen Rizo	Democratic Party
+Aja L. Brown	Democratic Party
+Al Muratsuchi	Democratic Party
+Alan Geraci	Democratic Party
+Alan Lowenthal	Democratic Party
+Alejandro Fernandez	Democratic Party
+Alex Padilla	Democratic Party
+Ami Bera	Democratic Party
+Ammar Campa-Najjar	Democratic Party
+Andrew Janz	Democratic Party
+Anna Caballero	Democratic Party
+Anna G. Eshoo	Democratic Party
+Anthony Rendon	Democratic Party
+Ash Kalra	Democratic Party
+Audrey Denney	Democratic Party
+Autumn Burke	Democratic Party
+Barbara Lee	Democratic Party
+Ben Allen	Democratic Party
+Ben Hueso	Democratic Party
+Betty T. Yee	Democratic Party
+Bill Ostrander	Democratic Party
+Bill Quirk	Democratic Party
+Blanca E. Rubio	Democratic Party
+Bob Hertzberg	Democratic Party
+Bob J. Archuleta	Democratic Party
+Bob Wieckowski	Democratic Party
+Brad Sherman	Democratic Party
+Bryan Witt	Democratic Party
+Buffy Wicks	Democratic Party
+Caleen Sisk	Democratic Party
+Carla J. Neal	Democratic Party
+Cecilia Aguiar-Curry	Democratic Party
+Chris Holden	Democratic Party
+Christy Smith	Democratic Party
+Connie Leyva	Democratic Party
+Cottie Petrie-Norris	Democratic Party
+Cristina Garcia	Democratic Party
+Dan Monte	Democratic Party
+David Chiu	Democratic Party
+David L. Norrdin	Democratic Party
+DeniAntionette Mazingo	Democratic Party
+Dianne Feinstein	Democratic Party
+Doris Matsui	Democratic Party
+Ed Chau	Democratic Party
+Ed Hernandez	Democratic Party
+Eduardo Garcia	Democratic Party
+Eleni Kounalakis	Democratic Party
+Elizabeth Warren	Democratic Party
+Eloise Reyes	Democratic Party
+Eric Swalwell	Democratic Party
+Evan Low	Democratic Party
+Fiona Ma	Democratic Party
+Freddie Rodriguez	Democratic Party
+Gavin Newsom	Democratic Party
+Gil Cisneros	Democratic Party
+Grace Flores Napolitano	Democratic Party
+Gregg D. Fritchle	Democratic Party
+Harley Rouda	Democratic Party
+Harry He	Democratic Party
+Holly J. Mitchell	Democratic Party
+Ian C. Calderon	Democratic Party
+"Jacalyn ""Jackie"" Smith"	Democratic Party
+Jackie Speier	Democratic Party
+Jacqui Irwin	Democratic Party
+James C. Ramos	Democratic Party
+James Elia	Democratic Party
+Jared Huffman	Democratic Party
+Jeff Griffith	Democratic Party
+Jerry McNerney	Democratic Party
+Jesse Gabriel	Democratic Party
+Jessica Morse	Democratic Party
+Jim Cooper	Democratic Party
+Jim Costa	Democratic Party
+Jim Frazier	Democratic Party
+Jim Wood	Democratic Party
+Jimmy Gomez	Democratic Party
+Jimmy Panetta	Democratic Party
+Joaquin Arambula	Democratic Party
+John Garamendi	Democratic Party
+Jose Medina	Democratic Party
+Jose Sigala	Democratic Party
+Josh Harder	Democratic Party
+Josh Lowenthal	Democratic Party
+Jovanka Beckles	Democratic Party
+Joy Silver	Democratic Party
+Jrmar Jefferson	Democratic Party
+Juan Vargas	Democratic Party
+Judy Chu	Democratic Party
+Julia Brownley	Democratic Party
+Julia C Peacock	Democratic Party
+Kansen Chu	Democratic Party
+Karen Bass	Democratic Party
+Katie Hill	Democratic Party
+Katie Porter	Democratic Party
+Ken Cooley	Democratic Party
+Kevin De Leon	Democratic Party
+Kevin Hee Young Jang	Democratic Party
+Kevin McCarty	Democratic Party
+Kevin Mullin	Democratic Party
+Laura Friedman	Democratic Party
+Leslie Hagan-Morgan	Democratic Party
+Linda T. S‡nchez	Democratic Party
+Lorena Gonzalez Fletcher	Democratic Party
+Lou Correa	Democratic Party
+Lucille Roybal-Allard	Democratic Party
+Luz Maria Rivas	Democratic Party
+Malia Cohen	Democratic Party
+Marc Berman	Democratic Party
+Marc Levine	Democratic Party
+Marggie Castellano	Democratic Party
+Maria D. Estrada	Democratic Party
+Maria Elena Durazo	Democratic Party
+Mark DeSaulnier	Democratic Party
+Mark Stone	Democratic Party
+Mark Takano	Democratic Party
+Maxine Waters	Democratic Party
+Melissa Hurtado	Democratic Party
+Michelle Duman	Democratic Party
+Michelle Singleton	Democratic Party
+Miguel Santiago	Democratic Party
+Mike A. Gipson	Democratic Party
+Mike Eng	Democratic Party
+Mike Levin	Democratic Party
+Mike McGuire	Democratic Party
+Mike Schaefer	Democratic Party
+Mike Thompson	Democratic Party
+Nancy Pelosi	Democratic Party
+Nanette Diaz Barrag‡n	Democratic Party
+Nick Nicita	Democratic Party
+Norma J. Torres	Democratic Party
+Patrick O'Donnell	Democratic Party
+Paulina Miranda	Democratic Party
+Pete Aguilar	Democratic Party
+Peter Choi	Democratic Party
+Phil Ting	Democratic Party
+Phillip Kim	Democratic Party
+Raul Ruiz	Democratic Party
+Rebecca Bauer-Kahan	Democratic Party
+Reggie Jones-Sawyer	Democratic Party
+Ricardo Lara	Democratic Party
+Richard Bloom	Democratic Party
+Richard Pan	Democratic Party
+Ro Khanna	Democratic Party
+Rob Bonta	Democratic Party
+Robert D. Chase	Democratic Party
+Robert Rivas	Democratic Party
+Rudy Salas	Democratic Party
+Ruth Musser-Lopez	Democratic Party
+S. Monique Lim—n	Democratic Party
+Sabrina Cervantes	Democratic Party
+Salud Carbajal	Democratic Party
+Scott Peters	Democratic Party
+Scott Rhinehart	Democratic Party
+Sharon Quirk-Silva	Democratic Party
+Shirley N. Weber	Democratic Party
+Socorro Cisneros	Democratic Party
+Sonia Aery	Democratic Party
+Steve Fox	Democratic Party
+Sunday Gover	Democratic Party
+Susan A. Davis	Democratic Party
+Susan Rubio	Democratic Party
+Susan Talamantes Eggman	Democratic Party
+Sydney K. Kamlager	Democratic Party
+Tasha Boerner Horvath	Democratic Party
+Tatiana Matta	Democratic Party
+Ted W. Lieu	Democratic Party
+Tepring Michelle Piquado	Democratic Party
+Tim Grayson	Democratic Party
+TJ Cox	Democratic Party
+Todd Gloria	Democratic Party
+Tom Daly	Democratic Party
+Tom Hallinan	Democratic Party
+Tom Umberg	Democratic Party
+Tony Cardenas	Democratic Party
+Tony Vazquez	Democratic Party
+"Veronica ""Roni"" Jacobi"	Democratic Party
+Wendy Carrillo	Democratic Party
+Xavier Becerra	Democratic Party
+Zoe Lofgren	Democratic Party
+Kenneth Mejia	Green Party
+Laura Wells	Green Party
+Rodolfo Cortes Barragan	Green Party
+Autumn Browne	Libertarian Party
+Brandon Z. Nelson	Libertarian Party
+Christopher Stare	Libertarian Party
+"Honor ""Mimi"" Robson"	Libertarian Party
+Justin Ryan Quigley	Libertarian Party
+Alan S. Reynolds	No Party Preference
+Anthony Mills	No Party Preference
+Baron Bruno	No Party Preference
+Eric Frame	No Party Preference
+Ronald Paul Kabat	No Party Preference
+Steve Poizner	No Party Preference
+Marshall Tuck	Nonpartisan
+Tony K. Thurmond	Nonpartisan
+Aja Smith	Republican Party
+Al L. Hernandez	Republican Party
+Alex Glew	Republican Party
+"Alexandria ""Alex"" Coronado"	Republican Party
+Andreas Borgeas	Republican Party
+Andrew Grant	Republican Party
+Andy Vidak	Republican Party
+Antonio M. Garcia	Republican Party
+"Antonio Sabato, Jr."	Republican Party
+Benito Benny Bernal	Republican Party
+Bill Essayli	Republican Party
+Bob Brunton	Republican Party
+Brian Dahle	Republican Party
+Brian Maienschein	Republican Party
+Brian W. Jones	Republican Party
+Burton Brink	Republican Party
+Catharine Baker	Republican Party
+Chad Mayes	Republican Party
+Charlie Schaupp	Republican Party
+Christian Leonel Valiente	Republican Party
+Christina Laskowski	Republican Party
+Christine Russell	Republican Party
+Cristina Osme–a	Republican Party
+Dale K. Mensing	Republican Party
+Dana Rohrabacher	Republican Party
+Dante Acosta	Republican Party
+David G. Valadao	Republican Party
+Devin G. Nunes	Republican Party
+Devon Mathis	Republican Party
+Diane L. Harkey	Republican Party
+Doug La Malfa	Republican Party
+Duncan Hunter	Republican Party
+Elizabeth Heng	Republican Party
+Frank A. Scotto	Republican Party
+Frank Bigelow	Republican Party
+G. Burt Lancaster	Republican Party
+G. Rick Marshall	Republican Party
+Greg Conlon	Republican Party
+Heath Flora	Republican Party
+Henry Gomez Nickel	Republican Party
+James Gallagher	Republican Party
+James Nielsen	Republican Party
+Janet Nguyen	Republican Party
+Jay Obernolte	Republican Party
+Jeff Denham	Republican Party
+Jeff Gonzalez	Republican Party
+Jeff Stone	Republican Party
+Jessica Martinez	Republican Party
+Jim Patterson	Republican Party
+Joel Anderson	Republican Party
+John Briscoe	Republican Party
+John Fitzgerald	Republican Party
+John H. Cox	Republican Party
+John Moore	Republican Party
+Johnny J. Nalbandian	Republican Party
+Jordan Cunningham	Republican Party
+Joseph Grcar	Republican Party
+Joshua M. Scott	Republican Party
+Juan M. Hidalgo Jr.	Republican Party
+Justin Fareed	Republican Party
+Justin James Aguilera	Republican Party
+Justin M. Clark	Republican Party
+Justin Mendes	Republican Party
+Keith Bogdon	Republican Party
+Ken Calvert	Republican Party
+Kenneth Weston Wright	Republican Party
+Kevin Kiley	Republican Party
+Kevin McCarthy	Republican Party
+Kimberlin Brown Pelzer	Republican Party
+Konstantinos Roditis	Republican Party
+Lincoln Pickard	Republican Party
+Lisa Remmer	Republican Party
+Lisa Romero	Republican Party
+Luis R. Vargas	Republican Party
+Lupe Espinoza	Republican Party
+Maggie J. Campbell	Republican Party
+Marie Waldron	Republican Party
+Mark Burns	Republican Party
+Mark P. Meuser	Republican Party
+Mark S. Reed	Republican Party
+Marla Livengood	Republican Party
+Matt Heath	Republican Party
+Matthew Harper	Republican Party
+Matthew Munson	Republican Party
+Melinda Avey	Republican Party
+Melissa Melendez	Republican Party
+Michael L. Snyder	Republican Party
+Mike Simpfenderfer	Republican Party
+Mimi Walters	Republican Party
+Mohammad-Ali Mazarei	Republican Party
+Morgan Murtaugh	Republican Party
+Neil G. Kitchens	Republican Party
+Omar Navarro	Republican Party
+Omar Qudrat	Republican Party
+Patricia C. 'Pat' Bates	Republican Party
+Paul Cook	Republican Party
+Phillip Chen	Republican Party
+Randy Voepel	Republican Party
+Ricardo Antonio Benitez	Republican Party
+Rita Topalian	Republican Party
+Rob Poythress	Republican Party
+Ron Cohen	Republican Party
+Ron J. Bassilian	Republican Party
+Ronda Baldwin-Kennedy	Republican Party
+Roxanne Beckford Hoge	Republican Party
+Rudy L. Peters Jr.	Republican Party
+Rudy Melendez	Republican Party
+Russell Rene Lambert	Republican Party
+Ryan Downing	Republican Party
+Scott Schmidt	Republican Party
+Sean Flynn	Republican Party
+Shannon Grove	Republican Party
+Stephen Slauson	Republican Party
+Steve Knight	Republican Party
+Steven C Bailey	Republican Party
+Steven S. Choi	Republican Party
+Ted Gaines	Republican Party
+Theresa Sanford	Republican Party
+Tim Donnelly	Republican Party
+Tom Lackey	Republican Party
+Tom McClintock	Republican Party
+Toni Holle	Republican Party
+Tyler Diep	Republican Party
+Vicki L. Nohrden	Republican Party
+Victor G. San Vicente	Republican Party
+Vince Fong	Republican Party
+William (Bill) Brough	Republican Party
+Young Kim	Republican Party
