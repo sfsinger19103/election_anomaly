@@ -78,9 +78,9 @@ def auxiliary_data(munger: jm.Munger, aux_data_dir, project_root=None) -> dict:
         else:
             aux_path = os.path.join(aux_data_dir, aux_filename_list[0])
 
-        # read and clean the auxiliary data file; NB: munger suffix is added in cleaning process.
+        # read and clean the auxiliary data file
         df = ui.read_single_datafile(aux_mu, aux_path)
-        df = clean_raw_df(df, aux_mu, keep=df.columns)  # keep all columns
+        df = generic_clean(df)
 
         # set primary key(s) as (multi-)index
         primary_keys = munger.auxiliary.loc[afn, 'primary_key'].split(',')
