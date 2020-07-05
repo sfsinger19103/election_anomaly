@@ -33,6 +33,7 @@ def cast_cols_as_int(df:pd.DataFrame, col_list) -> pd.DataFrame:
             raise
     return df
 
+
 def clean_raw_df(raw,munger):
     """Replaces nulls, strips whitespace, changes any blank entries in non-numeric columns to 'none or unknown'.
     Appends munger suffix to raw column names to avoid conflicts"""
