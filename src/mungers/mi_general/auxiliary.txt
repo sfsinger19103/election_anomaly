@@ -1,0 +1,5 @@
+abbreviated_file_name	primary_key
+name	Candidate ID#
+off	Office Code,District Code,Status Code
+cit	County Code,City/Township Code
+county	County Code
