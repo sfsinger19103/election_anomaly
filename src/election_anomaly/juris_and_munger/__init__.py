@@ -100,6 +100,37 @@ class Jurisdiction:
 
 
 class Munger:
+    def get_aux_data(self, aux_data_dir, project_root=None) -> dict:
+        """creates dictionary of dataframes, one for each auxiliary datafile.
+       DataFrames returned are (multi-)indexed by the primary key(s)"""
+        aux_data_dict = {}  # will hold dataframe for each abbreviated file name
+
+        field_list = list(set([x[0] for x in self.auxiliary_fields()]))
+        for afn in field_list:
+            # get munger for the auxiliary file
+            aux_mu = Munger(os.path.join(self.path_to_munger_dir, afn), project_root=project_root)
+
+            # find file in aux_data_dir whose name contains the string <afn>
+            aux_filename_list = [x for x in os.listdir(aux_data_dir) if afn in x]
+            if len(aux_filename_list) == 0:
+                raise mr.MungeError(f'No file found with name containing {afn} in the directory {aux_data_dir}')
+            elif len(aux_filename_list) > 1:
+                raise mr.MungeError(f'Too many files found with name containing {afn} in the directory {aux_data_dir}')
+            else:
+                aux_path = os.path.join(aux_data_dir, aux_filename_list[0])
+
+            # read and clean the auxiliary data file
+            df = ui.read_single_datafile(aux_mu, aux_path)
+            df = mr.generic_clean(df)
+
+            # set primary key(s) as (multi-)index
+            primary_keys = self.aux_meta.loc[afn, 'primary_key'].split(',')
+            df.set_index(primary_keys, inplace=True)
+
+            aux_data_dict[afn] = df
+
+        return aux_data_dict
+
     def auxiliary_fields(self):
         """Return set of [file_abbrev,field] pairs, one for each
         field in <self>.cdf_elements.fields referring to auxilliary files"""
@@ -204,15 +235,16 @@ class Munger:
                 input(f'Correct the problems by editing the files in the directory {self.path_to_munger_dir}\n'
                       f'Then hit enter to continue.')
                 [self.cdf_elements,self.header_row_count,self.field_names_if_no_field_name_row,
-                 self.field_name_row,self.count_columns,self.file_type,self.encoding,self.thousands_separator,self.auxiliary
+                 self.field_name_row,self.count_columns,self.file_type,self.encoding,self.thousands_separator,self.aux_meta
                  ] = read_munger_info_from_files(self.path_to_munger_dir,project_root=project_root)
             else:
                 checked = True
         # TODO allow user to pick different munger from file system
         return
 
-    def __init__(self,dir_path,project_root=None,check_files=True):
-        """<dir_path> is the directory for the munger."""
+    def __init__(self,dir_path,aux_data_dir=None,project_root=None,check_files=True):
+        """<dir_path> is the directory for the munger. If munger deals with auxiliary data files, 
+        <aux_data_dir> is the directory holding those files."""
         if not project_root:
             project_root = ui.get_project_root()
         self.name= os.path.basename(dir_path)  # e.g., 'nc_general'
@@ -228,8 +260,12 @@ class Munger:
         if check_files:
             ensure_munger_files(dir_path,project_root=project_root)
         [self.cdf_elements,self.header_row_count,self.field_names_if_no_field_name_row,self.field_name_row,
-         self.count_columns,self.file_type,self.encoding,self.thousands_separator,self.auxiliary
+         self.count_columns,self.file_type,self.encoding,self.thousands_separator,self.aux_meta
          ] = read_munger_info_from_files(self.path_to_munger_dir,project_root=project_root)
+        if aux_data_dir:
+            self.aux_data = self.get_aux_data(aux_data_dir,project_root=project_root)
+        else:
+            self.aux_data = {}
 
         self.field_rename_suffix = '___'  # NB: must not match any suffix of a cdf element name;
 
@@ -242,12 +278,12 @@ class Munger:
 def read_munger_info_from_files(dir_path,project_root=None,aux_data_dir=None):
     """<aux_data_dir> is required if there are auxiliary data files"""
     # create auxiliary dataframe
-    if 'auxiliary.txt' in os.listdir(dir_path):
+    if 'aux_meta.txt' in os.listdir(dir_path):
         # if some elements are reported in separate files per auxilliary.txt file, read from file
-        auxiliary = pd.read_csv(os.path.join(dir_path, 'auxiliary.txt'),sep='\t',index_col='abbreviated_file_name')
+        aux_meta = pd.read_csv(os.path.join(dir_path, 'aux_meta.txt'),sep='\t',index_col='abbreviated_file_name')
     else:
         # set auxiliary dataframe to empty
-        auxiliary = pd.DataFrame([[]])
+        aux_meta = pd.DataFrame([[]])
 
     # read cdf_element info and
     cdf_elements = pd.read_csv(os.path.join(dir_path,'cdf_elements.txt'),sep='\t',index_col='name').fillna('')
@@ -284,7 +320,7 @@ def read_munger_info_from_files(dir_path,project_root=None,aux_data_dir=None):
     # TODO warn if encoding not recognized
 
     return [cdf_elements,header_row_count,field_names_if_no_field_name_row,field_name_row,
-            count_columns,file_type,encoding,thousands_separator,auxiliary]
+            count_columns,file_type,encoding,thousands_separator,aux_meta]
 
 # TODO combine ensure_jurisdiction_files with ensure_juris_files
 def ensure_jurisdiction_files(juris_path,project_root):

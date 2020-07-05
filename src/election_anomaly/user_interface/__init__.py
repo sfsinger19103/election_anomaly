@@ -628,11 +628,17 @@ def read_single_datafile(munger, f_path):
 	return df
 
 
-def read_combine_results(munger,count_file, aux_data_directory):
-	working = read_single_datafile(munger, count_file)
+def read_combine_results(munger: sf.Munger, results_file):
+	working = read_single_datafile(munger, results_file)
 	working = mr.generic_clean(working)
 	working = mr.cast_cols_as_int(working, munger)
-	# TODO merge with auxiliary files
+
+	# merge with auxiliary files (if any)
+	if munger.aux_data != {}:
+		# merge auxiliary info into <working>
+		for abbrev,r in munger.aux_meta.iterrows():
+			working = working.merge(
+				munger.aux_data[abbrev],how='left',left_on=r['foreign_key'].split(','),right_index=True)
 	return working
 
 

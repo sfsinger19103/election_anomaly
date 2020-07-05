@@ -1,0 +1,5 @@
+abbreviated_file_name	primary_key	foreign_key
+name	Candidate ID#	Candidate ID#
+off	Office Code,District Code,Status Code	Office Code,District Code,Status Code
+cit	County Code,City/Township Code	County Code,City/Town Code
+county	County Code	County Code
