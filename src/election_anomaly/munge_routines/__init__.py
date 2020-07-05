@@ -11,19 +11,25 @@ class MungeError(Exception):
     pass
 
 
+def generic_clean(df:pd.DataFrame) -> pd.DataFrame:
+    """Replaces nulls, strips whitespace."""
+    # TODO put all info about data cleaning into README.md (e.g., whitespace strip)
+    # change all nulls to blank
+    df = df.fillna('')
+    # strip whitespace from non-integer columns
+    non_numerical = {df.columns.get_loc(c):c for idx,c in enumerate(df.columns) if df[c].dtype != 'int64'}
+    for location,name in non_numerical.items():
+        df.iloc[:,location] = df.iloc[:,location].apply(lambda x:x.strip())
+    return df
+
+
 def clean_raw_df(raw,munger):
     """Replaces nulls, strips whitespace, changes any blank entries in non-numeric columns to 'none or unknown'.
     Appends munger suffix to raw column names to avoid conflicts"""
-    # TODO put all info about data cleaning into README.md (e.g., whitespace strip)
 
-    # change all nulls to blank
-    raw = raw.fillna('')
-    # strip whitespace from non-integer columns
-    non_numerical = {raw.columns.get_loc(c):c for idx,c in enumerate(raw.columns) if raw[c].dtype != 'int64'}
-    for location,name in non_numerical.items():
-        raw.iloc[:,location] = raw.iloc[:,location].apply(lambda x:x.strip())
+    raw = generic_clean(raw)
 
-    # TODO keep columns named in munger formulas; keep count columns; drop all else.
+    #  define columns named in munger formulas
     if munger.header_row_count > 1:
         cols_to_munge = [x for x in raw.columns if x[munger.field_name_row] in munger.field_list]
     else:
@@ -31,7 +37,7 @@ def clean_raw_df(raw,munger):
 
     # TODO error check- what if cols_to_munge is missing something from munger.field_list?
 
-    # recast count columns as integer where possible.
+    #  recast count columns as integer where possible.
     #  (recast leaves columns with text entries as non-numeric).
     num_columns = [raw.columns[idx] for idx in munger.count_columns]
     for c in num_columns:
@@ -40,6 +46,7 @@ def clean_raw_df(raw,munger):
         except ValueError:
             raise
 
+    # keep columns named in munger formulas; keep count columns; drop all else.
     raw = raw[cols_to_munge + num_columns]
     # recast all cols_to_munge to strings,
     # change all blanks to "none or unknown"
