@@ -442,52 +442,65 @@ def ensure_juris_files(juris_path,project_root):
         return {}
 
 
-# noinspection PyUnresolvedReferences
-def ensure_munger_files(munger_name,project_root=None):
+def ensure_munger_files(munger_path,project_root=None):
     """Check that the munger files are complete and consistent with one another.
-    Adds munger directory and files if they do not exist. 
-    Assumes dictionary.txt is in the template file"""
-    # define path to directory for the specific munger
-    munger_path = os.path.join(project_root,'mungers',munger_name)
+    Assumes munger directory exists. Assumes dictionary.txt is in the template file.
+    <munger_path> is the path to the directory of the particular munger"""
+    if not project_root:
+        project_root = ui.get_project_root()
+
     # ensure all files exist
-    created = []
-    if not os.path.isdir(munger_path):
-        created.append(munger_path)
-        os.makedirs(munger_path)
     templates = os.path.join(project_root,'templates/munger_templates')
     template_list = [x[:-4] for x in os.listdir(templates)]
 
-
-    error = {}
     # create each file if necessary
     for munger_file in template_list:
+        # TODO create optional template for auxiliary.txt
+        print(f'Checking {munger_file}.txt')
         cf_path = os.path.join(munger_path,f'{munger_file}.txt')
         # if file does not already exist in munger dir, create from template and invite user to fill
-        file_exists = os.path.isfile(cf_path)
-        if not file_exists:
-            temp = pd.read_csv(os.path.join(templates,f'{munger_file}.txt'),sep='\t',encoding='iso-8859-1')
-            created.append(f'{munger_file}.txt')
+        try:
+            temp = pd.read_csv(os.path.join(templates,f'{munger_file}.txt'),sep='\t')
+        except pd.error.EmptyDataError:
+            print(f'Template file {munger_file}.txt has no contents')
+            temp = pd.DataFrame()
+        if not os.path.isfile(cf_path):
             temp.to_csv(cf_path,sep='\t',index=False)
+            input(f'Enter information in the file {munger_file}.txt. Then hit return to continue.')
 
         # if file exists, check format against template
-        if file_exists:
-            err = check_munger_file_format(munger_path, munger_file, templates)
-            if err:
-                error[f'{munger_file}.txt'] = err
+        cf_df = pd.read_csv(os.path.join(munger_path,f'{munger_file}.txt'),sep='\t')
+        format_confirmed = False
+        while not format_confirmed:
+            problems = []
+            # check column names are correct
+            if set(cf_df.columns) != set(temp.columns):
+                cols = '\t'.join(temp.columns.to_list())
+                problems.append(f'Columns of {munger_file}.txt need to be (tab-separated):\n'
+                      f' {cols}\n')
 
-    # check contents of each file if they were not newly created and
-    # if they have successfully been checked for the format
-    if file_exists and not error:
-        err = check_munger_file_contents(munger_name,project_root=project_root)
-        if err:
-            error["contents"] = err
+            # check first column matches template
+            #  check same number of rows
+            elif cf_df.shape[0] != temp.shape[0]:
+                first_col_ideal = '\n'.join(list(temp.iloc[:,0]))
+                first_col_bad = '\n'.join(list(cf_df.iloc[:,0]))
+                problems.append(
+                    f'Wrong number of rows in {munger_file}.txt. \n\tFirst column should be exactly:\n{first_col_ideal}\n'
+                    f'\tBut first column of {munger_file}.txt is:\n{first_col_bad}\n')
+            elif set(cf_df.iloc[:,0]) != set(temp.iloc[:,0]):
+                first_error = (cf_df.iloc[:,0] != temp.iloc[:,0]).index.to_list()[0]
+                first_col = '\n'.join(list(temp.iloc[:,0]))
+                problems.append(f'First column of {munger_file}.txt must be exactly:\n{first_col}\n'
+                                f'First error is at row {first_error}: {cf_df.loc[first_error]}')
+            if problems:
+                ui.report_problems(problems)
+                input(f'Edit {cf_path} and hit return to continue.')
+            else:
+                format_confirmed = True
+    # check contents of each file
+    check_munger_file_contents(munger_path,project_root=project_root)
+    return
 
-    if created:
-        created = ', '.join(created)
-        error["newly_created"] = created
-    if error:
-        return error
-    return None
 
 
 def check_munger_file_format(munger_path, munger_file, templates):

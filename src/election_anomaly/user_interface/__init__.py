@@ -238,9 +238,9 @@ def find_dupes(df):
 
 
 def pick_munger(mungers_dir='mungers',project_root=None,session=None,munger_name=None):
-	error = sf.ensure_munger_files(munger_name,project_root=project_root)
-
 	munger_path = os.path.join(mungers_dir,munger_name)
+	error = sf.ensure_munger_files(munger_path,project_root=project_root)
+
 	if not error:
 		munger = sf.Munger(munger_path,project_root=project_root,check_files=False)
 		#munger_error is None unless internal inconsistency found
@@ -616,26 +616,34 @@ def enter_and_check_datatype(question,datatype):
 
 def read_single_datafile(munger:sf.Munger, f_path) -> pd.DataFrame:
 	if munger.file_type in ['txt','csv']:
-		kwargs = {'encoding':munger.encoding,'quoting':csv.QUOTE_MINIMAL,'header':list(range(munger.header_row_count)),
-			'thousands':munger.thousands_separator}
+		kwargs = {'encoding': munger.encoding, 'quoting': csv.QUOTE_MINIMAL,
+					'thousands': munger.thousands_separator,'index_col':False}
+		if munger.field_names_if_no_field_name_row:
+			kwargs['header'] = None
+			kwargs['names'] = munger.field_names_if_no_field_name_row
+		else:
+			kwargs['header'] = range(len(munger.header_row_count))
 		if munger.file_type == 'txt':
 			kwargs['sep'] = '\t'
 		df = pd.read_csv(f_path,**kwargs)
 
 	elif munger.file_type in ['xls','xlsx']:
-		df = pd.read_excel(f_path,dtype=str,thousands=munger.thousands_separator)
+		kwargs = {'dtype':str,'thousands':munger.thousands_separator}
+		if munger.field_names_if_no_field_name_row:
+			kwargs['header'] = None
+			kwargs['names'] = munger.field_names_if_no_field_name_row
+		else:
+			kwargs['header'] = range(len(munger.header_row_count))
+		df = pd.read_excel(f_path,**kwargs)
 	else:
 		raise mr.MungeError(f'Unrecognized file_type in munger: {munger.file_type}')
-
-	# clean nulls/blanks, and cast count columns as integers
 	df = mr.generic_clean(df)
-
 	return df
 
 
 def read_combine_results(mu: sf.Munger, results_file, project_root, aux_data_dir=None):
 	working = read_single_datafile(mu, results_file)
-	working = mr.cast_cols_as_int(working, mu.count_columns)
+	working = mr.cast_cols_as_int(working, mu.count_columns,mode='index')
 
 	# merge with auxiliary files (if any)
 	if aux_data_dir is not None:
@@ -648,7 +656,7 @@ def read_combine_results(mu: sf.Munger, results_file, project_root, aux_data_dir
 			# rename columns
 			col_rename = {'c':f'{abbrev}[{c}]' for c in aux_data[abbrev].columns}
 			# merge auxiliary info into <working>
-			a_d = aux_data[abbrev].rename(columns=col_rename,inplace=True)
+			a_d = aux_data[abbrev].rename(columns=col_rename)
 			working = working.merge(a_d,how='left',left_on=foreign_key,right_index=True)
 
 	return working

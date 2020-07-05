@@ -23,14 +23,19 @@ def generic_clean(df:pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def cast_cols_as_int(df: pd.DataFrame, col_list: list) -> pd.DataFrame:
+def cast_cols_as_int(df: pd.DataFrame, col_list: list,mode='name') -> pd.DataFrame:
     """recast columns as integer where possible, leaving columns with text entries as non-numeric)"""
-    num_columns = [df.columns[idx] for idx in col_list]
+    if mode == 'index':
+        num_columns = [df.columns[idx] for idx in col_list]
+    elif mode == 'name':
+        num_columns = [c for c in df.columns if c in col_list]
+    else:
+        raise ValueError(f'Mode {mode} not recognized')
     for c in num_columns:
         try:
             df[c] = df[c].astype('int64',errors='raise')
-        except ValueError:
-            raise
+        except ValueError as e:
+            print(f'Column {c} cannot be cast as integer:\n{e}')
     return df
 
 
@@ -38,7 +43,6 @@ def clean_raw_df(raw,munger):
     """Cast count columns as int; Change any blank entries in non-numeric columns to 'none or unknown'.
     Appends munger suffix to raw column names to avoid conflicts"""
 
-    raw = cast_cols_as_int(raw, munger)
     #  define columns named in munger formulas
     if munger.header_row_count > 1:
         cols_to_munge = [x for x in raw.columns if x[munger.field_name_row] in munger.field_list]
