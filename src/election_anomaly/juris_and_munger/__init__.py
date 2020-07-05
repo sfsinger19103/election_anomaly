@@ -106,16 +106,16 @@ class Munger:
         aux_data_dict = {}  # will hold dataframe for each abbreviated file name
 
         field_list = list(set([x[0] for x in self.auxiliary_fields()]))
-        for afn in field_list:
+        for abbrev in field_list:
             # get munger for the auxiliary file
-            aux_mu = Munger(os.path.join(self.path_to_munger_dir, afn), project_root=project_root)
+            aux_mu = Munger(os.path.join(self.path_to_munger_dir, abbrev), project_root=project_root)
 
             # find file in aux_data_dir whose name contains the string <afn>
-            aux_filename_list = [x for x in os.listdir(aux_data_dir) if afn in x]
+            aux_filename_list = [x for x in os.listdir(aux_data_dir) if abbrev in x]
             if len(aux_filename_list) == 0:
-                raise mr.MungeError(f'No file found with name containing {afn} in the directory {aux_data_dir}')
+                raise mr.MungeError(f'No file found with name containing {abbrev} in the directory {aux_data_dir}')
             elif len(aux_filename_list) > 1:
-                raise mr.MungeError(f'Too many files found with name containing {afn} in the directory {aux_data_dir}')
+                raise mr.MungeError(f'Too many files found with name containing {abbrev} in the directory {aux_data_dir}')
             else:
                 aux_path = os.path.join(aux_data_dir, aux_filename_list[0])
 
@@ -123,11 +123,11 @@ class Munger:
             df = ui.read_single_datafile(aux_mu, aux_path)
 
             # cast primary key(s) as int if possible, and set as (multi-)index
-            primary_keys = self.aux_meta.loc[afn, 'primary_key'].split(',')
-            df = mr.cast_cols_as_int(df,primary_keys)
+            primary_keys = self.aux_meta.loc[abbrev, 'primary_key'].split(',')
+            df = mr.cast_cols_as_int(df,primary_keys,error_msg=f'In dataframe for {abbrev}')
             df.set_index(primary_keys, inplace=True)
 
-            aux_data_dict[afn] = df
+            aux_data_dict[abbrev] = df
 
         return aux_data_dict
 
@@ -263,6 +263,7 @@ class Munger:
         [self.cdf_elements,self.header_row_count,self.field_names_if_no_field_name_row,self.field_name_row,
          self.count_columns,self.file_type,self.encoding,self.thousands_separator,self.aux_meta
          ] = read_munger_info_from_files(self.path_to_munger_dir,project_root=project_root)
+
         if aux_data_dir:
             self.aux_data = self.get_aux_data(aux_data_dir,project_root=project_root)
         else:
@@ -864,7 +865,7 @@ def check_element_against_raw_results(el,results_df,munger,numerical_columns,d):
 
     if mode == 'row':
         # add munged column
-        raw_fields = [f'{x}_{munger.field_rename_suffix}' for x in munger.cdf_elements.loc[el,'fields']]
+        raw_fields = [f'{x}_SOURCE' for x in munger.cdf_elements.loc[el,'fields']]
         try:
             relevant = results_df[raw_fields].drop_duplicates()
         except KeyError:

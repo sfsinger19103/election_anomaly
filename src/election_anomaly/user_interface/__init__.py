@@ -654,7 +654,7 @@ def read_combine_results(mu: sf.Munger, results_file, project_root, aux_data_dir
 			foreign_key = r['foreign_key'].split(',')
 			working = mr.cast_cols_as_int(working,foreign_key)
 			# rename columns
-			col_rename = {'c':f'{abbrev}[{c}]' for c in aux_data[abbrev].columns}
+			col_rename = {f'{c}':f'{abbrev}[{c}]' for c in aux_data[abbrev].columns}
 			# merge auxiliary info into <working>
 			a_d = aux_data[abbrev].rename(columns=col_rename)
 			working = working.merge(a_d,how='left',left_on=foreign_key,right_index=True)
@@ -674,7 +674,7 @@ def new_datafile(session,munger:sf.Munger,raw_path,project_root=None,juris=None,
 	raw = read_combine_results(munger, raw_path,project_root,aux_data_dir=aux_data_dir)
 	count_columns_by_name = [raw.columns[x] for x in munger.count_columns]
 
-	raw = mr.clean_raw_df(raw,munger)
+	raw = mr.munge_clean(raw, munger)
 	# NB: info_cols will have suffix added by munger
 
 	# check jurisdiction against raw results file, adapting jurisdiction files as necessary

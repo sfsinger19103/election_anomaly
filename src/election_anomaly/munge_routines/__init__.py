@@ -23,7 +23,7 @@ def generic_clean(df:pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def cast_cols_as_int(df: pd.DataFrame, col_list: list,mode='name') -> pd.DataFrame:
+def cast_cols_as_int(df: pd.DataFrame, col_list: list,mode='name',error_msg='') -> pd.DataFrame:
     """recast columns as integer where possible, leaving columns with text entries as non-numeric)"""
     if mode == 'index':
         num_columns = [df.columns[idx] for idx in col_list]
@@ -35,33 +35,40 @@ def cast_cols_as_int(df: pd.DataFrame, col_list: list,mode='name') -> pd.DataFra
         try:
             df[c] = df[c].astype('int64',errors='raise')
         except ValueError as e:
-            print(f'Column {c} cannot be cast as integer:\n{e}')
+            print(f'{error_msg}\nColumn {c} cannot be cast as integer:\n{e}')
     return df
 
 
-def clean_raw_df(raw,munger):
-    """Cast count columns as int; Change any blank entries in non-numeric columns to 'none or unknown'.
-    Appends munger suffix to raw column names to avoid conflicts"""
-
+def munge_clean(raw: pd.DataFrame, munger: jm.Munger):
+    """Drop unnecessary columns. Change any blank entries in non-numeric columns to 'none or unknown'.
+    Append '_SOURCE' suffix to raw column names to avoid conflicts"""
+    working = raw.copy()
+    # drop columns that are neither count columns nor used in munger formulas
     #  define columns named in munger formulas
     if munger.header_row_count > 1:
-        cols_to_munge = [x for x in raw.columns if x[munger.field_name_row] in munger.field_list]
+        munger_formula_columns = [x for x in working.columns if x[munger.field_name_row] in munger.field_list]
     else:
-        cols_to_munge = [x for x in raw.columns if x in munger.field_list]
+        munger_formula_columns = [x for x in working.columns if x in munger.field_list]
 
+    if munger.field_name_row is None:
+        count_columns_by_name = [munger.field_names_if_no_field_name_row[idx] for idx in munger.count_columns]
+    else:
+        count_columns_by_name = [working.columns[idx][munger.field_name_row] for idx in munger.count_columns]
     # TODO error check- what if cols_to_munge is missing something from munger.field_list?
 
     # keep columns named in munger formulas; keep count columns; drop all else.
-    raw = raw[cols_to_munge + num_columns]
-    # recast all cols_to_munge to strings,
+    working = working[munger_formula_columns + count_columns_by_name]
+
+    # recast all munger-formula-columns to strings,
     # change all blanks to "none or unknown"
-    for c in cols_to_munge:
-        raw[c] = raw[c].apply(str)
-        raw[c] = raw[c].replace('','none or unknown')
-    # rename columns to munge by adding suffix
-    renamer = {x:f'{x}_{munger.field_rename_suffix}' for x in cols_to_munge}
-    raw.rename(columns=renamer,inplace=True)
-    return raw
+    for c in munger_formula_columns:
+        working.loc[:, c] = working[c].apply(str)
+        working.loc[:, c] = working[c].replace('', 'none or unknown')
+    # add suffix '_SOURCE' to certain columns to avoid any conflict with db table names
+    # (since no db table name ends with _SOURCE)
+    renamer = {x:f'{x}_SOURCE' for x in munger_formula_columns}
+    working.rename(columns=renamer, inplace=True)
+    return working
 
 
 def text_fragments_and_fields(formula):
@@ -90,7 +97,7 @@ def add_munged_column(raw,munger,element,mode='row',inplace=True):
     formula = munger.cdf_elements.loc[element,'raw_identifier_formula']
     if mode == 'row':
         for field in munger.field_list:
-            formula = formula.replace(f'<{field}>',f'<{field}_{munger.field_rename_suffix}>')
+            formula = formula.replace(f'<{field}>',f'<{field}_SOURCE>')
     elif mode == 'column':
         for i in range(munger.header_row_count):
             formula = formula.replace(f'<{i}>',f'<variable_{i}>')
