@@ -23,11 +23,22 @@ def generic_clean(df:pd.DataFrame) -> pd.DataFrame:
     return df
 
 
+def cast_cols_as_int(df:pd.DataFrame, col_list) -> pd.DataFrame:
+    """recast columns as integer where possible, leaving columns with text entries as non-numeric)"""
+    num_columns = [df.columns[idx] for idx in col_list]
+    for c in num_columns:
+        try:
+            df[c] = df[c].astype('int64',errors='raise')
+        except ValueError:
+            raise
+    return df
+
 def clean_raw_df(raw,munger):
     """Replaces nulls, strips whitespace, changes any blank entries in non-numeric columns to 'none or unknown'.
     Appends munger suffix to raw column names to avoid conflicts"""
 
     raw = generic_clean(raw)
+    raw = cast_cols_as_int(raw, munger.count_columns)
 
     #  define columns named in munger formulas
     if munger.header_row_count > 1:
@@ -36,15 +47,6 @@ def clean_raw_df(raw,munger):
         cols_to_munge = [x for x in raw.columns if x in munger.field_list]
 
     # TODO error check- what if cols_to_munge is missing something from munger.field_list?
-
-    #  recast count columns as integer where possible.
-    #  (recast leaves columns with text entries as non-numeric).
-    num_columns = [raw.columns[idx] for idx in munger.count_columns]
-    for c in num_columns:
-        try:
-            raw[c] = raw[c].astype('int64',errors='raise')
-        except ValueError:
-            raise
 
     # keep columns named in munger formulas; keep count columns; drop all else.
     raw = raw[cols_to_munge + num_columns]

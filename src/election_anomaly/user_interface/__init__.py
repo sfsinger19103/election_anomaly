@@ -629,8 +629,10 @@ def read_single_datafile(munger, f_path):
 
 
 def read_combine_results(munger,count_file,aux_data_directory):
-
-	return df
+	working = read_single_datafile(munger,count_file)
+	working = mr.generic_clean(working)
+	working = mr.cast_cols_as_int(working, munger)
+	return working
 
 
 def new_datafile(session,munger,raw_path,project_root=None,juris=None):
