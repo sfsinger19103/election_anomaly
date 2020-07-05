@@ -35,12 +35,10 @@ def cast_cols_as_int(df:pd.DataFrame, col_list) -> pd.DataFrame:
 
 
 def clean_raw_df(raw,munger):
-    """Replaces nulls, strips whitespace, changes any blank entries in non-numeric columns to 'none or unknown'.
+    """Cast count columns as int; Change any blank entries in non-numeric columns to 'none or unknown'.
     Appends munger suffix to raw column names to avoid conflicts"""
 
-    raw = generic_clean(raw)
-    raw = cast_cols_as_int(raw, munger.count_columns)
-
+    raw = cast_cols_as_int(raw, munger)
     #  define columns named in munger formulas
     if munger.header_row_count > 1:
         cols_to_munge = [x for x in raw.columns if x[munger.field_name_row] in munger.field_list]

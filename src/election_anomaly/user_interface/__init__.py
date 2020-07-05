@@ -14,6 +14,7 @@ import ntpath
 import re
 import datetime
 from election_anomaly import juris_and_munger as sf
+# TODO change sf to jm
 import random
 from tkinter import filedialog
 from configparser import MissingSectionHeaderError
@@ -613,7 +614,7 @@ def enter_and_check_datatype(question,datatype):
 	return answer
 
 
-def read_single_datafile(munger, f_path):
+def read_single_datafile(munger:sf.Munger, f_path) -> pd.DataFrame:
 	if munger.file_type in ['txt','csv']:
 		kwargs = {'encoding':munger.encoding,'quoting':csv.QUOTE_MINIMAL,'header':list(range(munger.header_row_count)),
 			'thousands':munger.thousands_separator}
@@ -625,6 +626,10 @@ def read_single_datafile(munger, f_path):
 		df = pd.read_excel(f_path,dtype=str,thousands=munger.thousands_separator)
 	else:
 		raise mr.MungeError(f'Unrecognized file_type in munger: {munger.file_type}')
+
+	# clean nulls/blanks, and cast count columns as integers
+	df = mr.generic_clean(df)
+
 	return df
 
 
@@ -642,7 +647,7 @@ def read_combine_results(munger: sf.Munger, results_file):
 	return working
 
 
-def new_datafile(session,munger,raw_path,project_root=None,juris=None):
+def new_datafile(session,munger:sf.Munger,raw_path,project_root=None,juris=None):
 	"""Guide user through process of uploading data in <raw_file>
 	into common data format.
 	Assumes cdf db exists already"""
@@ -651,7 +656,7 @@ def new_datafile(session,munger,raw_path,project_root=None,juris=None):
 	if not juris:
 		juris = pick_juris_from_filesystem(
 			project_root,juriss_dir='jurisdictions')
-	raw = read_single_datafile(munger, raw_path)
+	raw = read_combine_results(munger, raw_path)
 	count_columns_by_name = [raw.columns[x] for x in munger.count_columns]
 
 	raw = mr.clean_raw_df(raw,munger)
