@@ -628,6 +628,11 @@ def read_single_datafile(munger, f_path):
 	return df
 
 
+def read_combine_results(munger,count_file,aux_data_directory):
+
+	return df
+
+
 def new_datafile(session,munger,raw_path,project_root=None,juris=None):
 	"""Guide user through process of uploading data in <raw_file>
 	into common data format.

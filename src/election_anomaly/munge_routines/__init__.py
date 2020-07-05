@@ -1,5 +1,6 @@
 from election_anomaly import db_routines as dbr
 from election_anomaly import user_interface as ui
+from election_anomaly import juris_and_munger as jm
 import pandas as pd
 import re
 import os
@@ -49,6 +50,38 @@ def clean_raw_df(raw,munger):
     renamer = {x:f'{x}_{munger.field_rename_suffix}' for x in cols_to_munge}
     raw.rename(columns=renamer,inplace=True)
     return raw
+
+
+def auxiliary_data(munger: jm.Munger, aux_data_dir, project_root=None) -> dict:
+    """creates dictionary of dataframes, one for each auxiliary datafile.
+   DataFrames returned are (multi-)indexed by the primary key(s)"""
+    aux_data_dict = {}  # will hold dataframe for each abbreviated file name
+
+    field_list = list(set([x[0] for x in munger.auxilliary_fields()]))
+    for afn in field_list:
+        # get munger for the auxiliary file
+        aux_mu = jm.Munger(os.path.join(munger.path_to_munger_dir, afn), project_root=project_root)
+
+        # find file in aux_data_dir whose name contains the string <afn>
+        aux_filename_list = [x for x in os.listdir(aux_data_dir) if afn in x]
+        if len(aux_filename_list) == 0:
+            raise MungeError(f'No file found with name containing {afn} in the directory {aux_data_dir}')
+        elif len(aux_filename_list) > 1:
+            raise MungeError(f'Too many files found with name containing {afn} in the directory {aux_data_dir}')
+        else:
+            aux_path = os.path.join(aux_data_dir, aux_filename_list[0])
+
+        # read and clean the auxiliary data file; NB: munger suffix is added in cleaning process.
+        df = ui.read_single_datafile(aux_mu, aux_path)
+        df = clean_raw_df(df, aux_mu, keep=df.columns)  # keep all columns
+
+        # set primary key(s) as (multi-)index
+        primary_keys = munger.auxiliary.loc[afn, 'primary_key'].split(',')
+        df.set_index(primary_keys, inplace=True)
+
+        aux_data_dict[afn] = df
+
+    return aux_data_dict
 
 
 def text_fragments_and_fields(formula):

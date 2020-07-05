@@ -100,6 +100,14 @@ class Jurisdiction:
 
 
 class Munger:
+    def auxilliary_fields(self):
+        """Return set of [file_abbrev,field] pairs, one for each
+        field in <self>.cdf_elements.fields referring to auxilliary files"""
+        pat = re.compile('([^\\[]+)\\[([^\\[\\]]+)\\]')
+        all_set = set().union(*list(self.cdf_elements.fields))
+        aux_field_list = [re.findall(pat,x)[0] for x in all_set if re.findall(pat,x)]
+        return aux_field_list
+
     def check_against_self(self):
         """check that munger is internally consistent"""
         problems = []
@@ -195,9 +203,9 @@ class Munger:
                 ui.report_problems(problems)
                 input(f'Correct the problems by editing the files in the directory {self.path_to_munger_dir}\n'
                       f'Then hit enter to continue.')
-                [self.cdf_elements,self.header_row_count,self.field_name_row,self.count_columns,
-                 self.file_type,self.encoding,self.thousands_separator] = read_munger_info_from_files(
-                    self.path_to_munger_dir)
+                [self.cdf_elements,self.header_row_count,self.field_names_if_no_field_name_row,
+                 self.field_name_row,self.count_columns,self.file_type,self.encoding,self.thousands_separator,self.auxiliary
+                 ] = read_munger_info_from_files(self.path_to_munger_dir,project_root=project_root)
             else:
                 checked = True
         # TODO allow user to pick different munger from file system
@@ -218,10 +226,10 @@ class Munger:
             Path(dir_path).mkdir(parents=True,exist_ok=True)
 
         if check_files:
-            ensure_munger_files(self.name,project_root=project_root)
-        [self.cdf_elements,self.header_row_count,self.field_name_row,self.count_columns,
-         self.file_type,self.encoding,self.thousands_separator] = read_munger_info_from_files(
-            self.path_to_munger_dir)
+            ensure_munger_files(dir_path,project_root=project_root)
+        [self.cdf_elements,self.header_row_count,self.field_names_if_no_field_name_row,self.field_name_row,
+         self.count_columns,self.file_type,self.encoding,self.thousands_separator,self.auxiliary
+         ] = read_munger_info_from_files(self.path_to_munger_dir,project_root=project_root)
 
         self.field_rename_suffix = '___'  # NB: must not match any suffix of a cdf element name;
 
@@ -231,13 +239,22 @@ class Munger:
             self.field_list=self.field_list.union(r['fields'])
 
 
-def read_munger_info_from_files(dir_path):
+def read_munger_info_from_files(dir_path,project_root=None,aux_data_dir=None):
+    """<aux_data_dir> is required if there are auxiliary data files"""
+    # create auxiliary dataframe
+    if 'auxiliary.txt' in os.listdir(dir_path):
+        # if some elements are reported in separate files per auxilliary.txt file, read from file
+        auxiliary = pd.read_csv(os.path.join(dir_path, 'auxiliary.txt'),sep='\t',index_col='abbreviated_file_name')
+    else:
+        # set auxiliary dataframe to empty
+        auxiliary = pd.DataFrame([[]])
+
     # read cdf_element info and
-    cdf_elements = pd.read_csv(
-        os.path.join(dir_path,'cdf_elements.txt'),sep='\t',index_col='name',encoding='iso-8859-1').fillna('')
+    cdf_elements = pd.read_csv(os.path.join(dir_path,'cdf_elements.txt'),sep='\t',index_col='name').fillna('')
     # add row for _datafile element
     datafile_elt = pd.DataFrame([['','other']],columns=['raw_identifier_formula','source'],index=['_datafile'])
     cdf_elements = cdf_elements.append(datafile_elt)
+
     # add column for list of fields used in formulas
     cdf_elements['fields'] = [[]]*cdf_elements.shape[0]
     for i,r in cdf_elements.iterrows():
@@ -245,10 +262,20 @@ def read_munger_info_from_files(dir_path):
         cdf_elements.loc[i,'fields'] = [f for t,f in text_field_list]
 
     # read formatting info
-    format_info = pd.read_csv(os.path.join(dir_path,'format.txt'),sep='\t',index_col='item',encoding='iso-8859-1')
-    field_name_row = int(format_info.loc['field_name_row','value'])
+    format_info = pd.read_csv(os.path.join(dir_path,'format.txt'),sep='\t',index_col='item')
+    if eval(format_info.loc['field_name_row','value']):
+        field_name_row = int(format_info.loc['field_name_row','value'])
+    else:
+        field_name_row = None
     header_row_count = int(format_info.loc['header_row_count','value'])
-    count_columns = [int(x) for x in format_info.loc['count_columns','value'].split(',')]
+    field_names_if_no_field_name_row = format_info.loc['field_names_if_no_field_name_row','value'].split(',')
+    if format_info.loc['count_columns','value'] == 'None' or (
+            type(format_info.loc['count_columns','value']) == float
+            and np.isnan(format_info.loc['count_columns','value'])
+    ) or format_info.loc['count_columns','value'] == '':
+        count_columns = []
+    else:
+        count_columns = [int(x) for x in format_info.loc['count_columns','value'].split(',')]
     file_type = format_info.loc['file_type','value']
     encoding = format_info.loc['encoding','value']
     thousands_separator = format_info.loc['thousands_separator','value']
@@ -256,9 +283,8 @@ def read_munger_info_from_files(dir_path):
         thousands_separator = None
     # TODO warn if encoding not recognized
 
-    # TODO if cdf_elements.txt uses any cdf_element names as fields in any raw_identifiers formula,
-    #   will need to rename some columns of the raw file before processing.
-    return [cdf_elements,header_row_count,field_name_row,count_columns,file_type,encoding,thousands_separator]
+    return [cdf_elements,header_row_count,field_names_if_no_field_name_row,field_name_row,
+            count_columns,file_type,encoding,thousands_separator,auxiliary]
 
 # TODO combine ensure_jurisdiction_files with ensure_juris_files
 def ensure_jurisdiction_files(juris_path,project_root):
