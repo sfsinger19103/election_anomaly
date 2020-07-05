@@ -57,7 +57,7 @@ def auxiliary_data(munger: jm.Munger, aux_data_dir, project_root=None) -> dict:
    DataFrames returned are (multi-)indexed by the primary key(s)"""
     aux_data_dict = {}  # will hold dataframe for each abbreviated file name
 
-    field_list = list(set([x[0] for x in munger.auxilliary_fields()]))
+    field_list = list(set([x[0] for x in munger.auxiliary_fields()]))
     for afn in field_list:
         # get munger for the auxiliary file
         aux_mu = jm.Munger(os.path.join(munger.path_to_munger_dir, afn), project_root=project_root)

@@ -100,7 +100,7 @@ class Jurisdiction:
 
 
 class Munger:
-    def auxilliary_fields(self):
+    def auxiliary_fields(self):
         """Return set of [file_abbrev,field] pairs, one for each
         field in <self>.cdf_elements.fields referring to auxilliary files"""
         pat = re.compile('([^\\[]+)\\[([^\\[\\]]+)\\]')
