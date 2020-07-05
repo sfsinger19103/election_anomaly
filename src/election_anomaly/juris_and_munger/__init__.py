@@ -154,7 +154,7 @@ class Munger:
 
             # check encoding
             try:
-                raw = ui.read_datafile(self,datafile_path)
+                raw = ui.read_single_datafile(self, datafile_path)
             except UnicodeEncodeError:
                 problems.append(f'Datafile is not encoded as {self.encoding}.')
 

@@ -613,7 +613,7 @@ def enter_and_check_datatype(question,datatype):
 	return answer
 
 
-def read_datafile(munger,f_path):
+def read_single_datafile(munger, f_path):
 	if munger.file_type in ['txt','csv']:
 		kwargs = {'encoding':munger.encoding,'quoting':csv.QUOTE_MINIMAL,'header':list(range(munger.header_row_count)),
 			'thousands':munger.thousands_separator}
@@ -637,7 +637,7 @@ def new_datafile(session,munger,raw_path,project_root=None,juris=None):
 	if not juris:
 		juris = pick_juris_from_filesystem(
 			project_root,juriss_dir='jurisdictions')
-	raw = read_datafile(munger,raw_path)
+	raw = read_single_datafile(munger, raw_path)
 	count_columns_by_name = [raw.columns[x] for x in munger.count_columns]
 
 	raw = mr.clean_raw_df(raw,munger)
