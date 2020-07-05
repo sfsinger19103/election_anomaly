@@ -1,4 +1,2 @@
 Any questions regarding results data can be directed to the Michigan
 Bureau of Elections by calling (517) 335-3234.
-
-For the 2018 general we have chosen to rename the 2018votes.txt column "City/Town Code" to "City/Township Code" to match the primary key name in the 2018city.txt file. This is done in the format.txt file of the munger.
