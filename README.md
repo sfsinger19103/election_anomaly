@@ -1,3 +1,14 @@
+# election_anomaly
+_Documentation under construction_
+
+# Funding
+Funding provided October 2019 - April 2021 by the National Science Foundation
+ * Award #1936809, "EAGER: Data Science for Election Verification" 
+ * Award #2027089, "RAPID: Election Result Anomaly Detection for 2020"
+
+# License
+See [LICENSE.md](./LICENSE.md)
+
 # Overview
 This repository hopes to provide reliable tools for consolidation and analysis of raw election results from the most reliable sources -- the election agencies themselves. 
  * Consolidation: take as input election results files from a wide variety of sources and load the data into a relational database patterned after the [common data format](https://github.com/usnistgov/ElectionResultsReporting) from the National Institute of Standards and Technology (NIST)
@@ -87,6 +98,13 @@ WARD,DIVISION,VOTE TYPE,CATEGORY,SELECTION,PARTY,VOTE COUNT
 01,01,P,JUDGE OF THE SUPERIOR COURT,AMANDA GREEN-HAWKINS,DEMOCRATIC,0
 ```
 The formula `Ward <WARD>;Division <DIVISION>` would yield `Ward 01;Division 01`.
+
+### Munging auxiliary data files
+Some jurisdictions (e.g., Michigan, for 2018 general election) provide a vote-count file linked to auxiliary data files by foreign keys. In this case, the munger directory must have, in addition to the files listed above:
+  * a file `aux_meta.txt` with a row for each auxiliary file (i.e., each file not containing vote counts, but supplementary information such as Office name)
+   * `abbreviated_file_name`, a string that appears in the name of the auxiliary file (and not in any other auxiliary file name)
+   * `primary_key`, the column (or a comma-separated list of the several columns) constituting the primary key for that file
+   * `foreign_key`, the corresponding column (or a comma-separated list of the several columns, in matching order) in the vote-count file that correspond to the primary key column(s)
 
 ### column-source formula example
 Consider this snippet from a tab-separated North Carolina voting results file:
