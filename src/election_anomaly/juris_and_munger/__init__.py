@@ -119,12 +119,12 @@ class Munger:
             else:
                 aux_path = os.path.join(aux_data_dir, aux_filename_list[0])
 
-            # read and clean the auxiliary data file
+            # read and clean the auxiliary data file, including setting primary key columns as int
             df = ui.read_single_datafile(aux_mu, aux_path)
-            df = mr.generic_clean(df)
 
-            # set primary key(s) as (multi-)index
+            # cast primary key(s) as int if possible, and set as (multi-)index
             primary_keys = self.aux_meta.loc[afn, 'primary_key'].split(',')
+            df = mr.cast_cols_as_int(df,primary_keys)
             df.set_index(primary_keys, inplace=True)
 
             aux_data_dict[afn] = df
@@ -183,6 +183,7 @@ class Munger:
     def check_against_datafile(self,datafile_path):
         """check that munger is compatible with datafile <raw>;
         offer user chance to correct munger"""
+        # TODO update for auxiliary files
 
         # initialize to keep syntax-checker happy
         raw = pd.DataFrame([[]])

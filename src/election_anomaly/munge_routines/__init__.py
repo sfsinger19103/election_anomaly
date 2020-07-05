@@ -23,7 +23,7 @@ def generic_clean(df:pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def cast_cols_as_int(df:pd.DataFrame, col_list) -> pd.DataFrame:
+def cast_cols_as_int(df: pd.DataFrame, col_list: list) -> pd.DataFrame:
     """recast columns as integer where possible, leaving columns with text entries as non-numeric)"""
     num_columns = [df.columns[idx] for idx in col_list]
     for c in num_columns:

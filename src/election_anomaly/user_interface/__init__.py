@@ -633,21 +633,28 @@ def read_single_datafile(munger:sf.Munger, f_path) -> pd.DataFrame:
 	return df
 
 
-def read_combine_results(munger: sf.Munger, results_file):
-	working = read_single_datafile(munger, results_file)
-	working = mr.generic_clean(working)
-	working = mr.cast_cols_as_int(working, munger)
+def read_combine_results(mu: sf.Munger, results_file, project_root, aux_data_dir=None):
+	working = read_single_datafile(mu, results_file)
+	working = mr.cast_cols_as_int(working, mu.count_columns)
 
 	# merge with auxiliary files (if any)
-	if munger.aux_data != {}:
-		# merge auxiliary info into <working>
-		for abbrev,r in munger.aux_meta.iterrows():
-			working = working.merge(
-				munger.aux_data[abbrev],how='left',left_on=r['foreign_key'].split(','),right_index=True)
+	if aux_data_dir is not None:
+		# get auxiliary data (includes cleaning and setting (multi-)index of primary key column(s))
+		aux_data = mu.get_aux_data(aux_data_dir, project_root=project_root)
+		for abbrev,r in mu.aux_meta.iterrows():
+			# cast foreign key columns of main results file as int if possible
+			foreign_key = r['foreign_key'].split(',')
+			working = mr.cast_cols_as_int(working,foreign_key)
+			# rename columns
+			col_rename = {'c':f'{abbrev}[{c}]' for c in aux_data[abbrev].columns}
+			# merge auxiliary info into <working>
+			a_d = aux_data[abbrev].rename(columns=col_rename,inplace=True)
+			working = working.merge(a_d,how='left',left_on=foreign_key,right_index=True)
+
 	return working
 
 
-def new_datafile(session,munger:sf.Munger,raw_path,project_root=None,juris=None):
+def new_datafile(session,munger:sf.Munger,raw_path,project_root=None,juris=None,aux_data_dir=None):
 	"""Guide user through process of uploading data in <raw_file>
 	into common data format.
 	Assumes cdf db exists already"""
@@ -656,7 +663,7 @@ def new_datafile(session,munger:sf.Munger,raw_path,project_root=None,juris=None)
 	if not juris:
 		juris = pick_juris_from_filesystem(
 			project_root,juriss_dir='jurisdictions')
-	raw = read_combine_results(munger, raw_path)
+	raw = read_combine_results(munger, raw_path,project_root,aux_data_dir=aux_data_dir)
 	count_columns_by_name = [raw.columns[x] for x in munger.count_columns]
 
 	raw = mr.clean_raw_df(raw,munger)
