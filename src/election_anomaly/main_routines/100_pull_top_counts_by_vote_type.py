@@ -6,6 +6,7 @@ from election_anomaly import user_interface as ui
 from election_anomaly import analyze_via_pandas as avp
 
 # FIXME failed on CO 2018g by county, maybe issue with totals?
+# TODO note: worked for MI 2018 by county
 if __name__ == '__main__':
     d, error = ui.get_runtime_parameters(
         ['project_root','juris_name','db_paramfile','db_name','rollup_directory'])
