@@ -1,5 +1,5 @@
 name	raw_identifier_formula	source
-ReportingUnit	<county[County Name]>;<cit[City/Township Description]>;Ward <Ward Number>;Precinct <Precinct Number>-<Precinct Label>	row
+ReportingUnit	<county[County Name]>;<cit[City/Township Description]>;Ward <Ward Number>;Precinct <Precinct Number> Label <Precinct Label>	row
 Election	<Election Year> <Election Type>	row
 Party	<name[Candidate Party Name]>	row
 CandidateContest	<off[Office Description]>	row

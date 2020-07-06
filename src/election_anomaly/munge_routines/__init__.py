@@ -117,7 +117,18 @@ def add_munged_column(raw,munger,element,mode='row',inplace=True):
     for t,f in text_field_list:
         assert f != f'{element}_raw',f'Column name conflicts with element name: {f}'
         working.loc[:,f'{element}_raw'] = working.loc[:,f].apply(lambda x:f'{t}{x}') + working.loc[:,f'{element}_raw']
+
+    # compress whitespace for <element>_raw
+    working.loc[:,f'{element}_raw'] = working[f'{element}_raw'].apply(compress_whitespace)
     return working
+
+
+def compress_whitespace(s:str) -> str:
+    """Return a string where every instance of consecutive whitespaces in <s> has been replace by a single space,
+    and leading and trailing whitespace is eliminated"""
+    new_s = re.sub(r'\s+',' ',s)
+    new_s = new_s.strip()
+    return new_s
 
 
 def replace_raw_with_internal_ids(
@@ -151,6 +162,10 @@ def replace_raw_with_internal_ids(
 
     # replace any blank values for the raw identifier corresponding to the element with 'none or unknown'
     row_df = none_or_unknown(row_df,[f'{element}_raw'])
+
+    # replace multiple whitespace by single space in column read from dictionary.txt
+    # NB: <element>_raw column had whitespace compressed when it was created.
+    raw_ids_for_element.loc[:,'raw_identifier_value'] = raw_ids_for_element['raw_identifier_value'].apply(compress_whitespace)
 
     row_df = row_df.merge(raw_ids_for_element,how=how,
         left_on=f'{element}_raw',
