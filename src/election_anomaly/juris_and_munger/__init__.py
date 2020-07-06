@@ -271,8 +271,6 @@ class Munger:
         else:
             self.aux_data = {}
 
-        self.field_rename_suffix = '___'  # NB: must not match any suffix of a cdf element name;
-
         # used repeatedly, so calculated once for convenience
         self.field_list = set()
         for t,r in self.cdf_elements.iterrows():

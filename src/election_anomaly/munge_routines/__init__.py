@@ -376,7 +376,7 @@ def munge_and_melt(mu,raw,count_cols):
         working = add_munged_column(working,mu,t,mode='row')
 
     # remove original row-munge columns
-    munged = [x for x in working.columns if x[-len(mu.field_rename_suffix):] == mu.field_rename_suffix]
+    munged = [x for x in working.columns if x[-7:] == '_SOURCE']
     working.drop(munged,axis=1,inplace=True)
 
     # if there is just one numerical column, melt still creates dummy variable col
@@ -413,7 +413,7 @@ def add_constant_column(df,col_name,col_value):
 
 def raw_elements_to_cdf(session,project_root,juris,mu,raw,count_cols):
     """load data from <raw> into the database.
-    Note that columns to be munged (e.g. County_xxx) have mu.field_rename_suffix (e.g., _xxx) added already"""
+    Note that columns to be munged (e.g. County_SOURCE) have suffix _SOURCE"""
     working = raw.copy()
 
     # enter elements from sources outside raw data, including creating id column(s)
