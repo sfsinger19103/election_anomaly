@@ -663,7 +663,7 @@ Office	Michigan;Governor	GOVERNOR 4 YEAR TERM (1) POSITION
 Office	Michigan;Supreme Court	JUSTICE OF SUPREME COURT 8 YEAR TERMS (2) POSITIONS
 Office	Michigan;Secretary of State	SECRETARY OF STATE 4 YEAR TERM (1) POSITION
 Office	Michigan;US Congress;Senate	UNITED STATES SENATOR 6 YEAR TERM (1) POSITION
-Party	Michigan;Washtenaw County;Augusta Township;Ward 0;Precinct 1-0	WASHTENAW;AUGUSTA TOWNSHIP;Ward 0;Precinct 1-0
+ReportingUnit	Michigan;Washtenaw County;Augusta Township;Ward 0;Precinct 1-0	WASHTENAW;AUGUSTA TOWNSHIP;Ward 0;Precinct 1-0
 ReportingUnit	Michigan;Alcona County	ALCONA
 ReportingUnit	Michigan;Alcona County;Alcona Township	ALCONA;ALCONA TOWNSHIP
 ReportingUnit	Michigan;Alcona County;Alcona Township;Ward 0	ALCONA;ALCONA TOWNSHIP;Ward 0
@@ -7827,3 +7827,16 @@ CandidateContest	Michigan;Governor	GOVERNOR 4 YEAR TERM (1) POSITION
 CandidateContest	Michigan;Supreme Court	JUSTICE OF SUPREME COURT 8 YEAR TERMS (2) POSITIONS
 CandidateContest	Michigan;Secretary of State	SECRETARY OF STATE 4 YEAR TERM (1) POSITION
 CandidateContest	Michigan;US Congress;Senate	UNITED STATES SENATOR 6 YEAR TERM (1) POSITION
+BallotMeasureContest	STATE PROPOSAL - 18-1: LEGISLATIVE INITIATIVE: COALITION TO REGULATE MARIJUANA LIKE ALCOHOL	STATE PROPOSAL - 18-1: LEGISLATIVE INITIATIVE: COALITION TO REGULATE MARIJUANA LIKE ALCOHOL
+BallotMeasureContest	STATE PROPOSAL - 18-2: CONSTITUTIONAL AMENDMENT: VOTERS NOT POLITICIANS	STATE PROPOSAL - 18-2: CONSTITUTIONAL AMENDMENT: VOTERS NOT POLITICIANS
+BallotMeasureContest	STATE PROPOSAL - 18-3: CONSTITUTIONAL AMENDMENT: PROMOTE THE VOTE	STATE PROPOSAL - 18-3: CONSTITUTIONAL AMENDMENT: PROMOTE THE VOTE
+Party	Democratic Party	DEM
+Party	Green Party	GRN
+Party	Libertarian Party	LIB
+Party	Natural Law Party	NLP
+Party	No Party Affiliation	NPA
+Party	Republican Party	REP
+Party	Reform Party	RFP
+Party	TIS	TIS
+Party	US Taxpayers	UST
+Party	Workers World	WORW

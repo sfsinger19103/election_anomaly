@@ -39,8 +39,17 @@ def cast_cols_as_int(df: pd.DataFrame, col_list: list,mode='name',error_msg='') 
     return df
 
 
+def none_or_unknown(df:pd.DataFrame,cols:list) -> pd.DataFrame:
+    """ change all blanks to 'none or unknown' """
+    df_copy = df.copy()
+    for c in cols:
+        df.loc[:, c] = df[c].apply(str)
+        df.loc[:, c] = df[c].replace('', 'none or unknown')
+    return df_copy
+
+
 def munge_clean(raw: pd.DataFrame, munger: jm.Munger):
-    """Drop unnecessary columns. Change any blank entries in non-numeric columns to 'none or unknown'.
+    """Drop unnecessary columns.
     Append '_SOURCE' suffix to raw column names to avoid conflicts"""
     working = raw.copy()
     # drop columns that are neither count columns nor used in munger formulas
@@ -59,11 +68,6 @@ def munge_clean(raw: pd.DataFrame, munger: jm.Munger):
     # keep columns named in munger formulas; keep count columns; drop all else.
     working = working[munger_formula_columns + count_columns_by_name]
 
-    # recast all munger-formula-columns to strings,
-    # change all blanks to "none or unknown"
-    for c in munger_formula_columns:
-        working.loc[:, c] = working[c].apply(str)
-        working.loc[:, c] = working[c].replace('', 'none or unknown')
     # add suffix '_SOURCE' to certain columns to avoid any conflict with db table names
     # (since no db table name ends with _SOURCE)
     renamer = {x:f'{x}_SOURCE' for x in munger_formula_columns}
@@ -112,7 +116,7 @@ def add_munged_column(raw,munger,element,mode='row',inplace=True):
     text_field_list.reverse()
     for t,f in text_field_list:
         assert f != f'{element}_raw',f'Column name conflicts with element name: {f}'
-        working.loc[:,f'{element}_raw'] = t + working.loc[:,f] + working.loc[:,f'{element}_raw']
+        working.loc[:,f'{element}_raw'] = working.loc[:,f].apply(lambda x:f'{t}{x}') + working.loc[:,f'{element}_raw']
     return working
 
 
@@ -144,6 +148,9 @@ def replace_raw_with_internal_ids(
             print(
                 f'Warning: Results for {to_be_dropped.shape[0]} rows '
                 f'with unmatched {element}s will not be loaded to database.')
+
+    # replace any blank values for the raw identifier corresponding to the element with 'none or unknown'
+    row_df = none_or_unknown(row_df,[f'{element}_raw'])
 
     row_df = row_df.merge(raw_ids_for_element,how=how,
         left_on=f'{element}_raw',

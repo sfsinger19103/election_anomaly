@@ -34,6 +34,8 @@ class Jurisdiction:
                 'CandidateContest',results_df,munger,numerical_columns,d)[['CandidateContest_raw']]
             missing_contest = missing_bmc.merge(missing_cc,how='inner',left_index=True,right_index=True)
             if not missing_contest.empty:
+                # FIXME gracefully handle double spaces for candidates with missing middle name
+                # FIXME handle issue of '0'' turned into '' in MI reportingunit names on munge
                 ui.show_sample(missing_contest,f'Contests','cannot be translated')
                 problems.append(f'At least one contest unrecognized by dictionary.txt')
 
