@@ -1,10 +1,10 @@
 import os.path
 
-import db_routines
-import db_routines as dbr
+from election_anomaly import db_routines
+from election_anomaly import db_routines as dbr
 import pandas as pd
-import munge_routines as mr
-import user_interface as ui
+from election_anomaly import munge_routines as mr
+from election_anomaly import user_interface as ui
 import re
 import numpy as np
 from pathlib import Path
@@ -293,13 +293,15 @@ def read_munger_info_from_files(dir_path):
     file_type = format_info.loc['file_type','value']
     encoding = format_info.loc['encoding','value']
     thousands_separator = format_info.loc['thousands_separator','value']
+    if thousands_separator in ['None','',np.nan]:
+        thousands_separator = None
     # TODO warn if encoding not recognized
 
     # TODO if cdf_elements.txt uses any cdf_element names as fields in any raw_identifiers formula,
     #   will need to rename some columns of the raw file before processing.
     return [cdf_elements,header_row_count,field_name_row,count_columns,file_type,encoding,thousands_separator]
 
-
+# TODO combine ensure_jurisdiction_files with ensure_juris_files
 def ensure_jurisdiction_files(juris_path,project_root):
     # create jurisdiction directory
     try:
@@ -641,7 +643,7 @@ def juris_dependency_dictionary():
 def load_juris_dframe_into_cdf(session,element,juris_path,project_root,load_refs=True):
     """ TODO
     """
-
+    # TODO fail gracefully if file does not exist
     cdf_schema_def_dir = os.path.join(project_root,'election_anomaly/CDF_schema_def_info')
     df = pd.read_csv(os.path.join(juris_path,f'{element}.txt'),sep='\t').fillna('none or unknown')
     # TODO check that df has the right format
@@ -834,4 +836,4 @@ class ForeignKeyException(Exception):
 
 
 if __name__ == '__main__':
-    print('Done (states_and_files)!')
+    print('Done (juris_and_munger)!')

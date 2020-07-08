@@ -1,5 +1,5 @@
-import db_routines as dbr
-import user_interface as ui
+from election_anomaly import db_routines as dbr
+from election_anomaly import user_interface as ui
 import pandas as pd
 import re
 import os
@@ -94,12 +94,6 @@ def add_munged_column(raw,munger,element,mode='row',inplace=True):
         assert f != f'{element}_raw',f'Column name conflicts with element name: {f}'
         working.loc[:,f'{element}_raw'] = t + working.loc[:,f] + working.loc[:,f'{element}_raw']
     return working
-
-
-def filter_by_dict(df,d):
-    """Returns <df> filtered by dictionary <d> ,
-    where keys of <d> are column names of <df> and values of <d> are the desired value"""
-    return df.loc[(df[list(d)] == pd.Series(d)).all(axis=1)]
 
 
 def replace_raw_with_internal_ids(
@@ -260,17 +254,6 @@ def enum_value_to_id_othertext(enum_df,value):
         idx = enum_df[enum_df.Txt == 'other'].first_valid_index()
         other_txt = value
     return idx,other_txt
-
-
-def enum_plaintext_dict_from_file_record(session,element,file_record):
-    """Return a dictionary of <enum>:<plaintext> for all enumerations in
-    <file_record>, which is itself a dictionary of <field>:<value>"""
-    element_df_columns = pd.read_sql_table(element,session.bind,index_col='Id').columns
-    # TODO INEFFICIENT don't need all of element_df; just need columns
-    # identify enumerations by existence of `<enum>Other` field
-    enum_list = [x[5:] for x in element_df_columns if x[:5] == 'Other']
-    enum_plaintext_dict = {[e]:file_record[e] for e in enum_list}
-    return enum_plaintext_dict
 
 
 def fk_plaintext_dict_from_db_record(session,element,db_record,excluded=None):
