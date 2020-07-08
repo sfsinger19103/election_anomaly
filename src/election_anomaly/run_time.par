@@ -1,0 +1,18 @@
+[election_anomaly]
+project_root=C:\Users\jsru2\Desktop\GitHub\election_anomaly\src
+results_file=C:\Users\jsru2\Desktop\GitHub\election_anomaly\local\NC\data\2018g\nc_general\results_pct_20181106.txt
+juris_name=NC_test
+db_paramfile=C:\Users\jsru2\Desktop\GitHub\election_anomaly\local\database.ini
+munger_name=NEW_nc18g_pre
+db_name=NC
+top_reporting_unit=North Carolina
+sub_reporting_unit_type=county
+atomic_ru_type=precinct
+rollup_directory=C:\Users\jsru2\Desktop\GitHub\election_anomaly\local\NC\results
+
+[result_file_specifications]
+short_name = NC2018g_by_precinct
+file_date = 2022-11-11
+download_date = 2020-06-30
+note = None
+source = https://www.ncsbe.gov/Election-Results
