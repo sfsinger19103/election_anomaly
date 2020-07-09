@@ -8,5 +8,5 @@ The input files should have the same `Top Reporting Unit` (e.g., Colorado) and t
 
 **Running the verification program**
 
-Run *python src\election_anomaly\verify_results\__init__.py*
+Run *python src/election_anomaly/verify_results/__init__.py*
 
