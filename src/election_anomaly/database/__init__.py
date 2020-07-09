@@ -6,7 +6,6 @@ import sqlalchemy
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 from psycopg2 import sql
 import sqlalchemy as db
-import sqlalchemy_utils
 from election_anomaly import user_interface as ui
 from configparser import MissingSectionHeaderError
 import pandas as pd

@@ -2,12 +2,10 @@ from configparser import ConfigParser
 
 from election_anomaly import database
 from election_anomaly import database as dbr
-from election_anomaly.database import create_cdf_db as db_cdf
 from election_anomaly import munge as mr
 import pandas as pd
 import numpy as np
 import csv
-from sqlalchemy.orm import sessionmaker
 import os
 from pathlib import Path
 import ntpath

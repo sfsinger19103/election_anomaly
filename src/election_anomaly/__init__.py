@@ -2,8 +2,6 @@ from election_anomaly import database as dbr
 from election_anomaly import user_interface as ui
 from sqlalchemy.orm import sessionmaker
 import os
-from pprint import pprint
-import sys
 import ntpath
 from election_anomaly import analyze as avp
 

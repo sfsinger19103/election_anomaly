@@ -6,10 +6,7 @@ from election_anomaly import user_interface as ui
 from election_anomaly import munge as mr
 import datetime
 import os
-import numpy as np
-import matplotlib.pyplot as plt
 from pathlib import Path
-from pandas.api.types import is_numeric_dtype
 from election_anomaly import database as dbr
 
 
