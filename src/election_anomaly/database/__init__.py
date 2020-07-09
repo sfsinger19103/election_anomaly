@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-# db_routines/__init__.py
+# database/__init__.py
 
 import psycopg2
 import sqlalchemy
@@ -10,9 +10,9 @@ import sqlalchemy_utils
 from election_anomaly import user_interface as ui
 from configparser import MissingSectionHeaderError
 import pandas as pd
-from election_anomaly import munge_routines as mr
+from election_anomaly import munge as mr
 import re
-from election_anomaly.db_routines import create_cdf_db as db_cdf
+from election_anomaly.database import create_cdf_db as db_cdf
 import os
 
 
@@ -122,15 +122,15 @@ def create_new_db(project_root, paramfile, db_name):
     if db_name in db_df.datname.unique():
         # Clean out DB
         db_cdf.reset_db(sess,
-            os.path.join(project_root,'election_anomaly','CDF_schema_def_info'))
+            os.path.join(project_root,'election_anomaly','db_schema'))
     else:
         create_database(con, cur, db_name)
 
     # load cdf tables
     db_cdf.create_common_data_format_tables(
-        sess,dirpath=os.path.join(project_root,'election_anomaly','CDF_schema_def_info'))
+        sess,dirpath=os.path.join(project_root,'election_anomaly','db_schema'))
     db_cdf.fill_cdf_enum_tables(
-        sess,None,dirpath=os.path.join(project_root,'election_anomaly/CDF_schema_def_info/'))
+        sess,None,dirpath=os.path.join(project_root,'election_anomaly/db_schema/'))
     con.close()
 
 

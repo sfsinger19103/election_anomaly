@@ -8,10 +8,10 @@ src/election_anomaly/query_create/__pycache__/__init__.cpython-37.pyc
 src/election_anomaly/states_and_files/__pycache__/__init__.cpython-37.pyc
 src/election_anomaly/clean/__pycache__/__init__.cpython-37.pyc
 src/election_anomaly/query_create/__pycache__/__init__.cpython-37.pyc
-src/election_anomaly/db_routines/__pycache__/__init__.cpython-37.pyc
-src/election_anomaly/munge_routines/__pycache__/__init__.cpython-37.pyc
+src/election_anomaly/database/__pycache__/__init__.cpython-37.pyc
+src/election_anomaly/munge/__pycache__/__init__.cpython-37.pyc
 src/election_anomaly/context/__pycache__/__init__.cpython-37.pyc
-src/election_anomaly/munge_routines/__pycache__/__init__.cpython-38.pyc
+src/election_anomaly/munge/__pycache__/__init__.cpython-38.pyc
 src/jurisdictions/README.md
 .idea
 /venv/
