@@ -329,8 +329,8 @@ def create_scatter(
 	y = dbr.name_from_id(session, 'Candidate', candidate_2_id) 
 	results = {
 		"election": dbr.name_from_id(session, 'Election', election_id),
-		"top_reportingunit": dbr.name_from_id(session, 'ReportingUnit', top_ru_id),
-		"breakout_reportingunit_type": dbr.name_from_id(session, 'ReportingUnitType', sub_rutype_id),
+		"jurisdiction": dbr.name_from_id(session, 'ReportingUnit', top_ru_id),
+		"subdivision_type": dbr.name_from_id(session, 'ReportingUnitType', sub_rutype_id),
 		"count_item_type": count_item_type,
 		"x": x,
 		"y": y,
