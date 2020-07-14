@@ -223,9 +223,8 @@ def export_to_inventory_file_tree(target_dir,target_sub_dir,target_file,inventor
 	return
 
 
-def create_scatter(
-		session,target_dir,top_ru_id,sub_rutype_id,election_id,
-		datafile_id_list,candidate_1_id,candidate_2_id,count_item_type):
+def create_scatter(session, top_ru_id, sub_rutype_id, election_id, datafile_id_list,
+	candidate_1_id, candidate_2_id, count_item_type):
 	"""<target_dir> is the directory where the resulting rollup will be stored.
 	<election_id> identifies the election; <datafile_id_list> the datafile whose results will be rolled up.
 	<top_ru_id> is the internal cdf name of the ReportingUnit whose results will be reported
