@@ -378,7 +378,6 @@ def get_data_for_scatter(session, jurisdiction_id, subdivision_type_id,
 		ru_children,left_on='ChildReportingUnit_Id',right_index=True).merge(
 		sub_ru,left_on='ParentReportingUnit_Id',right_index=True,suffixes=['','_Parent'])
 	unsummed.rename(columns={'Name_Parent':'ReportingUnit'},inplace=True)
-
 	# add columns with names
 	unsummed = mr.enum_col_from_id_othertext(unsummed,'CountItemType',df['CountItemType'])
 	unsummed = unsummed.merge(contest_selection,how='left',left_on='ContestSelectionJoin_Id',right_index=True)
