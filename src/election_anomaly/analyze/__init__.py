@@ -341,6 +341,7 @@ def create_scatter(
 		results["counts"][reporting_unit] = {}
 
 	for i, row in unsummed.iterrows():
+		results["counts"][row.Name]["anomalous"] = False
 		if row.Selection == x:
 			results["counts"][row.Name]["x"] = row.Count
 		elif row.Selection == y:
