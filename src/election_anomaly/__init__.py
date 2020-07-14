@@ -6,6 +6,7 @@ from pprint import pprint
 import sys
 import ntpath
 from election_anomaly import analyze as a
+from election_anomaly import visualize as v
 
 class DataLoader():
     def __new__(self):
@@ -209,7 +210,13 @@ class Analyzer():
             return
 
 
-    def scatter(self, jurisdiction, subdivision_type, candidate_1, candidate_2, count_item_type):
+    def scatter(self, jurisdiction, subdivision_type, candidate_1, candidate_2, count_item_type,
+            fig_type=None):
+        """Used to create a scatter plot based on selected inputs. The fig_type parameter
+        is used when the user wants to actually create the visualization; this uses plotly
+        so any image extension that is supported by plotly is usable here. Currently supports 
+        html, png, jpeg, webp, svg, pdf, and eps. Note that some filetypes may need plotly-orca
+        installed as well."""
         d, error = ui.get_runtime_parameters(['rollup_directory'])
         if error:
             print("Parameter file missing requirements.")
@@ -224,6 +231,8 @@ class Analyzer():
         rollup = a.create_scatter(self.session, d['rollup_directory'], jurisdiction_id,
             subdivision_type_id, results_info[1], 
             results_info[0],candidate_1_id,candidate_2_id, count_item_type)
+        if fig_type:
+            v.plot_scatter(rollup, fig_type, d['rollup_directory'])
         return rollup
 
 
