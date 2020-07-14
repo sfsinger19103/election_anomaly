@@ -334,23 +334,26 @@ def create_scatter(
 	return unsummed
 	"""
 
-	cis = 'unknown'  # TODO placeholder while CountItemStatus is unused
-	cit = count_item_type
+	# package into dictionary
+	x = dbr.name_from_id(session, 'Candidate', candidate_1_id)
+	y = dbr.name_from_id(session, 'Candidate', candidate_2_id) 
+	results = {
+		"election": dbr.name_from_id(session, 'Election', election_id),
+		"jurisdiction": dbr.name_from_id(session, 'ReportingUnit', top_ru_id),
+		"subdivision_type": dbr.name_from_id(session, 'ReportingUnitType', sub_rutype_id),
+		"count_item_type": count_item_type,
+		"x": x,
+		"y": y,
+		"counts": {}
+	}
+	reporting_units = unsummed.Name.unique()
+	for reporting_unit in reporting_units:
+		results["counts"][reporting_unit] = {}
 
-	index_cols = ['contest_type','Contest','contest_district_type','Selection','ReportingUnit','CountItemType']
-
-	# sum by groups
-	summed_by_name = unsummed[index_cols + ['Count']].groupby(index_cols).sum()
-
-	inventory_columns = [
-		'Election','ReportingUnitType','CountItemType','CountItemStatus',
-		'source_db_url','timestamp']
-	inventory_values = [
-		election['Name'],sub_rutype,cit,cis,
-		str(session.bind.url),datetime.date.today()]
-	#sub_dir = os.path.join(election['Name'],top_ru["Name"],f'by_{sub_rutype}')
-	#export_to_inventory_file_tree(
-	#	target_dir,sub_dir,f'{count_item}.txt',inventory_columns,inventory_values,summed_by_name)
-
-	return summed_by_name
-	"""
+	for i, row in unsummed.iterrows():
+		if row.Selection == x:
+			results["counts"][row.Name]["x"] = row.Count
+		elif row.Selection == y:
+			results["counts"][row.Name]["y"] = row.Count
+		
+	return results
