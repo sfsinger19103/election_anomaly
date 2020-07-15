@@ -5,7 +5,8 @@ import os
 from pprint import pprint
 import sys
 import ntpath
-from election_anomaly import analyze_via_pandas as avp
+from election_anomaly import analyze as a
+from election_anomaly import visualize as v
 
 class DataLoader():
     def __new__(self):
@@ -186,7 +187,7 @@ class Analyzer():
             rollup_unit_id = dbr.name_to_id(self.session, 'ReportingUnit', rollup_unit)
             sub_unit_id = dbr.name_to_id(self.session, 'ReportingUnitType', sub_unit)
             results_info = dbr.get_datafile_info(self.session, self.d['results_file_short'])
-            rollup = avp.create_rollup(self.session, d['rollup_directory'], top_ru_id=rollup_unit_id,
+            rollup = a.create_rollup(self.session, d['rollup_directory'], top_ru_id=rollup_unit_id,
                 sub_rutype_id=sub_unit_id, sub_rutype_othertext='', datafile_id_list=results_info[0], 
                 election_id=results_info[1])
             return
@@ -203,10 +204,35 @@ class Analyzer():
             rollup_unit_id = dbr.name_to_id(self.session, 'ReportingUnit', rollup_unit)
             sub_unit_id = dbr.name_to_id(self.session, 'ReportingUnitType', sub_unit)
             results_info = dbr.get_datafile_info(self.session, self.d['results_file_short'])
-            rollup = avp.create_rollup(self.session, d['rollup_directory'], top_ru_id=rollup_unit_id,
+            rollup = a.create_rollup(self.session, d['rollup_directory'], top_ru_id=rollup_unit_id,
                 sub_rutype_id=sub_unit_id, sub_rutype_othertext='', datafile_id_list=results_info[0], 
                 election_id=results_info[1], by_vote_type=False)
             return
+
+
+    def scatter(self, jurisdiction, subdivision_type, candidate_1, candidate_2, count_item_type,
+            fig_type=None):
+        """Used to create a scatter plot based on selected inputs. The fig_type parameter
+        is used when the user wants to actually create the visualization; this uses plotly
+        so any image extension that is supported by plotly is usable here. Currently supports 
+        html, png, jpeg, webp, svg, pdf, and eps. Note that some filetypes may need plotly-orca
+        installed as well."""
+        d, error = ui.get_runtime_parameters(['rollup_directory'])
+        if error:
+            print("Parameter file missing requirements.")
+            print(error)
+            print("Data not created.")
+            return
+        jurisdiction_id = dbr.name_to_id(self.session, 'ReportingUnit', jurisdiction)
+        subdivision_type_id = dbr.name_to_id(self.session, 'ReportingUnitType', subdivision_type)
+        results_info = dbr.get_datafile_info(self.session, self.d['results_file_short'])
+        candidate_1_id = dbr.name_to_id(self.session, 'Candidate', candidate_1) 
+        candidate_2_id = dbr.name_to_id(self.session, 'Candidate', candidate_2) 
+        rollup = a.create_scatter(self.session, jurisdiction_id, subdivision_type_id, results_info[1], 
+            results_info[0],candidate_1_id,candidate_2_id, count_item_type)
+        if fig_type:
+            v.plot_scatter(rollup, fig_type, d['rollup_directory'])
+        return rollup
 
 
 def get_filename(path):
