@@ -228,11 +228,28 @@ class Analyzer():
         results_info = dbr.get_datafile_info(self.session, self.d['results_file_short'])
         candidate_1_id = dbr.name_to_id(self.session, 'Candidate', candidate_1) 
         candidate_2_id = dbr.name_to_id(self.session, 'Candidate', candidate_2) 
-        rollup = a.create_scatter(self.session, jurisdiction_id, subdivision_type_id, results_info[1], 
+        agg_results = a.create_scatter(self.session, jurisdiction_id, subdivision_type_id, results_info[1], 
             results_info[0],candidate_1_id,candidate_2_id, count_item_type)
         if fig_type:
-            v.plot_scatter(rollup, fig_type, d['rollup_directory'])
-        return rollup
+            v.plot('scatter', agg_results, fig_type, d['rollup_directory'])
+        return agg_results
+
+    
+    def bar(self, jurisdiction, contest_type=None, fig_type=None):
+        """contest_type is one of state, congressional, state-senate, state-house"""
+        d, error = ui.get_runtime_parameters(['rollup_directory'])
+        if error:
+            print("Parameter file missing requirements.")
+            print(error)
+            print("Data not created.")
+            return
+        jurisdiction_id = dbr.name_to_id(self.session, 'ReportingUnit', jurisdiction)
+        results_info = dbr.get_datafile_info(self.session, self.d['results_file_short'])
+        agg_results = a.create_bar(self.session, jurisdiction_id, contest_type, results_info[1], results_info[0])
+        if fig_type:
+            for agg_result in agg_results:
+                v.plot('bar', agg_result, fig_type, d['rollup_directory'])
+        return agg_results
 
 
 def get_filename(path):

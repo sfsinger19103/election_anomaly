@@ -365,10 +365,180 @@ def create_scatter(session, top_ru_id, sub_rutype_id, election_id, datafile_id_l
 		results["counts"][reporting_unit] = {}
 
 	for i, row in unsummed.iterrows():
-		results["counts"][row.Name]["anomalous"] = False
 		if row.Selection == x:
 			results["counts"][row.Name]["x"] = row.Count
 		elif row.Selection == y:
 			results["counts"][row.Name]["y"] = row.Count
 		
 	return results
+
+def create_bar(session, top_ru_id, contest_type, election_id, datafile_id_list):
+	"""<target_dir> is the directory where the resulting rollup will be stored.
+	<election_id> identifies the election; <datafile_id_list> the datafile whose results will be rolled up.
+	<top_ru_id> is the internal cdf name of the ReportingUnit whose results will be reported
+	<sub_rutype_id>,<sub_rutype_othertext> identifies the ReportingUnitType
+	of the ReportingUnits used in each line of the results file
+	created by the routine. (E.g., county or ward)
+	If <exclude_total> is True, don't include 'total' CountItemType
+	(unless 'total' is the only CountItemType)"""
+	# Get name of db for error messages
+	db = session.bind.url.database
+
+	top_ru_id, top_ru = ui.pick_record_from_db(session,'ReportingUnit',required=True,db_idx=top_ru_id)
+	election_id,election = ui.pick_record_from_db(session,'Election',required=True,db_idx=election_id)
+
+	#sub_rutype = dbr.name_from_id(session, 'ReportingUnitType', sub_rutype_id)
+
+	# pull relevant tables
+	df = {}
+	for element in [
+		'ElectionContestSelectionVoteCountJoin','VoteCount','CandidateContestSelectionJoin',
+		'BallotMeasureContestSelectionJoin','ComposingReportingUnitJoin','Election','ReportingUnit',
+		'ElectionContestJoin','CandidateContest','CandidateSelection','BallotMeasureContest',
+		'BallotMeasureSelection','Office','Candidate']:
+		# pull directly from db, using 'Id' as index
+		df[element] = pd.read_sql_table(element,session.bind,index_col='Id')
+
+	# pull enums from db, keeping 'Id as a column, not the index
+	for enum in ["ReportingUnitType","CountItemType"]:
+		df[enum] = pd.read_sql_table(enum,session.bind)
+
+	#  limit to relevant Election-Contest pairs
+	ecj = df['ElectionContestJoin'][df['ElectionContestJoin'].Election_Id == election_id]
+
+	# create contest_selection dataframe, adding Contest, Selection and ElectionDistrict_Id columns
+	contest_selection = df['CandidateContestSelectionJoin'].merge(
+		df['CandidateContest'],how='left',left_on='CandidateContest_Id',right_index=True).rename(
+		columns={'Name':'Contest','Id':'ContestSelectionJoin_Id'}).merge(
+		df['CandidateSelection'],how='left',left_on='CandidateSelection_Id',right_index=True).merge(
+		df['Candidate'],how='left',left_on='Candidate_Id',right_index=True).rename(
+		columns={'BallotName':'Selection','CandidateContest_Id':'Contest_Id',
+				'CandidateSelection_Id':'Selection_Id'}).merge(
+		df['Office'],how='left',left_on='Office_Id',right_index=True)
+	contest_selection = contest_selection[['Contest_Id','Contest','Selection_Id','Selection','ElectionDistrict_Id',
+		'Candidate_Id']]
+	if contest_selection.empty:
+		contest_selection['contest_type'] = None
+	else:
+		contest_selection.loc[:,'contest_type'] = 'Candidate'
+
+	# append contest_district_type column
+	ru = df['ReportingUnit'][['ReportingUnitType_Id','OtherReportingUnitType']]
+	contest_selection = contest_selection.merge(ru,how='left',left_on='ElectionDistrict_Id',right_index=True)
+	contest_selection = mr.enum_col_from_id_othertext(contest_selection,'ReportingUnitType',df['ReportingUnitType'])
+	contest_selection.rename(columns={'ReportingUnitType':'contest_district_type'},inplace=True)
+
+	if contest_type:
+		contest_selection = contest_selection[contest_selection['contest_district_type'] == contest_type]
+	# limit to relevant ContestSelection pairs
+	contest_ids = ecj.Contest_Id.unique()
+	csj = contest_selection[contest_selection.Contest_Id.isin(contest_ids)]
+
+	# find ReportingUnits of the correct type that are subunits of top_ru
+	# sub_ru_ids = child_rus_by_id(session,[top_ru_id],ru_type=[sub_rutype_id, ''])
+	# if not sub_ru_ids:
+	# 	# TODO better error handling (while not sub_ru_list....)
+	# 	raise Exception(f'Database {db} shows no ReportingUnits of type {sub_rutype} nested inside {top_ru}')
+	sub_ru = df['ReportingUnit']
+
+	# find all subReportingUnits of top_ru
+	all_subs_ids = child_rus_by_id(session,[top_ru_id])
+
+	# find all children of subReportingUnits
+	children_of_subs_ids = child_rus_by_id(session,all_subs_ids)
+	ru_children = df['ReportingUnit'].loc[children_of_subs_ids]
+
+	# limit to relevant vote counts
+	ecsvcj = df['ElectionContestSelectionVoteCountJoin'][
+		(df['ElectionContestSelectionVoteCountJoin'].ElectionContestJoin_Id.isin(ecj.index)) &
+		(df['ElectionContestSelectionVoteCountJoin'].ContestSelectionJoin_Id.isin(csj.index))]
+
+	# calculate specified dataframe with columns [ReportingUnit,Contest,Selection,VoteCount,CountItemType]
+	#  1. create unsummed dataframe of results
+	unsummed = ecsvcj.merge(
+		df['VoteCount'],left_on='VoteCount_Id',right_index=True).merge(
+		df['ComposingReportingUnitJoin'],left_on='ReportingUnit_Id',right_on='ChildReportingUnit_Id').merge(
+		ru_children,left_on='ChildReportingUnit_Id',right_index=True).merge(
+		sub_ru,left_on='ParentReportingUnit_Id',right_index=True,suffixes=['','_Parent'])
+	unsummed.rename(columns={'Name_Parent':'ReportingUnit'},inplace=True)
+	# add columns with names
+	unsummed = mr.enum_col_from_id_othertext(unsummed,'CountItemType',df['CountItemType'])
+	unsummed = unsummed.merge(contest_selection,how='left',left_on='ContestSelectionJoin_Id',right_index=True)
+
+	# filter based on vote count type
+	unsummed = unsummed[unsummed['CountItemType'] == 'total']
+
+	ranked = assign_anomaly_score(unsummed)
+	top_ranked = get_most_anomalous(ranked, 3)
+
+
+	# package into list of dictionary
+	result_list = []
+	ids = top_ranked['Contest_Id'].unique()
+	for id in ids:
+		temp_df = top_ranked[top_ranked['Contest_Id'] == id]
+
+		x = dbr.name_from_id(session, 'Candidate', temp_df.iloc[0]['Candidate_Id'])
+		y = dbr.name_from_id(session, 'Candidate', temp_df.iloc[1]['Candidate_Id']) 
+		results = {
+			"election": dbr.name_from_id(session, 'Election', election_id),
+			"jurisdiction": dbr.name_from_id(session, 'ReportingUnit', top_ru_id),
+			"subdivision_type": dbr.name_from_id(session, 'ReportingUnit', top_ru_id),
+			"count_item_type": temp_df.iloc[0]['CountItemType'],
+			"x": x,
+			"y": y,
+			"counts": {}
+		}
+		reporting_units = temp_df.Name.unique()
+		for reporting_unit in reporting_units:
+			results["counts"][reporting_unit] = {}
+
+		for i, row in temp_df.iterrows():
+			if row.Selection == x:
+				results["counts"][row.Name]["x"] = row.Count
+			elif row.Selection == y:
+				results["counts"][row.Name]["y"] = row.Count
+		result_list.append(results)
+		
+	return result_list
+
+
+def assign_anomaly_score(data):
+	"""adds a new column called score between 0 and 1; 1 is more anomalous"""
+	import numpy as np
+	data['score'] = np.random.rand(data.shape[0])
+	return data
+
+
+def get_most_anomalous(data, n):
+	"""gets the n contests with the highest individual anomaly score"""
+	df = data.groupby('Contest_Id')['score'].max().reset_index()
+	df.rename(columns={'score': 'max_score'}, inplace=True)
+	data = data.merge(df, on='Contest_Id')
+	# data.drop('score_x', axis=1, inplace=True)
+	# data.rename(columns={'score_y': 'score'}, inplace=True)
+	unique_scores = sorted(set(df['max_score']), reverse=True)
+	top_scores = unique_scores[:n]
+
+	result = data[data['max_score'].isin(top_scores)]
+
+	# Eventually we want to return the winner and the most anomalous
+	# for each contest. For now, just 2 random ones
+	ids = result['Contest_Id'].unique()
+	df = pd.DataFrame()
+	for id in ids:
+		temp_df = result[result['Contest_Id'] == id]
+		df_child_ru = temp_df.sample()
+		child_ru = df_child_ru.iloc[0]['ChildReportingUnit_Id']
+		unique = temp_df[temp_df['ChildReportingUnit_Id']==child_ru]['Candidate_Id'].unique()
+		while len(unique) < 2:
+			df_child_ru = temp_df.sample()
+			child_ru = df_child_ru.iloc[0]['ChildReportingUnit_Id']
+			unique = temp_df[temp_df['ChildReportingUnit_Id']==child_ru]['Candidate_Id'].unique()
+		df_child_ru = temp_df[temp_df['ChildReportingUnit_Id']==child_ru] 
+		df_final = df_child_ru.sample(frac=1).drop_duplicates(['Candidate_Id'])
+		df_final = df_final.iloc[0:2]
+		
+		df = pd.concat([df, df_final])
+
+	return df
