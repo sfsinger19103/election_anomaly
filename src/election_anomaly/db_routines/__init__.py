@@ -458,6 +458,7 @@ def get_input_options(session, input, verbose):
             return [r[0] for r in result]
     else:
         if search_str == 'BallotMeasureContest':
+            # parent_id is reporting unit, type is reporting unit type
             result = session.execute(f'''
                 SELECT  ru."Id" AS parent_id, c."Name" AS name, rut."Txt" AS type
                 FROM    "BallotMeasureContest" c
@@ -465,6 +466,7 @@ def get_input_options(session, input, verbose):
                         JOIN "ReportingUnitType" rut ON ru."ReportingUnitType_Id" = rut."Id"
             ''')
         elif search_str == 'CandidateContest':
+            # parent_id is reporting unit, type is reporting unit type
             result = session.execute(f'''
                 SELECT  ru."Id" AS parent_id, c."Name" AS name, rut."Txt" AS type
                 FROM    "CandidateContest" c
