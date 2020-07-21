@@ -458,6 +458,7 @@ def get_input_options(session, input, verbose):
             return [r[0] for r in result]
     else:
         if search_str == 'BallotMeasureContest':
+            # parent_id is reporting unit, type is reporting unit type
             result = session.execute(f'''
                 SELECT  ru."Id" AS parent_id, c."Name" AS name, rut."Txt" AS type
                 FROM    "BallotMeasureContest" c
@@ -465,6 +466,7 @@ def get_input_options(session, input, verbose):
                         JOIN "ReportingUnitType" rut ON ru."ReportingUnitType_Id" = rut."Id"
             ''')
         elif search_str == 'CandidateContest':
+            # parent_id is reporting unit, type is reporting unit type
             result = session.execute(f'''
                 SELECT  ru."Id" AS parent_id, c."Name" AS name, rut."Txt" AS type
                 FROM    "CandidateContest" c
@@ -487,3 +489,17 @@ def get_datafile_info(session, results_file):
     except IndexError:
         print(f'No record named {results_file} found in _datafile table in {session.bind.url}')
         return [0,0]
+    return q[0]
+
+
+def candidate_to_id(session, name):
+    """fuzzy string matching on name field, may return multiple results"""
+    name_field = get_name_field("Candidate")
+    q = f"""SELECT "Id" FROM "{element}" WHERE "{name_field}" = '{name}' """
+    idx_df = pd.read_sql(q,session.bind)
+    try:
+        idx = idx_df.loc[0,'Id']
+    except KeyError:
+        # if no record with name <name> was found
+        idx = None
+    return idx
