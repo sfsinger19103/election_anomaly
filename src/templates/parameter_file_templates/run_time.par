@@ -8,4 +8,3 @@ munger_name=<name of munger's directory>
 db_name=<name of database>
 top_reporting_unit=<internal db name for the overall jurisdiction>
 sub_reporting_unit_type=<geography to roll results up to>
-atomic_ru_type=<smallest ReportingUnit type >
