@@ -484,7 +484,7 @@ def truncate_table(session, table_name):
     return
 
 
-def get_input_options(session, input):
+def get_input_options(session, input, verbose):
     """Returns a list of response options based on the input"""
     # input comes as a pythonic (snake case) input, need to 
     # change to match DB table naming format
@@ -505,19 +505,53 @@ def get_input_options(session, input):
     elif search_str == 'Candidate':
         column_name = 'BallotName'
         table_search = True
+    # TODO: do we need a subdivision_type?
     else:
         search_str = search_str.lower()
         table_search = False
 
-    if table_search:
-        result = session.execute(f'SELECT "{column_name}" FROM "{search_str}";')
-        return [r[0] for r in result]
+    if not verbose:
+        if table_search:
+            result = session.execute(f'SELECT "{column_name}" FROM "{search_str}";')
+            return [r[0] for r in result]
+        else:
+            result = session.execute(f' \
+                SELECT "Name" FROM "ReportingUnit" ru \
+                JOIN "ReportingUnitType" rut on ru."ReportingUnitType_Id" = rut."Id" \
+                WHERE rut."Txt" = \'{search_str}\'')
+            return [r[0] for r in result]
     else:
-        result = session.execute(f' \
-            SELECT "Name" FROM "ReportingUnit" ru \
-            JOIN "ReportingUnitType" rut on ru."ReportingUnitType_Id" = rut."Id" \
-            WHERE rut."Txt" = \'{search_str}\'')
-        return [r[0] for r in result]
+        if search_str == 'BallotMeasureContest':
+            # parent_id is reporting unit, type is reporting unit type
+            result = session.execute(f'''
+                SELECT  ru."Id" AS parent_id, c."Name" AS name, rut."Txt" AS type
+                FROM    "BallotMeasureContest" c
+                        JOIN "ReportingUnit" ru ON c."ElectionDistrict_Id" = ru."Id"
+                        JOIN "ReportingUnitType" rut ON ru."ReportingUnitType_Id" = rut."Id"
+            ''')
+        elif search_str == 'CandidateContest':
+            # parent_id is reporting unit, type is reporting unit type
+            result = session.execute(f'''
+                SELECT  ru."Id" AS parent_id, c."Name" AS name, rut."Txt" AS type
+                FROM    "CandidateContest" c
+                        JOIN "Office" o ON c."Office_Id" = o."Id"
+                        JOIN "ReportingUnit" ru ON o."ElectionDistrict_Id" = ru."Id"
+                        JOIN "ReportingUnitType" rut ON ru."ReportingUnitType_Id" = rut."Id"
+            ''')
+        else:
+            # parent_id is candidate_id, type is combo of party and contest name
+            result = session.execute(f'''
+                SELECT  c."Id" AS parent_id, c."BallotName" as name, 
+                        p."Name" || ' - ' || cc."Name" AS type
+                FROM    "Candidate" c
+                        JOIN "Party" p ON c."Party_Id" = p."Id"
+                        JOIN "CandidateSelection" cs ON c."Id" = cs."Candidate_Id"
+                        JOIN "CandidateContestSelectionJoin" ccsj 
+                            ON cs."Id" = ccsj."CandidateSelection_Id"
+                        JOIN "CandidateContest" cc ON ccsj."CandidateContest_Id" = cc."Id"
+                WHERE   c."BallotName" ILIKE '%{search_str}%'
+            ''')
+        return package_display_results(result)
 
 
 def get_datafile_info(session, results_file):
@@ -527,3 +561,16 @@ def get_datafile_info(session, results_file):
         WHERE file_name = '{results_file}'
         ''').fetchall()
     return q[0]
+
+
+def package_display_results(data):
+    """takes a result set and packages into JSON to return"""
+    results = []
+    for d in data:
+        temp = {
+            'parent_id': d[0],
+            'name': d[1],
+            'type': d[2]
+        }
+        results.append(temp)
+    return results
