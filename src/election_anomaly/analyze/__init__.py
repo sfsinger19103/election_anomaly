@@ -339,7 +339,7 @@ def create_scatter(session, top_ru_id, sub_rutype_id, election_id, datafile_id_l
 	results = {
 		"election": dbr.name_from_id(session, 'Election', election_id),
 		"jurisdiction": dbr.name_from_id(session, 'ReportingUnit', top_ru_id),
-		"contest": dbr.name_from_id(session, 'CandidateContest', temp_df.iloc[0]['Contest_Id']),
+		"contest": dbr.name_from_id(session, 'CandidateContest', unsummed.iloc[0]['Contest_Id']),
 		"subdivision_type": dbr.name_from_id(session, 'ReportingUnitType', sub_rutype_id),
 		"count_item_type": count_item_type,
 		"x": x,
