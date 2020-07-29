@@ -47,7 +47,7 @@ def append_to_composing_reporting_unit_join(session,ru):
     
     # pull ReportingUnit to get ids matched to names
     ru_cdf = pd.read_sql_table('ReportingUnit',session.bind,index_col=None)
-    ru_cdf = read_table(session,'ReportingUnit')
+
 
     ru_static = ru.copy()
 
@@ -73,8 +73,8 @@ def append_to_composing_reporting_unit_join(session,ru):
         cruj_dframe = pd.concat(cruj_dframe_list)
         cruj_dframe, err = dframe_to_sql(cruj_dframe,session,'ComposingReportingUnitJoin')
     else:
-        #cruj_dframe = pd.read_sql_table('ComposingReportingUnitJoin',session.bind)
-        cruj_dframe = read_table(session,'ComposingReportingUnitJoin')
+        cruj_dframe = pd.read_sql_table('ComposingReportingUnitJoin',session.bind)
+
 
     session.flush()
     return cruj_dframe
@@ -157,11 +157,20 @@ def sql_alchemy_connect(paramfile=None,db_name='postgres'):
     return engine
 
 
+# def add_integer_cols(session,table,col_list):
+#     add = ','.join([f' ADD COLUMN "{c}" INTEGER' for c in col_list])
+#     q = f'ALTER TABLE "{table}" {add}'
+#     sql_ids=[]
+#     strs = []
+#     raw_query_via_sqlalchemy(session,q,sql_ids,strs)
+#     return
+
 def add_integer_cols(session,table,col_list):
-    add = ','.join([f' ADD COLUMN "{c}" INTEGER' for c in col_list])
-    q = f'ALTER TABLE "{table}" {add}'
-    sql_ids=[]
     strs = []
+    add = ','.join([' ADD COLUMN {} INTEGER' for c in col_list])
+    q = 'ALTER TABLE {}' + add
+    col_list.insert(0, table)
+    sql_ids = col_list
     raw_query_via_sqlalchemy(session,q,sql_ids,strs)
     return
 
