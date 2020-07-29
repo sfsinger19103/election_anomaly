@@ -12,6 +12,7 @@ import sqlalchemy_utils
 from election_anomaly import user_interface as ui
 from configparser import MissingSectionHeaderError
 import pandas as pd
+from pandas import DataFrame
 from election_anomaly import munge_routines as mr
 import re
 from election_anomaly.db_routines import create_cdf_db as db_cdf
@@ -46,6 +47,8 @@ def append_to_composing_reporting_unit_join(session,ru):
     
     # pull ReportingUnit to get ids matched to names
     ru_cdf = pd.read_sql_table('ReportingUnit',session.bind,index_col=None)
+    ru_cdf = read_table(session,'ReportingUnit')
+
     ru_static = ru.copy()
 
     # add db Id column to ru_static, if it's not already there
@@ -70,7 +73,9 @@ def append_to_composing_reporting_unit_join(session,ru):
         cruj_dframe = pd.concat(cruj_dframe_list)
         cruj_dframe, err = dframe_to_sql(cruj_dframe,session,'ComposingReportingUnitJoin')
     else:
-        cruj_dframe = pd.read_sql_table('ComposingReportingUnitJoin',session.bind)
+        #cruj_dframe = pd.read_sql_table('ComposingReportingUnitJoin',session.bind)
+        cruj_dframe = read_table(session,'ComposingReportingUnitJoin')
+
     session.flush()
     return cruj_dframe
 
@@ -159,6 +164,21 @@ def add_integer_cols(session,table,col_list):
     strs = []
     raw_query_via_sqlalchemy(session,q,sql_ids,strs)
     return
+
+# def read_table(session,table_name):
+#     q = "SELECT * FROM {}"
+#     sql_ids = table_name
+#     strs=[]
+#     data = raw_query_via_sqlalchemy(session, q, sql_ids,strs)
+#
+#     col_names_str = "SELECT column_name FROM INFORMATION_SCHEMA.COLUMNS WHERE "
+#     col_names_str += "table_name = '{}';".format('test')
+#
+#     columns = raw_query_via_sqlalchemy(session, col_names_str, sql_ids,strs)
+#     cols = [item for t in columns for item in t ]
+#     df = DataFrame(data, columns=cols)
+#
+#     return df
 
 
 def drop_cols(session,table,col_list):
