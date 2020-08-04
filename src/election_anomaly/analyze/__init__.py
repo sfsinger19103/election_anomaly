@@ -505,7 +505,7 @@ def create_bar(session, top_ru_id, contest_type, contest, election_id, datafile_
 	unsummed = unsummed[unsummed['ParentReportingUnit_Id'] != top_ru_id]
 
 	ranked = assign_anomaly_score(unsummed)
-	ranked_margin = calculate_margins(unsummed)
+	ranked_margin = calculate_margins(ranked)
 	return ranked_margin
 	top_ranked = get_most_anomalous(ranked, 3)
 	#return top_ranked
@@ -645,7 +645,7 @@ def get_most_anomalous(data, n):
 		candidate_df = temp_df[temp_df['Candidate_Id'].isin(candidates)]
 		#unique = candidate_df['ReportingUnit_Id'].unique()
 		#reporting_units = unique[0:6]
-		reporting_units =candidate_df['ReportingUnit_Id'].unique() 
+		reporting_units = candidate_df['ReportingUnit_Id'].unique() 
 		df_final = candidate_df[candidate_df['ReportingUnit_Id'].isin(reporting_units)]. \
 			sort_values(['ReportingUnit_Id', 'score'], ascending=False)
 		df = pd.concat([df, df_final])
@@ -693,4 +693,34 @@ def density_score(points):
 
 
 def calculate_margins(data):
+	"""Takes a dataframe with an anomaly score and assigns
+	a margin score"""
+	# dictionary to hold totals for each contest ID, so we don't
+	# need to calculate multiple times for different count item types
+	contests = []
+	totals = []
+	margins = []
+
+	contest_ids = data['Contest_Id'].unique()
+	for contest_id in contest_ids:
+		contest_df = data[(data['Contest_Id'] == contest_id) &
+						(data['CountItemType'] == 'total')]
+		reporting_unit_type_id = contest_df.iloc[0]['ReportingUnitType_Id']
+		contest_df = contest_df[contest_df['ReportingUnitType_Id'] == reporting_unit_type_id]
+		counts = contest_df.groupby('Selection')['Count'].sum() 
+		contests.append(contest_id)
+		totals.append(contest_df['Count'].sum())
+		if len(counts) > 1:
+			to_subtract = int(counts[1])
+		else:
+			to_subtract = 0
+		margins.append(abs(int(counts[0]) - to_subtract))
+	df_dict = {
+		'Contest_Id': contests,
+		'totals': totals,
+		'margins': margins
+	}
+	df = pd.DataFrame.from_dict(df_dict)
+	data = data.merge(df, how='inner', on='Contest_Id')
+
 	return data
