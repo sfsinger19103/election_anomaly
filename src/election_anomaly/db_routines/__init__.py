@@ -166,11 +166,11 @@ def sql_alchemy_connect(paramfile=None,db_name='postgres'):
 #     return
 
 def add_integer_cols(session,table,col_list):
-    strs = []
     add = ','.join([' ADD COLUMN {} INTEGER' for c in col_list])
     q = 'ALTER TABLE {}' + add
     col_list.insert(0, table)
     sql_ids = col_list
+    strs = []
     raw_query_via_sqlalchemy(session,q,sql_ids,strs)
     return
 
@@ -190,14 +190,22 @@ def add_integer_cols(session,table,col_list):
 #     return df
 
 
+# def drop_cols(session,table,col_list):
+#     drop = ','.join([f' DROP COLUMN "{c}"' for c in col_list])
+#     q = f'ALTER TABLE "{table}" {drop}'
+#     sql_ids=[]
+#     strs = []
+#     raw_query_via_sqlalchemy(session,q,sql_ids,strs)
+#     return
+
 def drop_cols(session,table,col_list):
-    drop = ','.join([f' DROP COLUMN "{c}"' for c in col_list])
-    q = f'ALTER TABLE "{table}" {drop}'
-    sql_ids=[]
+    drop = ','.join([' DROP COLUMN {} 'for c in col_list])
+    q = 'ALTER TABLE {}' + drop
+    col_list.insert(0, table)
+    sql_ids=col_list
     strs = []
     raw_query_via_sqlalchemy(session,q,sql_ids,strs)
     return
-
 
 def get_cdf_db_table_names(eng):
     """This is postgresql-specific"""
@@ -225,16 +233,17 @@ def get_cdf_db_table_names(eng):
 
 
 def read_enums_from_db_table(sess,element):
-	"""Returns list of enum names (e.g., 'CountItemType') for the given <element>.
+    """Returns list of enum names (e.g., 'CountItemType') for the given <element>.
 	Identifies enums by the Other{enum} column name (e.g., 'OtherCountItemType)"""
-	df = pd.read_sql_table(element,sess.bind,index_col='Id')
-	other_cols = [x for x in df.columns if x[:5] == 'Other']
-	enums = [x[5:] for x in other_cols]
-	return enums
+    df = pd.read_sql_table(element,sess.bind,index_col='Id')
+    other_cols = [x for x in df.columns if x[:5] == 'Other']
+    enums = [x[5:] for x in other_cols]
+    return enums
 
 
 # TODO combine query() and raw_query_via_sqlalchemy()?
-def query(q,sql_ids,strs,con,cur):  # needed for some raw queries, e.g., to create db and schemas
+def query(q,sql_ids,strs,con,cur):
+    # needed for some raw queries, e.g., to create db and schemas
     format_args = [sql.Identifier(a) for a in sql_ids]
     cur.execute(sql.SQL(q).format(*format_args),strs)
     con.commit()
@@ -243,7 +252,7 @@ def query(q,sql_ids,strs,con,cur):  # needed for some raw queries, e.g., to crea
     else:
         return None
 
-
+#TODO the function uses psycopg2. Rename the function and its calls.
 def raw_query_via_sqlalchemy(session,q,sql_ids,strs):
     connection = session.bind.connect()
     con = connection.connection
@@ -259,19 +268,41 @@ def raw_query_via_sqlalchemy(session,q,sql_ids,strs):
     con.close()
     return return_item
 
+def get_columns_via_psycopg2(session,element):
+    q = "Select * from {} LIMIT 0"
+    sql_ids = [element]
+    strs = []
+    connection = session.bind.connect()
+    con = connection.connection
+    cur = con.cursor()
+    format_args = [sql.Identifier(a) for a in sql_ids]
+    cur.execute(sql.SQL(q).format(*format_args),strs)
+    con.commit()
+    return_item = [desc[0] for desc in cur.description]
+    cur.close()
+    con.close()
+    return return_item
+
+
+# def get_enumerations(session,element):
+#     """Returns a list of enumerations referenced in the <element> table"""
+#     q = f"""
+#         SELECT column_name
+#         FROM information_schema.columns
+#         WHERE table_name='{element}';
+#     """
+#     col_df = pd.read_sql(q,session.bind)
+#     maybe_enum_list = [x[:-3] for x in col_df.column_name if x[-3:] == '_Id']
+#     enum_list = [x for x in maybe_enum_list if f'Other{x}' in col_df.column_name.unique()]
+#     return enum_list
 
 def get_enumerations(session,element):
     """Returns a list of enumerations referenced in the <element> table"""
-    q = f"""
-        SELECT column_name
-        FROM information_schema.columns
-        WHERE table_name='{element}';
-    """
-    col_df = pd.read_sql(q,session.bind)
+    df = get_columns_via_psycopg2(session, element)
+    col_df = DataFrame(df, columns=['column_name'])
     maybe_enum_list = [x[:-3] for x in col_df.column_name if x[-3:] == '_Id']
     enum_list = [x for x in maybe_enum_list if f'Other{x}' in col_df.column_name.unique()]
     return enum_list
-
 
 def get_foreign_key_df(session,element):
     """Returns a dataframe whose index is the name of the field in the <element> table, with columns
@@ -289,9 +320,9 @@ def get_foreign_key_df(session,element):
         JOIN information_schema.constraint_column_usage AS ccu
           ON ccu.constraint_name = tc.constraint_name
           AND ccu.table_schema = tc.table_schema
-        WHERE tc.constraint_type = 'FOREIGN KEY' AND tc.table_name='{element}';
+        WHERE tc.constraint_type = 'FOREIGN KEY' AND tc.table_name= %(tablename)s;
     """
-    fk_df = pd.read_sql(q,session.bind,index_col='column_name')
+    fk_df = pd.read_sql(q,session.bind,index_col='column_name',params={'tablename': element})
     return fk_df
 
 
@@ -425,7 +456,7 @@ def save_one_to_db(session,element,record,upsert=False):
                 session.execute(f'''
                     DELETE FROM _datafile 
                     WHERE short_name = '{record['short_name']}';''')
-                session.commit()                
+                session.commit()
             df.to_sql(element,session.bind,if_exists='append',index=False)
             enum_plaintext_dict = mr.enum_plaintext_dict_from_db_record(session,element,record)
             fk_plaintext_dict = mr.fk_plaintext_dict_from_db_record(
@@ -482,8 +513,9 @@ def name_from_id(session,element,idx):
 
 def name_to_id(session,element,name):
     name_field = get_name_field(element)
-    q = f"""SELECT "Id" FROM "{element}" WHERE "{name_field}" = '{name}' """
-    idx_df = pd.read_sql(q,session.bind)
+    #q = f"""SELECT "Id" FROM "{element}" WHERE "{name_field}" = '{name}' """
+    q= sql.SQL("""SELECT ID FROM {element} WHERE {name_field} = %(name)s """).format(element = sql.Identifier(element), name_field = sql.Identifier(name_field))
+    idx_df = pd.read_sql(q,session.bind,params={'name': name})
     try:
         idx = idx_df.loc[0,'Id']
     except KeyError:
