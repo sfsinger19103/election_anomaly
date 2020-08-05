@@ -493,18 +493,27 @@ def create_bar(session, top_ru_id, contest_type, contest, election_id, datafile_
 			"count_item_type": temp_df.iloc[0]['CountItemType'],
 			"x": x,
 			"y": y,
-			"counts": {}
+			"counts": []
 		}
-		reporting_units = temp_df.Name.unique()
-		for reporting_unit in reporting_units:
-			results["counts"][reporting_unit] = {}
+		pivot_df = pd.pivot_table(temp_df, values='Count', 
+			index=['ReportingUnit_Id', 'Name', 'score', 'abs_score'], \
+			columns='Selection').sort_values('abs_score', ascending=False).reset_index()
+		#reporting_units = pivot_df.Name.unique()
+		#for reporting_unit in reporting_units:
+		#	results["counts"][reporting_unit] = {}
 
-		for i, row in temp_df.iterrows():
-			if row.Selection == x:
-				results["counts"][row.Name]["x"] = row.Count
-			elif row.Selection == y:
-				results["counts"][row.Name]["y"] = row.Count
-			results["counts"][row.Name]["score"] = row.score
+		for i, row in pivot_df.iterrows():
+			results['counts'].append({
+				'name': row['Name'],
+				'x': row[x],
+				'y': row[y],
+				'score': row['score']
+			})
+			# if row.Selection == x:
+			# 	results["counts"][row.Name]["x"] = row.Count
+			# elif row.Selection == y:
+			# 	results["counts"][row.Name]["y"] = row.Count
+			# results["counts"][row.Name]["score"] = row.score
 		result_list.append(results)
 		
 	return result_list
