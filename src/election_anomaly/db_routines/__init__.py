@@ -253,6 +253,22 @@ def query(q,sql_ids,strs,con,cur):
         return None
 
 #TODO the function uses psycopg2. Rename the function and its calls.
+# def raw_query_via_sqlalchemy(session,q,sql_ids,strs):
+#     connection = session.bind.connect()
+#     con = connection.connection
+#     cur = con.cursor()
+#     format_args = [sql.Identifier(a) for a in sql_ids]
+#     cur.execute(sql.SQL(q).format(*format_args),strs)
+#     con.commit()
+#     if cur.description:
+#         return_item = cur.fetchall()
+#     else:
+#         return_item = None
+#     cur.close()
+#     con.close()
+#     return return_item
+
+
 def raw_query_via_sqlalchemy(session,q,sql_ids,strs):
     connection = session.bind.connect()
     con = connection.connection
@@ -261,13 +277,16 @@ def raw_query_via_sqlalchemy(session,q,sql_ids,strs):
     cur.execute(sql.SQL(q).format(*format_args),strs)
     con.commit()
     if cur.description:
-        return_item = cur.fetchall()
+        return_data = cur.fetchall()
+        return_columns = [desc[0] for desc in cur.description]
+        return_item = DataFrame(return_data,columns=return_columns)
     else:
         return_item = None
     cur.close()
     con.close()
     return return_item
 
+#Todo remove this function and direct quries to raw_query_via_sqlalchemy
 def get_columns_via_psycopg2(session,element):
     q = "Select * from {} LIMIT 0"
     sql_ids = [element]
@@ -295,6 +314,7 @@ def get_columns_via_psycopg2(session,element):
 #     maybe_enum_list = [x[:-3] for x in col_df.column_name if x[-3:] == '_Id']
 #     enum_list = [x for x in maybe_enum_list if f'Other{x}' in col_df.column_name.unique()]
 #     return enum_list
+
 
 def get_enumerations(session,element):
     """Returns a list of enumerations referenced in the <element> table"""
@@ -499,10 +519,23 @@ def save_one_to_db(session,element,record,upsert=False):
     return [db_idx, record, enum_plaintext_dict, fk_plaintext_dict, changed]
 
 
+# def name_from_id(session,element,idx):
+#     name_field = get_name_field(element)
+#     q = f"""SELECT "{name_field}" FROM "{element}" WHERE "Id" = {idx}"""
+#     name_df = pd.read_sql(q,session.bind)
+#     try:
+#         name = name_df.loc[0,name_field]
+#     except KeyError:
+#         # if no record with Id = <idx> was found
+#         name = None
+#     return name
+
 def name_from_id(session,element,idx):
     name_field = get_name_field(element)
-    q = f"""SELECT "{name_field}" FROM "{element}" WHERE "Id" = {idx}"""
-    name_df = pd.read_sql(q,session.bind)
+    q = 'SELECT {} FROM {} WHERE Id = %s'
+    sql_ids = [name_field,element]
+    strs = str(idx)
+    name_df = raw_query_via_sqlalchemy(session,q,sql_ids,strs)
     try:
         name = name_df.loc[0,name_field]
     except KeyError:
@@ -510,19 +543,30 @@ def name_from_id(session,element,idx):
         name = None
     return name
 
+# def name_to_id(session,element,name):
+#     name_field = get_name_field(element)
+#     q = f"""SELECT "Id" FROM "{element}" WHERE "{name_field}" = '{name}' """
+#     #q= sql.SQL("""SELECT ID FROM {element} WHERE {name_field} = %(name)s """).format(element = sql.Identifier(element), name_field = sql.Identifier(name_field))
+#     idx_df = pd.read_sql(q,session.bind,params={'name': name})
+#     try:
+#         idx = idx_df.loc[0,'Id']
+#     except KeyError:
+#         # if no record with name <name> was found
+#         idx = None
+#     return idx
 
 def name_to_id(session,element,name):
     name_field = get_name_field(element)
-    #q = f"""SELECT "Id" FROM "{element}" WHERE "{name_field}" = '{name}' """
-    q= sql.SQL("""SELECT ID FROM {element} WHERE {name_field} = %(name)s """).format(element = sql.Identifier(element), name_field = sql.Identifier(name_field))
-    idx_df = pd.read_sql(q,session.bind,params={'name': name})
+    q = 'SELECT Id FROM {} WHERE name_field = %s'
+    sql_ids = [element]
+    strs = str(name_field)
+    idx_df = raw_query_via_sqlalchemy(session,q,sql_ids,strs)
     try:
         idx = idx_df.loc[0,'Id']
     except KeyError:
         # if no record with name <name> was found
         idx = None
     return idx
-
 
 def get_name_field(element):
     # TODO pull from db or filesystem instead of hard coding
@@ -540,7 +584,11 @@ def get_name_field(element):
 
 
 def truncate_table(session, table_name):
-    session.execute(f'TRUNCATE TABLE "{table_name}" CASCADE')
+    #session.execute(f'TRUNCATE TABLE "{table_name}" CASCADE')
+    q = 'TRUNCATE TABLE {} CASCADE'
+    sql_ids = [table_name]
+    strs = []
+    raw_query_via_sqlalchemy(session,q,sql_ids,strs)
     session.commit()
     return
 
