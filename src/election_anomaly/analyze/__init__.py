@@ -362,17 +362,18 @@ def create_scatter(session, top_ru_id, sub_rutype_id, election_id, datafile_id_l
 		"count_item_type": count_item_type,
 		"x": x,
 		"y": y,
-		"counts": {}
+		"counts": []
 	}
-	reporting_units = unsummed.Name.unique()
-	for reporting_unit in reporting_units:
-		results["counts"][reporting_unit] = {}
-
-	for i, row in unsummed.iterrows():
-		if row.Selection == x:
-			results["counts"][row.Name]["x"] = row.Count
-		elif row.Selection == y:
-			results["counts"][row.Name]["y"] = row.Count
+	pivot_df = pd.pivot_table(unsummed, values='Count', 
+		index=['ReportingUnit_Id', 'Name'], \
+		columns='Selection').reset_index()
+	for i, row in pivot_df.iterrows():
+		results['counts'].append({
+			'name': row['Name'],
+			'x': row[x],
+			'y': row[y],
+			'score': 0
+		})
 		
 	return results
 
