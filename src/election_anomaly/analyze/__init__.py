@@ -585,7 +585,7 @@ def assign_anomaly_score(data):
 	df_unit = df_unit.reset_index()
 
 	######### FOR TESTING PURPOSES ONLY!!!!! ###########
-	df_unit = df_unit[df_unit['Contest_Id'] == 14949]
+	#df_unit = df_unit[df_unit['Contest_Id'] == 14949]
 
 
 	df_unit['unit_id'] = df_unit.index
@@ -671,6 +671,7 @@ def get_most_anomalous(data, n):
 		# correspond to the anomaly score
 		temp_df['abs_score'] = temp_df['score'].abs()
 		df_final = temp_df.sort_values('abs_score', ascending=False)
+		df_final = df_final.iloc[0:8]
 		df = pd.concat([df, df_final])
 	return df
 
