@@ -47,8 +47,6 @@ def append_to_composing_reporting_unit_join(session,ru):
     
     # pull ReportingUnit to get ids matched to names
     ru_cdf = pd.read_sql_table('ReportingUnit',session.bind,index_col=None)
-
-
     ru_static = ru.copy()
 
     # add db Id column to ru_static, if it's not already there
@@ -74,8 +72,6 @@ def append_to_composing_reporting_unit_join(session,ru):
         cruj_dframe, err = dframe_to_sql(cruj_dframe,session,'ComposingReportingUnitJoin')
     else:
         cruj_dframe = pd.read_sql_table('ComposingReportingUnitJoin',session.bind)
-
-
     session.flush()
     return cruj_dframe
 
@@ -233,17 +229,16 @@ def get_cdf_db_table_names(eng):
 
 
 def read_enums_from_db_table(sess,element):
-    """Returns list of enum names (e.g., 'CountItemType') for the given <element>.
+	"""Returns list of enum names (e.g., 'CountItemType') for the given <element>.
 	Identifies enums by the Other{enum} column name (e.g., 'OtherCountItemType)"""
-    df = pd.read_sql_table(element,sess.bind,index_col='Id')
-    other_cols = [x for x in df.columns if x[:5] == 'Other']
-    enums = [x[5:] for x in other_cols]
-    return enums
+	df = pd.read_sql_table(element,sess.bind,index_col='Id')
+	other_cols = [x for x in df.columns if x[:5] == 'Other']
+	enums = [x[5:] for x in other_cols]
+	return enums
 
 
 # TODO combine query() and raw_query_via_sqlalchemy()?
-def query(q,sql_ids,strs,con,cur):
-    # needed for some raw queries, e.g., to create db and schemas
+def query(q,sql_ids,strs,con,cur):  # needed for some raw queries, e.g., to create db and schemas
     format_args = [sql.Identifier(a) for a in sql_ids]
     cur.execute(sql.SQL(q).format(*format_args),strs)
     con.commit()
@@ -323,6 +318,7 @@ def get_enumerations(session,element):
     maybe_enum_list = [x[:-3] for x in col_df.column_name if x[-3:] == '_Id']
     enum_list = [x for x in maybe_enum_list if f'Other{x}' in col_df.column_name.unique()]
     return enum_list
+
 
 def get_foreign_key_df(session,element):
     """Returns a dataframe whose index is the name of the field in the <element> table, with columns
@@ -532,9 +528,9 @@ def save_one_to_db(session,element,record,upsert=False):
 
 def name_from_id(session,element,idx):
     name_field = get_name_field(element)
-    q = 'SELECT {} FROM {} WHERE Id = %s'
-    sql_ids = [name_field,element]
-    strs = str(idx)
+    q = 'SELECT {} FROM {} WHERE {} = %s'
+    sql_ids = [name_field,element,'Id']
+    strs = [str(idx)]
     name_df = raw_query_via_sqlalchemy(session,q,sql_ids,strs)
     try:
         name = name_df.loc[0,name_field]
@@ -557,9 +553,9 @@ def name_from_id(session,element,idx):
 
 def name_to_id(session,element,name):
     name_field = get_name_field(element)
-    q = 'SELECT Id FROM {} WHERE name_field = %s'
-    sql_ids = [element]
-    strs = str(name_field)
+    q = 'SELECT {} FROM {} WHERE {} = %s'
+    sql_ids = ['Id',element, name_field]
+    strs = [name]
     idx_df = raw_query_via_sqlalchemy(session,q,sql_ids,strs)
     try:
         idx = idx_df.loc[0,'Id']
@@ -567,6 +563,7 @@ def name_to_id(session,element,name):
         # if no record with name <name> was found
         idx = None
     return idx
+
 
 def get_name_field(element):
     # TODO pull from db or filesystem instead of hard coding
@@ -589,7 +586,6 @@ def truncate_table(session, table_name):
     sql_ids = [table_name]
     strs = []
     raw_query_via_sqlalchemy(session,q,sql_ids,strs)
-    session.commit()
     return
 
 
