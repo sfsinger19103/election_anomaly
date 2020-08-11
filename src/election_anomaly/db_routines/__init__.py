@@ -163,7 +163,7 @@ def sql_alchemy_connect(paramfile=None,db_name='postgres'):
 def add_integer_cols(session,table,col_list):
     add = ','.join([' ADD COLUMN {} INTEGER' for c in col_list])
     q = 'ALTER TABLE {}' + add
-    sql_ids = col_list
+    sql_ids = col_list.copy()
     sql_ids.insert(0, table)
     strs = []
     raw_query_via_sqlalchemy(session,q,sql_ids,strs)
