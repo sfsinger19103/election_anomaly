@@ -535,7 +535,7 @@ def create_bar(session, top_ru_id, contest_type, contest, election_id, datafile_
 			"counts": []
 		}
 		pivot_df = pd.pivot_table(temp_df, values='Count', 
-			index=['ReportingUnit_Id', 'Name', 'score', 'abs_score', 'margins'], \
+			index=['ReportingUnit_Id', 'Name', 'score', 'margins'], \
 			columns='Selection').sort_values('margins', ascending=False).reset_index()
 		#reporting_units = pivot_df.Name.unique()
 		#for reporting_unit in reporting_units:
@@ -698,8 +698,8 @@ def get_most_anomalous(data, n):
 		# sort by absolute value of the score, descending
 		# This still isn't quite right...votes_at_stake won't directly
 		# correspond to the anomaly score
-		temp_df['abs_score'] = temp_df['score'].abs()
-		df_final = temp_df.sort_values('abs_score', ascending=False)
+		#temp_df['abs_score'] = temp_df['score'].abs()
+		df_final = temp_df.sort_values('score', ascending=False)
 		df_final = df_final.iloc[0:8]
 		df = pd.concat([df, df_final])
 	return df
@@ -764,27 +764,26 @@ def calculate_votes_at_stake(data):
 		temp_df = data[data['unit_id'] == unit_id]
 		if temp_df.shape[0] > 2:
 			try:
-				temp_df['abs_score'] = temp_df['score'].abs()
-				temp_df.sort_values('abs_score', ascending=False, inplace=True)
+				#temp_df['abs_score'] = temp_df['score'].abs()
+				temp_df.sort_values('score', ascending=False, inplace=True)
 				# The first 2 rows are the most anomalous candidate pairing
 				#anomalous_df = temp_df.iloc[0:2]
-				max_anomaly_score = temp_df['abs_score'].max() 
-				reporting_unit_id = temp_df.loc[temp_df['abs_score'] == max_anomaly_score, \
+				max_anomaly_score = temp_df['score'].max() 
+				reporting_unit_id = temp_df.loc[temp_df['score'] == max_anomaly_score, \
 					'ReportingUnit_Id'].item()
-				selection = temp_df.loc[temp_df['abs_score'] == max_anomaly_score, \
+				selection = temp_df.loc[temp_df['score'] == max_anomaly_score, \
 					'Selection'].item()
 				anomalous_df = temp_df[(temp_df['ReportingUnit_Id'] == reporting_unit_id) & \
 					(((temp_df['Selection'] == selection)  & \
-						(temp_df['abs_score'] == max_anomaly_score)) |
-					(temp_df['rank'] == 1))].sort_values('abs_score', ascending=False)
-				# Resort so we have the DF back in order by scores
+						(temp_df['score'] == max_anomaly_score)) |
+					(temp_df['rank'] == 1))].sort_values('score', ascending=False)
 				#temp_df.sort_values('score', ascending=False, inplace=True)
 				# Now we need to know whether the original score was pos or neg
-				is_positive = (anomalous_df.iloc[0]['score'] > 0)
-				if is_positive:
-					next_max_score = temp_df[temp_df['score'] < max_anomaly_score]['score'].max()
-				elif not is_positive:
-					next_max_score = temp_df[temp_df['score'] > max_anomaly_score]['score'].min()
+				#is_positive = (anomalous_df.iloc[0]['score'] > 0)
+				#if is_positive:
+				#	next_max_score = temp_df[temp_df['score'] < max_anomaly_score]['score'].max()
+				#elif not is_positive:
+				#	next_max_score = temp_df[temp_df['score'] > max_anomaly_score]['score'].min()
 				next_reporting_unit_id = temp_df.loc[temp_df['score'] == next_max_score, \
 					'ReportingUnit_Id'].item()
 				next_anomalous_df =temp_df[(temp_df['ReportingUnit_Id'] == next_reporting_unit_id) & \
