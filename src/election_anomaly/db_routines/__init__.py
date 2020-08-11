@@ -4,12 +4,15 @@
 import psycopg2
 import sqlalchemy
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
+# import the error handling libraries for psycopg2
+from psycopg2 import OperationalError, errorcodes, errors
 from psycopg2 import sql
 import sqlalchemy as db
 import sqlalchemy_utils
 from election_anomaly import user_interface as ui
 from configparser import MissingSectionHeaderError
 import pandas as pd
+from pandas import DataFrame
 from election_anomaly import munge_routines as mr
 import re
 from election_anomaly.db_routines import create_cdf_db as db_cdf
@@ -149,14 +152,23 @@ def sql_alchemy_connect(paramfile=None,db_name='postgres'):
     engine = db.create_engine(url, client_encoding='utf8')
     return engine
 
+# def add_integer_cols(session,table,col_list):
+#     add = ','.join([f' ADD COLUMN "{c}" INTEGER' for c in col_list])
+#     q = f'ALTER TABLE "{table}" {add}'
+#     sql_ids=[]
+#     strs = []
+#     raw_query_via_sqlalchemy(session,q,sql_ids,strs)
+#     return
 
 def add_integer_cols(session,table,col_list):
-    add = ','.join([f' ADD COLUMN "{c}" INTEGER' for c in col_list])
-    q = f'ALTER TABLE "{table}" {add}'
-    sql_ids=[]
+    add = ','.join([' ADD COLUMN {} INTEGER' for c in col_list])
+    q = 'ALTER TABLE {}' + add
+    sql_ids = col_list
+    sql_ids.insert(0, table)
     strs = []
     raw_query_via_sqlalchemy(session,q,sql_ids,strs)
     return
+
 
 
 def drop_cols(session,table,col_list):
@@ -221,7 +233,9 @@ def raw_query_via_sqlalchemy(session,q,sql_ids,strs):
     cur.execute(sql.SQL(q).format(*format_args),strs)
     con.commit()
     if cur.description:
-        return_item = cur.fetchall()
+        return_data = cur.fetchall()
+        return_columns = [desc[0] for desc in cur.description]
+        return_item = DataFrame(return_data,columns=return_columns)
     else:
         return_item = None
     cur.close()
