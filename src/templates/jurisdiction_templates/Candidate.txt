@@ -1,1 +1,1 @@
-BallotName
+BallotName	Party
