@@ -152,6 +152,7 @@ def sql_alchemy_connect(paramfile=None,db_name='postgres'):
     engine = db.create_engine(url, client_encoding='utf8')
     return engine
 
+
 # def add_integer_cols(session,table,col_list):
 #     add = ','.join([f' ADD COLUMN "{c}" INTEGER' for c in col_list])
 #     q = f'ALTER TABLE "{table}" {add}'
@@ -171,10 +172,19 @@ def add_integer_cols(session,table,col_list):
 
 
 
+# def drop_cols(session,table,col_list):
+#     drop = ','.join([f' DROP COLUMN "{c}"' for c in col_list])
+#     q = f'ALTER TABLE "{table}" {drop}'
+#     sql_ids=[]
+#     strs = []
+#     raw_query_via_sqlalchemy(session,q,sql_ids,strs)
+#     return
+
 def drop_cols(session,table,col_list):
-    drop = ','.join([f' DROP COLUMN "{c}"' for c in col_list])
-    q = f'ALTER TABLE "{table}" {drop}'
-    sql_ids=[]
+    drop = ','.join([' DROP COLUMN {} 'for c in col_list])
+    q = 'ALTER TABLE {}' + drop
+    sql_ids = col_list.copy()
+    sql_ids.insert(0, table)
     strs = []
     raw_query_via_sqlalchemy(session,q,sql_ids,strs)
     return
@@ -242,15 +252,37 @@ def raw_query_via_sqlalchemy(session,q,sql_ids,strs):
     con.close()
     return return_item
 
+#Todo remove this function and direct quries to raw_query_via_sqlalchemy
+def get_columns_via_psycopg2(session,element):
+    q = "Select * from {} LIMIT 0"
+    connection = session.bind.connect()
+    con = connection.connection
+    cur = con.cursor()
+    cur.execute(sql.SQL(q).format(sql.Identifier(element)))
+    con.commit()
+    return_item = [desc[0] for desc in cur.description]
+    cur.close()
+    con.close()
+    return return_item
+
+
+# def get_enumerations(session,element):
+#     """Returns a list of enumerations referenced in the <element> table"""
+#     q = f"""
+#         SELECT column_name
+#         FROM information_schema.columns
+#         WHERE table_name='{element}';
+#     """
+#     col_df = pd.read_sql(q,session.bind)
+#     maybe_enum_list = [x[:-3] for x in col_df.column_name if x[-3:] == '_Id']
+#     enum_list = [x for x in maybe_enum_list if f'Other{x}' in col_df.column_name.unique()]
+#     return enum_list
+
 
 def get_enumerations(session,element):
     """Returns a list of enumerations referenced in the <element> table"""
-    q = f"""
-        SELECT column_name
-        FROM information_schema.columns
-        WHERE table_name='{element}';
-    """
-    col_df = pd.read_sql(q,session.bind)
+    df = get_columns_via_psycopg2(session, element)
+    col_df = DataFrame(df, columns=['column_name'])
     maybe_enum_list = [x[:-3] for x in col_df.column_name if x[-3:] == '_Id']
     enum_list = [x for x in maybe_enum_list if f'Other{x}' in col_df.column_name.unique()]
     return enum_list
@@ -272,9 +304,9 @@ def get_foreign_key_df(session,element):
         JOIN information_schema.constraint_column_usage AS ccu
           ON ccu.constraint_name = tc.constraint_name
           AND ccu.table_schema = tc.table_schema
-        WHERE tc.constraint_type = 'FOREIGN KEY' AND tc.table_name='{element}';
+        WHERE tc.constraint_type = 'FOREIGN KEY' AND tc.table_name= %(tablename)s;
     """
-    fk_df = pd.read_sql(q,session.bind,index_col='column_name')
+    fk_df = pd.read_sql(q,session.bind,index_col='column_name',params={'tablename': element})
     return fk_df
 
 
@@ -320,7 +352,8 @@ def dframe_to_sql(dframe,session,table,index_col='Id',flush=True,raw_to_votecoun
     df_to_db = dframe.copy()
     df_to_db.drop_duplicates(inplace=True)
     if 'Count' in df_to_db.columns:
-        # TODO bug: catch anything not an integer (e.g., in MD 2018g upload)
+        # catch anything not an integer (e.g., in MD 2018g upload)
+        # TODO is this still necessary, given cast_cols_as_int?
         df_to_db.loc[:,'Count']=df_to_db['Count'].astype('int64',errors='ignore')
 
     # partition the columns
