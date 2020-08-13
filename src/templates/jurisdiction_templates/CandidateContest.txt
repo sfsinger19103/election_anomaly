@@ -1,1 +1,1 @@
-Name	NumberElected	Office	PrimaryParty
+Name	VotesAllowed	NumberElected	NumberRunoff	IsPartisan	Office	PrimaryParty

@@ -4,8 +4,6 @@
 import psycopg2
 import sqlalchemy
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
-# import the error handling libraries for psycopg2
-from psycopg2 import OperationalError, errorcodes, errors
 from psycopg2 import sql
 import sqlalchemy as db
 import sqlalchemy_utils
@@ -52,7 +50,7 @@ def append_to_composing_reporting_unit_join(session,ru):
     if 'Id' not in ru.columns:
         ru_static = ru_static.merge(ru_cdf[['Name','Id']],on='Name',how='left')
 
-    # create a list of rows to append to the ComposingReportingUnitJoin element
+    # create a list of rows to append to the ComposingReportingUnitJoin table
     cruj_dframe_list = []
     for i in range(ru['length'].max()):
         # check that all components of all Reporting Units are themselves ReportingUnits
@@ -68,7 +66,7 @@ def append_to_composing_reporting_unit_join(session,ru):
             columns={'Id':'ChildReportingUnit_Id',f'Id_{i}':'ParentReportingUnit_Id'}))
     if cruj_dframe_list:
         cruj_dframe = pd.concat(cruj_dframe_list)
-        cruj_dframe, e = dframe_to_sql(cruj_dframe,session,'ComposingReportingUnitJoin')
+        cruj_dframe, err = dframe_to_sql(cruj_dframe,session,'ComposingReportingUnitJoin')
     else:
         cruj_dframe = pd.read_sql_table('ComposingReportingUnitJoin',session.bind)
     session.flush()
@@ -179,7 +177,7 @@ def get_cdf_db_table_names(eng):
     cdf_joins = set()
     others = set()
     for t in public.table_name.unique():
-        # main_routines element name string
+        # main_routines table name string
         if t[0] == '_':
             others.add(t)
         elif t[-4:] == 'Join':
@@ -232,7 +230,7 @@ def raw_query_via_sqlalchemy(session,q,sql_ids,strs):
 
 
 def get_enumerations(session,element):
-    """Returns a list of enumerations referenced in the <element> element"""
+    """Returns a list of enumerations referenced in the <element> table"""
     q = f"""
         SELECT column_name
         FROM information_schema.columns
@@ -245,7 +243,7 @@ def get_enumerations(session,element):
 
 
 def get_foreign_key_df(session,element):
-    """Returns a dataframe whose index is the name of the field in the <element> element, with columns
+    """Returns a dataframe whose index is the name of the field in the <element> table, with columns
     foreign_table_name and foreign_column_name"""
     q = f"""
         SELECT
@@ -278,21 +276,19 @@ def add_foreign_key_name_col(sess,df,foreign_key_col,foreign_key_element,drop_ol
     return df_copy
 
 
-def dframe_to_sql(
-        dframe: pd.DataFrame, session, element: str, index_col: str= 'Id', flush: bool=True,
-        raw_to_votecount: bool=False, return_records: str='all') -> [pd.DataFrame, str]:
+def dframe_to_sql(dframe,session,table,index_col='Id',flush=True,raw_to_votecount=False,return_records='all'):
     """
-    Given a dataframe <dframe >and an existing cdf db element <element>>, clean <dframe>
-    (i.e., drop any columns that are not in <element>, add null columns to match any missing columns)
-    append records any new records to the corresponding element in the db (and commit!)
+    Given a dataframe <dframe >and an existing cdf db table <table>>, clean <dframe>
+    (i.e., drop any columns that are not in <table>, add null columns to match any missing columns)
+    append records any new records to the corresponding table in the db (and commit!)
     Return the updated dataframe, including all rows from the db and all from the dframe.
     <return_records> is a flag defaulting to "all" (return all records in db)
     but can be set to "original" to return only the records from the input <dframe>.
 
     """
-    # pull copy of existing element
-    target = pd.read_sql_table(element, session.bind, index_col=index_col)
-    # VoteCount element gets added columns during raw data upload, needs special treatment
+    # pull copy of existing table
+    target = pd.read_sql_table(table,session.bind,index_col=index_col)
+    # VoteCount table gets added columns during raw data upload, needs special treatment
 
     if dframe.empty:
         if return_records == 'original':
@@ -310,8 +306,7 @@ def dframe_to_sql(
     df_to_db = dframe.copy()
     df_to_db.drop_duplicates(inplace=True)
     if 'Count' in df_to_db.columns:
-        # catch anything not an integer (e.g., in MD 2018g upload)
-        # TODO is this still necessary, given cast_cols_as_int?
+        # TODO bug: catch anything not an integer (e.g., in MD 2018g upload)
         df_to_db.loc[:,'Count']=df_to_db['Count'].astype('int64',errors='ignore')
 
     # partition the columns
@@ -319,17 +314,12 @@ def dframe_to_sql(
     target_only_cols = [x for x in target.columns if x not in dframe.columns]
     intersection_cols = [x for x in target.columns if x in dframe.columns]
 
-    # remove columns that don't exist in target element
+    # remove columns that don't exist in target table
     df_to_db = df_to_db.drop(dframe_only_cols, axis=1)
 
-    # add columns that exist in target element but are missing from original dframe
+    # add columns that exist in target table but are missing from original dframe
     for c in target_only_cols:
         df_to_db.loc[:,c] = None
-
-    # make sure datatypes of df_to_db match the types of target
-    for c in intersection_cols:
-        if target[c].dtype != df_to_db[c].dtype:
-            df_to_db[c] = df_to_db[c].astype(target[c].dtype,errors='ignore')
 
     appendable = pd.concat([target,target,df_to_db],sort=False).drop_duplicates(keep=False)
     # note: two copies of target ensures none of the original rows will be appended.
@@ -338,19 +328,22 @@ def dframe_to_sql(
     if 'Id' in appendable.columns:
         appendable = appendable.drop('Id',axis=1)
 
-    error_string = None
+    error = {}
     try:
-        appendable.to_sql(element, session.bind, if_exists='append', index=False)
+        appendable.to_sql(table, session.bind, if_exists='append', index=False)
     except sqlalchemy.exc.IntegrityError as e:
         # FIXME: target, pulled from DB, has datetime, while dframe has date,
         #  so record might look like same-name-different-date when it isn't really
         # FIXME: IntegrityError will fail silently because it broke the dataload
-        error_string = f'Error uploading {element} to {session.bind.url}: {e}'
-
-    if element == 'ReportingUnit' and not appendable.empty:
+        # error["type"] = e
+        pass
+    if not error:
+        error = None
+    
+    if table == 'ReportingUnit' and not appendable.empty:
         append_to_composing_reporting_unit_join(session,appendable)
 
-    up_to_date_dframe = pd.read_sql_table(element, session.bind)
+    up_to_date_dframe = pd.read_sql_table(table,session.bind)
     up_to_date_dframe = format_dates(up_to_date_dframe)
 
     if raw_to_votecount:
@@ -360,10 +353,12 @@ def dframe_to_sql(
         session.flush()
     if return_records == 'original':
         # TODO get rid of rows not in dframe by taking inner join
-        up_to_date_dframe = dframe.merge(
+        id_enhanced_dframe = dframe.merge(
             up_to_date_dframe,left_on=intersection_cols,right_on=intersection_cols,how='inner').drop(
             target_only_cols,axis=1)
-    return up_to_date_dframe, error_string
+        return id_enhanced_dframe, error
+    else:
+        return up_to_date_dframe, error
 
 
 def format_dates(dframe):
@@ -373,6 +368,72 @@ def format_dates(dframe):
     for c in df.columns[df.dtypes=='datetime64[ns]']:
         df[c] = f'{df[c].dt.date}'
     return df
+
+
+def save_one_to_db(session,element,record,upsert=False):
+    """Create a record in the <element> table corresponding to the info in the
+    dictionary <record>, which is in <field>:<value> form, using db (not user-friendly)
+    fields -- i.e., ids for enums and foreign keys -- excluding the Id field.
+    On error, offers user chance to re-enter information"""
+    # initialize
+    enum_plaintext_dict = fk_plaintext_dict = {}
+    changed = False
+    ok = False
+
+    # define regex for pulling info from IntegrityError
+    pattern = re.compile(r'Key \((?P<fields>.+)\)=\((?P<values>.+)\) already exists.')
+    while not ok:
+        problems = []
+        if record == {}:
+            problems.append('No data given for insert.')
+        try:
+            df = pd.DataFrame({k:[v] for k,v in record.items()})
+            # currently this upsert only used for the _datafile record
+            if upsert:
+                session.execute(f'''
+                    DELETE FROM _datafile 
+                    WHERE short_name = '{record['short_name']}';''')
+                session.commit()                
+            df.to_sql(element,session.bind,if_exists='append',index=False)
+            enum_plaintext_dict = mr.enum_plaintext_dict_from_db_record(session,element,record)
+            fk_plaintext_dict = mr.fk_plaintext_dict_from_db_record(
+                session,element,record,excluded=enum_plaintext_dict.keys())
+            db_idx = name_to_id(session,element,record[get_name_field(element)])
+        except sqlalchemy.exc.IntegrityError as e:
+            if 'duplicate key value violates unique constraint' in e.orig.pgerror:
+                m = pattern.search(e.orig.pgerror)
+                field_str = m.group("fields")
+                value_str = m.group("values")
+                use_existing = input(f'Record already exists with value(s)\n\t{value_str}\n'
+                                    f'in field(s)\n\t{field_str}\n'
+                                    f'Use existing record (y/n?\n')
+                if use_existing == 'y':
+                    # pull record from db
+                    fields = field_str.split(',')
+                    values = value_str.split(',')
+                    dupe_d = {fields[i]:values[i] for i in range(len(fields))}
+                    db_idx, record = ui.pick_record_from_db(
+                        session,element,known_info_d=dupe_d)
+                    enum_plaintext_dict = mr.enum_plaintext_dict_from_db_record(session,element,record)
+                    fk_plaintext_dict = mr.fk_plaintext_dict_from_db_record(
+                        session,element,record,excluded=enum_plaintext_dict.keys())
+                    ok = True
+                else:
+                    problems.append(f'Database integrity error: {e}')
+            else:
+                problems.append(f'Database integrity error: {e}')
+
+        if problems:
+            ui.report_problems(problems)
+            print(f'Enter an alternative {element}')
+            # TODO depending on problem, offer choice from db or filesystem?
+            record, enum_plaintext_dict, fk_plaintext_dict = ui.get_record_info_from_user(
+                session,element,known_info_d=record,mode='database')
+            changed = True
+        else:
+            ok = True
+    session.flush()
+    return [db_idx, record, enum_plaintext_dict, fk_plaintext_dict, changed]
 
 
 def name_from_id(session,element,idx):
@@ -423,7 +484,7 @@ def truncate_table(session, table_name):
 def get_input_options(session, input):
     """Returns a list of response options based on the input"""
     # input comes as a pythonic (snake case) input, need to 
-    # change to match DB element naming format
+    # change to match DB table naming format
     name_parts = input.split('_')
     search_str = "".join([name_part.capitalize() for name_part in name_parts])
 
@@ -460,10 +521,6 @@ def get_datafile_info(session, results_file):
     q = session.execute(f'''
         SELECT "Id", "Election_Id" 
         FROM _datafile 
-        WHERE short_name = '{results_file}'
+        WHERE file_name = '{results_file}'
         ''').fetchall()
-    try:
-        return q[0]
-    except IndexError:
-        print(f'No record named {results_file} found in _datafile table in {session.bind.url}')
-        return [0,0]
+    return q[0]
