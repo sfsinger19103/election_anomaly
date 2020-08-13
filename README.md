@@ -57,7 +57,8 @@ The directory `src/mungers` holds the munger directories. Each munger directory 
  * `format.txt` holds information about the file format
    * `count_columns` is a comma-separated list of integers identifying the columns that contain vote counts. Our convention is to count from the left of the file, with leftmost column as 0.
    * `header_row_count` is an integer, the number of header rows in the file
-   * `field_name_row` is the single header row containing field names for columns that do not hold counts. (Columns containing vote counts may have field value information in more than one header row, e.g., one header row for contest and a second header row for candidate). Our convention is to count from the top of the file, with the top row as 0.
+   * `field_name_row` is the single header row containing field names for columns that do not hold counts. (Columns containing vote counts may have field value information in more than one header row, e.g., one header row for contest and a second header row for candidate). Our convention is to count from the top of the file, with the top row as 0. If there is no field names in the file, the value should be 'None'.
+   * `file_type` is one of a certain list of types recognized by the system. As of 6/4/2020, the list is:
    * `file_type` is one of a certain list of types recognized by the system. As of 6/4/2020, the list is:
      * `txt` for tab-separated text
      * `csv` for comma-separated text
@@ -71,7 +72,8 @@ The directory `src/mungers` holds the munger directories. Each munger directory 
     * `source` Identifies the placement in the file of the relevant information. The system recognizes these possibilities:
       * `row` for classes calculated from values in same row as a given vote count value. In this case the `raw_identifier_formula` can reference entries within the row via the relevant column name in angle brackets (e.g., <COUNTY>)
       * `column` for classes calculated from values in the same column as a given vote count value. In this case the `raw_identifier_formula can reference entries within the column via the relevant row number in angle brackets (e.g., <0>)
-      * `other` for classes that are the same for the whole results file. In this case the `raw_identifier_formula` should be blank.
+      * If a value is the same for everything in the results file (e.g., all results in the file are of CountItemType 'election-day'), use 'row' for the source and set the formula to the constant. For example, the entry might look like: 
+      ```CountItemType  election-day    row```
     
 ### row-sourced formula example
 Consider this snippet from a comma-separated Philadelphia, Pennsylvania voting results file:

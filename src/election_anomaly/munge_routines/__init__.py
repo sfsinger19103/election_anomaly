@@ -1,54 +1,85 @@
 from election_anomaly import db_routines as dbr
 from election_anomaly import user_interface as ui
+from election_anomaly import juris_and_munger as jm
 import pandas as pd
+from pandas.api.types import is_numeric_dtype
 import re
 import os
 import numpy as np
+from sqlalchemy.orm.session import Session
 
 
 class MungeError(Exception):
     pass
 
 
-def clean_raw_df(raw,munger):
-    """Replaces nulls, strips whitespace, changes any blank entries in non-numeric columns to 'none or unknown'.
-    Appends munger suffix to raw column names to avoid conflicts"""
+def generic_clean(df:pd.DataFrame) -> pd.DataFrame:
+    """Replaces nulls, strips whitespace."""
     # TODO put all info about data cleaning into README.md (e.g., whitespace strip)
+    # TODO return error if cleaning fails, including dtypes of columns
+    working = df.copy()
+    for c in working.columns:
+        if is_numeric_dtype(working[c]):
+            working[c] = working[c].fillna(0)
+        else:
+            working[c] = working[c].fillna('')
+            try:
+                working[c] = working[c].apply(lambda x:x.strip())
+            except AttributeError:
+                pass
+    return working
 
-    # change all nulls to blank
-    raw = raw.fillna('')
-    # strip whitespace from non-integer columns
-    non_numerical = {raw.columns.get_loc(c):c for idx,c in enumerate(raw.columns) if raw[c].dtype != 'int64'}
-    for location,name in non_numerical.items():
-        raw.iloc[:,location] = raw.iloc[:,location].apply(lambda x:x.strip())
 
-    # TODO keep columns named in munger formulas; keep count columns; drop all else.
-    if munger.header_row_count > 1:
-        cols_to_munge = [x for x in raw.columns if x[munger.field_name_row] in munger.field_list]
+def cast_cols_as_int(df: pd.DataFrame, col_list: list,mode='name',error_msg='') -> pd.DataFrame:
+    """recast columns as integer where possible, leaving columns with text entries as non-numeric)"""
+    if mode == 'index':
+        num_columns = [df.columns[idx] for idx in col_list]
+    elif mode == 'name':
+        num_columns = [c for c in df.columns if c in col_list]
     else:
-        cols_to_munge = [x for x in raw.columns if x in munger.field_list]
-
-    # TODO error check- what if cols_to_munge is missing something from munger.field_list?
-
-    # recast count columns as integer where possible.
-    #  (recast leaves columns with text entries as non-numeric).
-    num_columns = [raw.columns[idx] for idx in munger.count_columns]
+        raise ValueError(f'Mode {mode} not recognized')
     for c in num_columns:
         try:
-            raw[c] = raw[c].astype('int64',errors='raise')
-        except ValueError:
-            raise
+            df[c] = df[c].astype('int64',errors='raise')
+        except ValueError as e:
+            print(f'{error_msg}\nColumn {c} cannot be cast as integer:\n{e}')
+    return df
 
-    raw = raw[cols_to_munge + num_columns]
-    # recast all cols_to_munge to strings,
-    # change all blanks to "none or unknown"
-    for c in cols_to_munge:
-        raw[c] = raw[c].apply(str)
-        raw[c] = raw[c].replace('','none or unknown')
-    # rename columns to munge by adding suffix
-    renamer = {x:f'{x}_{munger.field_rename_suffix}' for x in cols_to_munge}
-    raw.rename(columns=renamer,inplace=True)
-    return raw
+
+def none_or_unknown(df:pd.DataFrame,cols:list) -> pd.DataFrame:
+    """ change all blanks to 'none or unknown' """
+    df_copy = df.copy()
+    for c in cols:
+        df.loc[:, c] = df[c].apply(str)
+        df.loc[:, c] = df[c].replace('', 'none or unknown')
+    return df_copy
+
+
+def munge_clean(raw: pd.DataFrame, munger: jm.Munger):
+    """Drop unnecessary columns.
+    Append '_SOURCE' suffix to raw column names to avoid conflicts"""
+    working = raw.copy()
+    # drop columns that are neither count columns nor used in munger formulas
+    #  define columns named in munger formulas
+    if munger.header_row_count > 1:
+        munger_formula_columns = [x for x in working.columns if x[munger.field_name_row] in munger.field_list]
+    else:
+        munger_formula_columns = [x for x in working.columns if x in munger.field_list]
+
+    if munger.field_name_row is None:
+        count_columns_by_name = [munger.field_names_if_no_field_name_row[idx] for idx in munger.count_columns]
+    else:
+        count_columns_by_name = [working.columns[idx] for idx in munger.count_columns]
+    # TODO error check- what if cols_to_munge is missing something from munger.field_list?
+
+    # keep columns named in munger formulas; keep count columns; drop all else.
+    working = working[munger_formula_columns + count_columns_by_name]
+
+    # add suffix '_SOURCE' to certain columns to avoid any conflict with db table names
+    # (since no db table name ends with _SOURCE)
+    renamer = {x:f'{x}_SOURCE' for x in munger_formula_columns}
+    working.rename(columns=renamer, inplace=True)
+    return working
 
 
 def text_fragments_and_fields(formula):
@@ -59,51 +90,88 @@ def text_fragments_and_fields(formula):
     p = re.compile('(?P<text>[^<>]*)<(?P<field>[^<>]+)>')  # pattern to find text,field pairs
     q = re.compile('(?<=>)[^<]*$')  # pattern to find text following last pair
     text_field_list = re.findall(p,formula)
-    last_text = re.findall(q,formula)
+    if not text_field_list:
+        last_text = [formula]
+    else:
+        last_text = re.findall(q,formula)
     return text_field_list,last_text
 
 
-def add_munged_column(raw,munger,element,mode='row',inplace=True):
+def add_column_from_formula(working: pd.DataFrame, formula: str, new_col: str, err: dict, suffix=None) -> (pd.DataFrame, dict):
+    """If <suffix> is given, add it to each field in the formula"""
+    text_field_list, last_text = text_fragments_and_fields(formula)
+
+    # add suffix, if required
+    if suffix:
+        text_field_list = [(t,f'{f}{suffix}') for (t,f) in text_field_list]
+
+    if last_text:
+        working.loc[:, new_col] = last_text[0]
+    else:
+        working.loc[:, new_col] = ''
+    text_field_list.reverse()
+    for t, f in text_field_list:
+        try:
+            working.loc[:, new_col] = working.loc[:, f].apply(lambda x: f'{t}{x}') + working.loc[:,new_col]
+        except KeyError:
+            ui.add_error(err,'munge-error',f'missing column {f}')
+    return working, err
+
+
+def add_munged_column(
+        raw: pd.DataFrame, munger: jm.Munger, element: str, err: dict, mode: str = 'row',
+        inplace: bool = True) -> (pd.DataFrame, dict):
     """Alters dataframe <raw>, adding or redefining <element>_raw column
-    via the <formula>. Assumes some preprocessing of <raw> .
+    via the <formula>. Assumes "_SOURCE" has been appended to all columns of raw
     Does not alter row count."""
-    # TODO what preprocessing exactly? Improve description
+    if not err:
+        err = {}
     if raw.empty:
-        return raw
+        return raw, err
     if inplace:
         working = raw
     else:
         working = raw.copy()
-    formula = munger.cdf_elements.loc[element,'raw_identifier_formula']
-    if mode == 'row':
-        for field in munger.field_list:
-            formula = formula.replace(f'<{field}>',f'<{field}_{munger.field_rename_suffix}>')
-    elif mode == 'column':
-        for i in range(munger.header_row_count):
-            formula = formula.replace(f'<{i}>',f'<variable_{i}>')
 
-    text_field_list,last_text = text_fragments_and_fields(formula)
+    try:
+        formula = munger.cdf_elements.loc[element,'raw_identifier_formula']
+        if mode == 'row':
+            for field in munger.field_list:
+                formula = formula.replace(f'<{field}>',f'<{field}_SOURCE>')
+        elif mode == 'column':
+            for i in range(munger.header_row_count):
+                formula = formula.replace(f'<{i}>',f'<variable_{i}>')
 
-    if last_text:
-        working.loc[:,f'{element}_raw'] = last_text[0]
-    else:
-        working.loc[:,f'{element}_raw'] = ''
+        working, err = add_column_from_formula(working, formula,f'{element}_raw', err)
 
-    text_field_list.reverse()
-    for t,f in text_field_list:
-        assert f != f'{element}_raw',f'Column name conflicts with element name: {f}'
-        working.loc[:,f'{element}_raw'] = t + working.loc[:,f] + working.loc[:,f'{element}_raw']
-    return working
+    except:
+        e = f'Error munging {element}. Check raw_identifier_formula for {element} in cdf_elements.txt'
+        if 'cdf_elements.txt' in err.keys():
+            err['cdf_elements.txt'].append(e)
+        else:
+            err['cdf_elements.txt'] = [e]
+
+    # compress whitespace for <element>_raw
+    working.loc[:,f'{element}_raw'] = working[f'{element}_raw'].apply(compress_whitespace)
+    return working, err
+
+
+def compress_whitespace(s:str) -> str:
+    """Return a string where every instance of consecutive whitespaces in <s> has been replace by a single space,
+    and leading and trailing whitespace is eliminated"""
+    new_s = re.sub(r'\s+',' ',s)
+    new_s = new_s.strip()
+    return new_s
 
 
 def replace_raw_with_internal_ids(
-        row_df,juris,table_df,element,internal_name_column,unmatched_dir,drop_unmatched=False,mode='row'):
+        row_df: pd.DataFrame, juris: jm.Jurisdiction, table_df: pd.DataFrame, element: str, internal_name_column: str
+        ,error: dict, drop_unmatched: bool=False, mode: str='row') -> (pd.DataFrame, dict):
     """replace columns in <row_df> with raw_identifier values by columns with internal names and Ids
     from <table_df>, which has structure of a db table for <element>.
     # TODO If <element> is BallotMeasureContest or CandidateContest,
     #  contest_type column is added/updated
     """
-    assert os.path.isdir(unmatched_dir), f'Argument {unmatched_dir} is not a directory'
     if drop_unmatched:
         how='inner'
     else:
@@ -119,15 +187,31 @@ def replace_raw_with_internal_ids(
     if drop_unmatched:
         to_be_dropped = row_df[~row_df[f'{element}_raw'].isin(raw_ids_for_element['raw_identifier_value'])]
         if to_be_dropped.shape[0] == row_df.shape[0]:
-            raise MungeError(f'No {element} was found in \'dictionary.txt\'')
+            e =f'No {element} was found in \'dictionary.txt\''
+            if 'munge_error' in error.keys():
+                error['munge_error'].append(e)
+            else:
+                error['munge_error'] = [e]
+            return row_df.drop(row_df.index), error
         elif not to_be_dropped.empty:
-            print(
-                f'Warning: Results for {to_be_dropped.shape[0]} rows '
-                f'with unmatched {element}s will not be loaded to database.')
+            e = f'Warning: Results for {to_be_dropped.shape[0]} rows with unmatched {element}s ' \
+                f'will not be loaded to database.'
+            if 'munge_warning' in error.keys():
+                error['munge_warning'].append(e)
+            else:
+                error['munge_warning'] = [e]
 
     row_df = row_df.merge(raw_ids_for_element,how=how,
-        left_on=f'{element}_raw',
-        right_on='raw_identifier_value',suffixes=['',f'_{element}_ei'])
+                          left_on=f'{element}_raw',
+                          right_on='raw_identifier_value',suffixes=['',f'_{element}_ei'])
+
+    if row_df.empty:
+        e = f'No raw {element} in \'dictionary.txt\' matched any raw {element} derived from the result file'
+        if 'munge_error' in error.keys():
+            error['munge_error'].append(e)
+        else:
+            error['munge_error'] = [e]
+        return row_df, error
 
     # Note: if how = left, unmatched elements get nan in fields from dictionary table
     # TODO how do these nans flow through?
@@ -155,9 +239,9 @@ def replace_raw_with_internal_ids(
     # and either internal_name_column or internal_name_column_table_name
     row_df = row_df.merge(
         table_df[['Id',internal_name_column]],how='left',left_on=element,right_on=internal_name_column)
-    row_df=row_df.drop([internal_name_column],axis=1)
+    row_df = row_df.drop([internal_name_column],axis=1)
     row_df.rename(columns={'Id':f'{element}_Id'},inplace=True)
-    return row_df
+    return row_df, error
 
 
 def enum_col_from_id_othertext(df,enum,enum_df,drop_old=True):
@@ -322,7 +406,7 @@ def good_syntax(s):
     return good
 
 
-def munge_and_melt(mu,raw,count_cols):
+def munge_and_melt(mu,raw,count_cols,err):
     """Does not alter raw; returns Transformation of raw:
      all row- and column-sourced mungeable info into columns (but doesn't translate via dictionary)
     new column names are, e.g., ReportingUnit_raw, Candidate_raw, etc.
@@ -331,10 +415,10 @@ def munge_and_melt(mu,raw,count_cols):
 
     # apply munging formula from row sources (after renaming fields in raw formula as necessary)
     for t in mu.cdf_elements[mu.cdf_elements.source == 'row'].index:
-        working = add_munged_column(working,mu,t,mode='row')
+        working, err = add_munged_column(working,mu,t,err,mode='row')
 
     # remove original row-munge columns
-    munged = [x for x in working.columns if x[-len(mu.field_rename_suffix):] == mu.field_rename_suffix]
+    munged = [x for x in working.columns if x[-7:] == '_SOURCE']
     working.drop(munged,axis=1,inplace=True)
 
     # if there is just one numerical column, melt still creates dummy variable col
@@ -354,66 +438,70 @@ def munge_and_melt(mu,raw,count_cols):
 
     # apply munge formulas for column sources
     for t in mu.cdf_elements[mu.cdf_elements.source == 'column'].index:
-        working = add_munged_column(working,mu,t,mode='column')
+        working,err = add_munged_column(working,mu,t,err,mode='column')
 
     # remove unnecessary columns
     not_needed = [f'variable_{i}' for i in range(mu.header_row_count)]
     working.drop(not_needed,axis=1,inplace=True)
 
-    return working
+    return working, err
 
 
 def add_constant_column(df,col_name,col_value):
-    new_col = pd.DataFrame([col_value]*df.shape[0],columns=[col_name])
-    new_df = pd.concat([df,new_col],axis=1)
+    new_df = df.assign(**dict.fromkeys([col_name], col_value))
     return new_df
 
 
-def raw_elements_to_cdf(session,project_root,juris,mu,raw,count_cols,ids=None):
-    """load data from <raw> into the database.
-    Note that columns to be munged (e.g. County_xxx) have mu.field_rename_suffix (e.g., _xxx) added already"""
-    working = raw.copy()
+def add_contest_id(df: pd.DataFrame, juris: jm.Jurisdiction, err: dict, session: Session) -> (pd.DataFrame, dict):
+    working = df.copy()
 
-    # enter elements from sources outside raw data, including creating id column(s)
-    # TODO what if contest_type (BallotMeasure or Candidate) has source 'other'?
-    if not ids:
-        for t,r in mu.cdf_elements[mu.cdf_elements.source == 'other'].iterrows():
-            # add column for element id
-            # TODO allow record to be passed as a parameter
-            idx, db_record, enum_d, fk_d = ui.pick_or_create_record(session,project_root,t)
-            working = add_constant_column(working,f'{t}_Id',idx)
-    else:
-        working = add_constant_column(working,'Election_Id',ids[1])
-        working = add_constant_column(working,'_datafile_Id',ids[0])
-
-    working = munge_and_melt(mu,working,count_cols)
+    # add column for contest_type
+    working = add_constant_column(working,'contest_type','unknown')
 
     # append ids for BallotMeasureContests and CandidateContests
-    working = add_constant_column(working,'contest_type','unknown')
     for c_type in ['BallotMeasure','Candidate']:
         df_contest = pd.read_sql_table(f'{c_type}Contest',session.bind)
-        working = replace_raw_with_internal_ids(
-            working,juris,df_contest,f'{c_type}Contest',dbr.get_name_field(f'{c_type}Contest'),mu.path_to_munger_dir,
+        [working, err] = replace_raw_with_internal_ids(
+            working,
+            juris,
+            df_contest,
+            f'{c_type}Contest',
+            dbr.get_name_field(f'{c_type}Contest'),
+            err,
             drop_unmatched=False)
 
         # set contest_type where id was found
-        working.loc[working[f'{c_type}Contest_Id'].notnull(),'contest_type'] = c_type
+        working.loc[working[f'{c_type}Contest_Id'].notnull(), 'contest_type'] = c_type
 
         # drop column with munged name
-        working.drop(f'{c_type}Contest',axis=1,inplace=True)
+        working.drop(f'{c_type}Contest', axis=1, inplace=True)
 
     # drop rows with unmatched contests
     to_be_dropped = working[working['contest_type'] == 'unknown']
     working_temp = working[working['contest_type'] != 'unknown']
     if working_temp.empty:
-        raise MungeError('No contests in database matched. No results will be loaded to database.')
+        e = 'No contests in database matched. No results will be loaded to database.'
+        if 'munge_warning' in err.keys():
+            err['munge_warning'].append(e)
+        else:
+            err['munge_warning'] = [e]
+        return pd.DataFrame(), err
+
     elif not to_be_dropped.empty:
-        print(f'Warning: Results for {to_be_dropped.shape[0]} rows '
-              f'with unmatched contests will not be loaded to database.')
+        ui.add_error(
+            err, 'munge_warning',
+            f'Warning: Results for {to_be_dropped.shape[0]} rows with unmatched contests will not be loaded to database.')
     working = working_temp
 
+    # define Contest_Id based on contest_type,
+    working.loc[working['contest_type'] == 'Candidate','Contest_Id'] = working.loc[
+        working['contest_type'] == 'Candidate','CandidateContest_Id']
+    working.loc[working['contest_type'] == 'BallotMeasure','Contest_Id'] = working.loc[
+        working['contest_type'] == 'BallotMeasure','BallotMeasureContest_Id']
+
+    return working, err
     # get ids for remaining info sourced from rows and columns
-    element_list = [t for t in mu.cdf_elements[mu.cdf_elements.source != 'other'].index if
+    element_list = [t for t in mu.cdf_elements.index if
                     (t[-7:] != 'Contest' and t[-9:] != 'Selection')]
     for t in element_list:
         # capture id from db in new column and erase any now-redundant cols
@@ -425,70 +513,145 @@ def raw_elements_to_cdf(session,project_root,juris,mu,raw,count_cols,ids=None):
             drop = True
         else:
             drop = False
-        working = replace_raw_with_internal_ids(working,juris,df,t,name_field,mu.path_to_munger_dir,drop_unmatched=drop)
-        working.drop(t,axis=1,inplace=True)
-        # working = add_non_id_cols_from_id(working,df,t)
+        try:
+            [working, err] = replace_raw_with_internal_ids(
+                working, juris, df, t, name_field, mu.path_to_munger_dir, err, drop_unmatched=drop)
+            working.drop(t,axis=1,inplace=True)
+        except:
+            e = f'Error adding internal ids for {t}.'
+            if t == 'CountItemType':
+                e += ' Are CountItemTypes correct in dictionary.txt?'
+            ui.add_error(err, 'munge-error', f'Error adding internal ids for {t}.')
 
+
+def add_selection_id(df: pd.DataFrame, juris: jm.Jurisdiction, mu: jm.Munger, err: dict, session: Session) -> (pd.DataFrame, dict):
     # append BallotMeasureSelection_Id, drop BallotMeasureSelection
+    working = df.copy()
     df_selection = pd.read_sql_table(f'BallotMeasureSelection',session.bind)
-    working = replace_raw_with_internal_ids(
+    [working, err] = replace_raw_with_internal_ids(
         working,juris,df_selection,'BallotMeasureSelection',dbr.get_name_field('BallotMeasureSelection'),
-        mu.path_to_munger_dir,
+        err,
         drop_unmatched=False,
         mode=mu.cdf_elements.loc['BallotMeasureSelection','source'])
-    # drop records with a BMC_Id but no BMS_Id (i.e., keep if BMC_Id is null or BMS_Id is not null)
-    working = working[(working['BallotMeasureContest_Id'].isnull()) | (working['BallotMeasureSelection_Id']).notnull()]
+    # drop BallotMeasure records without a legitimate BallotMeasureSelection
+    # i.e., keep CandidateContest records and records with a legit BallotMeasureSelection
+    working = working[(working['contest_type'] =='Candidate') | (working['BallotMeasureSelection'] != 'none or unknown')]
 
     working.drop('BallotMeasureSelection',axis=1,inplace=True)
 
     # append CandidateSelection_Id
-    #  First must load CandidateSelection table (not directly munged, not exactly a join either)
+    #  Load CandidateSelection table (not directly munged, not exactly a join either)
     #  Note left join, as not every record in working has a Candidate_Id
-    # TODO maybe introduce Selection and Contest tables, have C an BM types refer to them?
-    c_df = pd.read_sql_table('Candidate',session.bind)
-    c_df.rename(columns={'Id':'Candidate_Id'},inplace=True)
-    cs_df, err = dbr.dframe_to_sql(c_df,session,'CandidateSelection',return_records='original')
-    # add CandidateSelection_Id column, merging on Candidate_Id
 
-    working = working.merge(
-        cs_df[['Candidate_Id','Id']],how='left',left_on='Candidate_Id',right_on='Candidate_Id')
-    working.rename(columns={'Id':'CandidateSelection_Id'},inplace=True)
+    c_df = working[['Candidate_Id','Party_Id']]
+    c_df = c_df.drop_duplicates()
+    c_df = c_df[c_df['Candidate_Id'].notnull()]
+    cs_df, e = dbr.dframe_to_sql(c_df,session,'CandidateSelection',return_records='original')
+    if e:
+        ui.add_error(err,'database',e)
+    # add CandidateSelection_Id column, merging on Candidate_Id and Party_Id
+
+    if cs_df.empty:
+        working = add_constant_column(working, 'CandidateSelection_Id', np.nan)
+    else:
+        working = working.merge(
+            cs_df[['Party_Id','Candidate_Id','Id']],how='left',
+            left_on=['Candidate_Id','Party_Id'],right_on=['Candidate_Id','Party_Id'])
+        working.rename(columns={'Id':'CandidateSelection_Id'},inplace=True)
+
     # drop records with a CC_Id but no CS_Id (i.e., keep if CC_Id is null or CS_Id is not null)
     working = working[(working['CandidateContest_Id'].isnull()) | (working['CandidateSelection_Id']).notnull()]
 
-    # TODO: warn user if contest is munged but candidates are not
-    # TODO warn user if BallotMeasureSelections not recognized in dictionary.txt
-    for j in ['BallotMeasureContestSelectionJoin','CandidateContestSelectionJoin','ElectionContestJoin']:
-        working = append_join_id(project_root,session,working,j)
+    # define Selection_Id based on contest_type,
+    working.loc[working['contest_type'] == 'Candidate','Selection_Id'] = working.loc[
+        working['contest_type'] == 'Candidate','CandidateSelection_Id']
+    working.loc[working['contest_type'] == 'BallotMeasure','Selection_Id'] = working.loc[
+        working['contest_type'] == 'BallotMeasure','BallotMeasureSelection_Id']
+    return working, err
+
+
+def raw_elements_to_cdf(
+        session, project_root: str, juris: jm.Jurisdiction, mu: jm.Munger,raw: pd.DataFrame, count_cols: list,
+        err: dict, ids=None) -> dict:
+    """load data from <raw> into the database."""
+    working = raw.copy()
+
+    # enter elements from sources outside raw data, including creating id column(s)
+    working = add_constant_column(working,'Election_Id',ids[1])
+    working = add_constant_column(working,'_datafile_Id',ids[0])
+
+    working, err = munge_and_melt(mu,working,count_cols,err)
+
+    working, err = add_contest_id(working, juris, err, session)
+    if working.empty:
+        return err
+    # FIXME use Contest_Id below as necessary
+
+    # get ids for remaining info sourced from rows and columns
+    element_list = [t for t in mu.cdf_elements.index if
+                    (t[-7:] != 'Contest' and t[-9:] != 'Selection')]
+    for t in element_list:
+        # capture id from db in new column and erase any now-redundant cols
+        df = pd.read_sql_table(t,session.bind)
+        name_field = dbr.get_name_field(t)
+        # set drop_unmatched = True for fields necessary to BallotMeasure rows,
+        #  drop_unmatched = False otherwise to prevent losing BallotMeasureContests for BM-inessential fields
+        if t == 'ReportingUnit' or t == 'CountItemType':
+            drop = True
+        else:
+            drop = False
+        try:
+            [working, err] = replace_raw_with_internal_ids(
+                working, juris, df, t, name_field, err, drop_unmatched=drop)
+            working.drop(t,axis=1,inplace=True)
+        except:
+            e = f'Error adding internal ids for {t}.'
+            if t == 'CountItemType':
+                e += ' Are CountItemTypes correct in dictionary.txt?'
+            ui.add_error(err, 'munge-error', f'Error adding internal ids for {t}.')
+
+    working, err = add_selection_id(working, juris, mu, err, session)
+    if working.empty:
+        return err
+    # TODO remove redundancy
+    if working.empty:
+        e = 'No contests found, or no selections found for contests.'
+        err = ui.add_error(err,'datafile',e)
+        return err
+
+    for j in ['ContestSelectionJoin','ElectionContestJoin']:
+        working, err = append_join_id(project_root, session, working, j, err)
 
     # Fill VoteCount and ElectionContestSelectionVoteCountJoin
     #  To get 'VoteCount_Id' attached to the correct row, temporarily add columns to VoteCount
     #  add ElectionContestSelectionVoteCountJoin columns to VoteCount
 
-    # Define ContestSelectionJoin_Id field needed in ElectionContestSelectionVoteCountJoin
-    ref_d = {'ContestSelectionJoin_Id':['BallotMeasureContestSelectionJoin_Id','CandidateContestSelectionJoin_Id']}
-    working = append_multi_foreign_key(working,ref_d)
-
-    # add extra columns to VoteCount table temporarily to allow proper join
     extra_cols = ['ElectionContestJoin_Id','ContestSelectionJoin_Id','_datafile_Id']
-    dbr.add_integer_cols(session,'VoteCount',extra_cols)
+    try:
+        dbr.add_integer_cols(session,'VoteCount',extra_cols)
+    except:
+        print(f'Warning: extra columns not added to VoteCount table.')
 
     # upload to VoteCount table, pull  Ids
-    working_fat, err = dbr.dframe_to_sql(working,session,'VoteCount',raw_to_votecount=True)
+    working_fat, e = dbr.dframe_to_sql(working,session,'VoteCount',raw_to_votecount=True)
+    if e:
+        ui.add_error(err,'database',e)
     working_fat.rename(columns={'Id':'VoteCount_Id'},inplace=True)
     session.commit()
 
     # TODO check that all candidates in munged contests (including write ins!) are munged
     # upload to ElectionContestSelectionVoteCountJoin
-    data, err = dbr.dframe_to_sql(working_fat,session,'ElectionContestSelectionVoteCountJoin')
+    data, e = dbr.dframe_to_sql(working_fat,session,'ElectionContestSelectionVoteCountJoin')
+    if e:
+        ui.add_error(err,'database',e)
 
     # drop extra columns
     dbr.drop_cols(session,'VoteCount',extra_cols)
 
-    return
+    return err
 
 
-def append_join_id(project_root,session,working,j):
+def append_join_id(project_root: str, session, working: pd.DataFrame, j: str, err: dict) -> (pd.DataFrame, dict):
     """Upload join data to db, get Ids,
     Append <join>_Id to <working>. Unmatched rows are kept"""
     j_path = os.path.join(
@@ -506,8 +669,8 @@ def append_join_id(project_root,session,working,j):
     ref_d = {}
     for fn in join_fk.index:
         ref_d[fn] = [f'{x}_Id' for x in join_fk.loc[fn,'refers_to_list']]
-    join_df = append_multi_foreign_key(join_df,ref_d)
-    working = append_multi_foreign_key(working,ref_d)
+    join_df, err = append_multi_foreign_key(join_df,ref_d, err)
+    working, err = append_multi_foreign_key(working,ref_d, err)
 
     # remove any join_df rows with any *IMPORTANT* null and load to db
     unnecessary = [x for x in ref_ids if x not in j_cols]
@@ -517,22 +680,25 @@ def append_join_id(project_root,session,working,j):
     # warn user of rows with null value in some columns
     bad_rows = join_df.isnull().any(axis=1)
     if bad_rows.any():
-        print(f'Warning: there are null values, which may indicate a problem.')
-        ui.show_sample(
-            join_df[join_df.isnull().any(axis=1)],f'rows proposed for {j}','have null values')
+        ui.add_error(
+            err,'munge-warning',
+            f'Warning: there are {bad_rows.shape[0]} rows proposed for {j} that have nulls values. '
+            f'These will not be uploaded')
     # remove any row with a null value in any column
     join_df = join_df[join_df.notnull().all(axis=1)]
     # add column for join id
     if join_df.empty:
         working[f'{j}_Id'] = np.nan
     else:
-        join_df, err = dbr.dframe_to_sql(join_df,session,j)
+        join_df, e = dbr.dframe_to_sql(join_df,session,j)
+        if e:
+            ui.add_error(err,'database',e)
         working = working.merge(join_df,how='left',left_on=j_cols,right_on=j_cols)
         working.rename(columns={'Id':f'{j}_Id'},inplace=True)
-    return working
+    return working, err
 
 
-def append_multi_foreign_key(df,references):
+def append_multi_foreign_key(df: pd.DataFrame, references: dict, err: dict) -> (pd.DataFrame, dict):
     """<references> is a dictionary whose keys are fieldnames for the new column
     and whose value for any key is the list of reference targets.
     If a row in df has more than one non-null value, only the first will be taken.
@@ -542,13 +708,14 @@ def append_multi_foreign_key(df,references):
     for fn in references.keys():
         if df_copy[references[fn]].isnull().all().all():
             # if everything is null, just add the necessary column with all null values
-            df_copy.loc[:,fn] = np.nan
+            df_copy.loc[:, fn] = np.nan
+            err = ui.add_error(err, 'munge_warning', f'Nothing matched to {fn}')
         else:
             # expect at most one non-null entry in each row; find the value of that one
             df_copy.loc[:,fn] = df_copy[references[fn]].fillna(-1).max(axis=1)
             # change any -1s back to nulls (if all were null, return null)
             df_copy.loc[:,fn]=df_copy[fn].replace(-1,np.NaN)
-    return df_copy
+    return df_copy, err
 
 
 if __name__ == '__main__':
