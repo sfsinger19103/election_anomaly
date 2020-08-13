@@ -437,10 +437,14 @@ def save_one_to_db(session,element,record,upsert=False):
             df = pd.DataFrame({k:[v] for k,v in record.items()})
             # currently this upsert only used for the _datafile record
             if upsert:
-                session.execute(f'''
-                    DELETE FROM _datafile 
-                    WHERE short_name = '{record['short_name']}';''')
-                session.commit()                
+                q = 'DELETE FROM {} WHERE {} = %s'
+                sql_ids = ['_datafile', 'short_name']
+                strs = [str(record['short_name'])]
+                raw_query_via_sqlalchemy(session, q, sql_ids, strs)
+                # session.execute(f'''
+                #     DELETE FROM _datafile
+                #     WHERE short_name = '{record['short_name']}';''')
+                # session.commit()
             df.to_sql(element,session.bind,if_exists='append',index=False)
             enum_plaintext_dict = mr.enum_plaintext_dict_from_db_record(session,element,record)
             fk_plaintext_dict = mr.fk_plaintext_dict_from_db_record(
@@ -483,10 +487,23 @@ def save_one_to_db(session,element,record,upsert=False):
     return [db_idx, record, enum_plaintext_dict, fk_plaintext_dict, changed]
 
 
+# def name_from_id(session,element,idx):
+#     name_field = get_name_field(element)
+#     q = f"""SELECT "{name_field}" FROM "{element}" WHERE "Id" = {idx}"""
+#     name_df = pd.read_sql(q,session.bind)
+#     try:
+#         name = name_df.loc[0,name_field]
+#     except KeyError:
+#         # if no record with Id = <idx> was found
+#         name = None
+#     return name
+
 def name_from_id(session,element,idx):
     name_field = get_name_field(element)
-    q = f"""SELECT "{name_field}" FROM "{element}" WHERE "Id" = {idx}"""
-    name_df = pd.read_sql(q,session.bind)
+    q = 'SELECT {} FROM {} WHERE {} = %s'
+    sql_ids = [name_field,element,'Id']
+    strs = [str(idx)]
+    name_df = raw_query_via_sqlalchemy(session,q,sql_ids,strs)
     try:
         name = name_df.loc[0,name_field]
     except KeyError:
@@ -497,8 +514,10 @@ def name_from_id(session,element,idx):
 
 def name_to_id(session,element,name):
     name_field = get_name_field(element)
-    q = f"""SELECT "Id" FROM "{element}" WHERE "{name_field}" = '{name}' """
-    idx_df = pd.read_sql(q,session.bind)
+    q = 'SELECT {} FROM {} WHERE {} = %s'
+    sql_ids = ['Id',element, name_field]
+    strs = [str(name)]
+    idx_df = raw_query_via_sqlalchemy(session,q,sql_ids,strs)
     try:
         idx = idx_df.loc[0,'Id']
     except KeyError:
@@ -523,8 +542,11 @@ def get_name_field(element):
 
 
 def truncate_table(session, table_name):
-    session.execute(f'TRUNCATE TABLE "{table_name}" CASCADE')
-    session.commit()
+    #session.execute(f'TRUNCATE TABLE "{table_name}" CASCADE')
+    q = 'TRUNCATE TABLE {} CASCADE'
+    sql_ids = [table_name]
+    strs = []
+    raw_query_via_sqlalchemy(session,q,sql_ids,strs)
     return
 
 
@@ -554,20 +576,29 @@ def get_input_options(session, input):
         table_search = False
 
     if table_search:
-        result = session.execute(f'SELECT "{column_name}" FROM "{search_str}";')
-        return [r[0] for r in result]
+        result = raw_query_via_sqlalchemy(session,'SELECT {} from {}',[column_name,search_str],[])
+        return result[column_name].tolist()
     else:
-        result = session.execute(f' \
-            SELECT "Name" FROM "ReportingUnit" ru \
-            JOIN "ReportingUnitType" rut on ru."ReportingUnitType_Id" = rut."Id" \
-            WHERE rut."Txt" = \'{search_str}\'')
+        # result = session.execute(f' \
+        #     SELECT "Name" FROM "ReportingUnit" ru \
+        #     JOIN "ReportingUnitType" rut on ru."ReportingUnitType_Id" = rut."Id" \
+        #     WHERE rut."Txt" = \'{search_str}\'')
+        q = 'SELECT {} FROM {} ru JOIN {} rut on ru.{} = rut.{} WHERE rut.{} = %s'
+        sql_ids = ['Name', 'ReportingUnit', 'ReportingUnitType', 'ReportingUnitType_Id', 'Id', 'Txt' ]
+        strs =[str(search_str)]
+        result = raw_query_via_sqlalchemy(session, q, sql_ids, strs)
         return [r[0] for r in result]
 
 
 def get_datafile_info(session, results_file):
-    q = session.execute(f'''
-        SELECT "Id", "Election_Id" 
-        FROM _datafile 
-        WHERE file_name = '{results_file}'
-        ''').fetchall()
-    return q[0]
+    # q = session.execute(f'''
+    #     SELECT "Id", "Election_Id"
+    #     FROM _datafile
+    #     WHERE file_name = '{results_file}'
+    #     ''').fetchall()
+    q = 'SELECT{},{} FROM {} WHERE {} = %s'
+    sql_ids = ['Id', 'Election_Id','_datafile', 'file_name']
+    strs= [str(results_file)]
+    result = raw_query_via_sqlalchemy(session,q,sql_ids,strs)
+    #return q[0]
+    return result.iloc[0].tolist()
