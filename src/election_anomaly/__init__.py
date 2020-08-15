@@ -14,11 +14,6 @@ from election_anomaly import juris_and_munger as jm
 from election_anomaly import preparation as prep
 
 # constants
-data_loader_pars = [
-	'project_root','juris_name','db_paramfile','db_name','munger_name',
-	'results_file', 'results_short_name', 'results_download_date', 'results_source', 'results_note',
-	'top_reporting_unit','election']
-
 single_data_loader_pars = ['jurisdiction_path', 'munger_name', 'results_file',
 	'results_short_name', 'results_download_date', 'results_source', 'results_note',
 	'top_reporting_unit', 'election', 'aux_data_dir']
@@ -223,7 +218,7 @@ class Analyzer():
 			sub_unit_id = dbr.name_to_id(self.session, 'ReportingUnitType', sub_unit)
 			results_info = dbr.get_datafile_info(self.session, self.d['results_file_short_name'])
 			rollup = avp.create_rollup(self.session, d['rollup_directory'], top_ru_id=rollup_unit_id,
-				sub_rutype_id=sub_unit_id, sub_rutype_othertext='', datafile_id_list=results_info[0], 
+				sub_rutype_id=sub_unit_id, sub_rutype_othertext='', datafile_id_list=results_info[0],
 				election_id=results_info[1])
 			return
 
@@ -239,7 +234,7 @@ class Analyzer():
 			sub_unit_id = dbr.name_to_id(self.session, 'ReportingUnitType', sub_unit)
 			results_info = dbr.get_datafile_info(self.session, self.d['results_file_short_name'])
 			rollup = avp.create_rollup(self.session, d['rollup_directory'], top_ru_id=rollup_unit_id,
-				sub_rutype_id=sub_unit_id, sub_rutype_othertext='', datafile_id_list=results_info[0], 
+				sub_rutype_id=sub_unit_id, sub_rutype_othertext='', datafile_id_list=results_info[0],
 				election_id=results_info[1], by_vote_type=False)
 			return
 
