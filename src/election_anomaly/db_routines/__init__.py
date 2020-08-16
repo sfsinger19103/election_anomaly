@@ -12,6 +12,7 @@ import sqlalchemy_utils
 from election_anomaly import user_interface as ui
 from configparser import MissingSectionHeaderError
 import pandas as pd
+from pandas import DataFrame
 from election_anomaly import munge_routines as mr
 import re
 from election_anomaly.db_routines import create_cdf_db as db_cdf
@@ -52,7 +53,7 @@ def append_to_composing_reporting_unit_join(session,ru):
     if 'Id' not in ru.columns:
         ru_static = ru_static.merge(ru_cdf[['Name','Id']],on='Name',how='left')
 
-    # create a list of rows to append to the ComposingReportingUnitJoin element
+    # create a list of rows to append to the ComposingReportingUnitJoin table
     cruj_dframe_list = []
     for i in range(ru['length'].max()):
         # check that all components of all Reporting Units are themselves ReportingUnits
@@ -153,18 +154,20 @@ def sql_alchemy_connect(paramfile=None,db_name='postgres'):
 
 
 def add_integer_cols(session,table,col_list):
-    add = ','.join([f' ADD COLUMN "{c}" INTEGER' for c in col_list])
-    q = f'ALTER TABLE "{table}" {add}'
-    sql_ids=[]
+    add = ','.join([' ADD COLUMN {} INTEGER' for c in col_list])
+    q = 'ALTER TABLE {}' + add
+    sql_ids = col_list.copy()
+    sql_ids.insert(0, table)
     strs = []
     raw_query_via_sqlalchemy(session,q,sql_ids,strs)
     return
 
 
 def drop_cols(session,table,col_list):
-    drop = ','.join([f' DROP COLUMN "{c}"' for c in col_list])
-    q = f'ALTER TABLE "{table}" {drop}'
-    sql_ids=[]
+    drop = ','.join([' DROP COLUMN {} 'for c in col_list])
+    q = 'ALTER TABLE {}' + drop
+    sql_ids = col_list.copy()
+    sql_ids.insert(0, table)
     strs = []
     raw_query_via_sqlalchemy(session,q,sql_ids,strs)
     return
@@ -223,22 +226,32 @@ def raw_query_via_sqlalchemy(session,q,sql_ids,strs):
     cur.execute(sql.SQL(q).format(*format_args),strs)
     con.commit()
     if cur.description:
-        return_item = cur.fetchall()
+        return_data = cur.fetchall()
+        return_columns = [desc[0] for desc in cur.description]
+        return_item = DataFrame(return_data,columns=return_columns)
     else:
         return_item = None
     cur.close()
     con.close()
     return return_item
 
+#Todo remove this function and direct quries to raw_query_via_sqlalchemy
+def get_columns_via_psycopg2(session,element):
+    q = "Select * from {} LIMIT 0"
+    connection = session.bind.connect()
+    con = connection.connection
+    cur = con.cursor()
+    cur.execute(sql.SQL(q).format(sql.Identifier(element)))
+    con.commit()
+    return_item = [desc[0] for desc in cur.description]
+    cur.close()
+    con.close()
+    return return_item
 
 def get_enumerations(session,element):
     """Returns a list of enumerations referenced in the <element> element"""
-    q = f"""
-        SELECT column_name
-        FROM information_schema.columns
-        WHERE table_name='{element}';
-    """
-    col_df = pd.read_sql(q,session.bind)
+    df = get_columns_via_psycopg2(session, element)
+    col_df = DataFrame(df, columns=['column_name'])
     maybe_enum_list = [x[:-3] for x in col_df.column_name if x[-3:] == '_Id']
     enum_list = [x for x in maybe_enum_list if f'Other{x}' in col_df.column_name.unique()]
     return enum_list
@@ -260,9 +273,9 @@ def get_foreign_key_df(session,element):
         JOIN information_schema.constraint_column_usage AS ccu
           ON ccu.constraint_name = tc.constraint_name
           AND ccu.table_schema = tc.table_schema
-        WHERE tc.constraint_type = 'FOREIGN KEY' AND tc.table_name='{element}';
+        WHERE tc.constraint_type = 'FOREIGN KEY' AND tc.table_name= %(tablename)s;
     """
-    fk_df = pd.read_sql(q,session.bind,index_col='column_name')
+    fk_df = pd.read_sql(q,session.bind,index_col='column_name',params={'tablename': element})
     return fk_df
 
 
@@ -377,8 +390,10 @@ def format_dates(dframe):
 
 def name_from_id(session,element,idx):
     name_field = get_name_field(element)
-    q = f"""SELECT "{name_field}" FROM "{element}" WHERE "Id" = {idx}"""
-    name_df = pd.read_sql(q,session.bind)
+    q = 'SELECT {} FROM {} WHERE {} = %s'
+    sql_ids = [name_field,element,'Id']
+    strs = [str(idx)]
+    name_df = raw_query_via_sqlalchemy(session,q,sql_ids,strs)
     try:
         name = name_df.loc[0,name_field]
     except KeyError:
@@ -389,8 +404,10 @@ def name_from_id(session,element,idx):
 
 def name_to_id(session,element,name):
     name_field = get_name_field(element)
-    q = f"""SELECT "Id" FROM "{element}" WHERE "{name_field}" = '{name}' """
-    idx_df = pd.read_sql(q,session.bind)
+    q = 'SELECT {} FROM {} WHERE {} = %s'
+    sql_ids = ['Id',element, name_field]
+    strs = [str(name)]
+    idx_df = raw_query_via_sqlalchemy(session,q,sql_ids,strs)
     try:
         idx = idx_df.loc[0,'Id']
     except KeyError:
@@ -415,8 +432,11 @@ def get_name_field(element):
 
 
 def truncate_table(session, table_name):
-    session.execute(f'TRUNCATE TABLE "{table_name}" CASCADE')
-    session.commit()
+    #session.execute(f'TRUNCATE TABLE "{table_name}" CASCADE')
+    q = 'TRUNCATE TABLE {} CASCADE'
+    sql_ids = [table_name]
+    strs = []
+    raw_query_via_sqlalchemy(session,q,sql_ids,strs)
     return
 
 
@@ -446,24 +466,23 @@ def get_input_options(session, input):
         table_search = False
 
     if table_search:
-        result = session.execute(f'SELECT "{column_name}" FROM "{search_str}";')
-        return [r[0] for r in result]
+        result = raw_query_via_sqlalchemy(session,'SELECT {} from {}',[column_name,search_str],[])
+        return result[column_name].tolist()
     else:
-        result = session.execute(f' \
-            SELECT "Name" FROM "ReportingUnit" ru \
-            JOIN "ReportingUnitType" rut on ru."ReportingUnitType_Id" = rut."Id" \
-            WHERE rut."Txt" = \'{search_str}\'')
+        q = 'SELECT {} FROM {} ru JOIN {} rut on ru.{} = rut.{} WHERE rut.{} = %s'
+        sql_ids = ['Name', 'ReportingUnit', 'ReportingUnitType', 'ReportingUnitType_Id', 'Id', 'Txt' ]
+        strs =[str(search_str)]
+        result = raw_query_via_sqlalchemy(session, q, sql_ids, strs)
         return [r[0] for r in result]
 
 
 def get_datafile_info(session, results_file):
-    q = session.execute(f'''
-        SELECT "Id", "Election_Id" 
-        FROM _datafile 
-        WHERE short_name = '{results_file}'
-        ''').fetchall()
+    q = 'SELECT{},{} FROM {} WHERE {} = %s'
+    sql_ids = ['Id', 'Election_Id','_datafile', 'short_name']
+    strs= [str(results_file)]
+    result = raw_query_via_sqlalchemy(session, q, sql_ids, strs)
     try:
-        return q[0]
+        return result.iloc[0].tolist()
     except IndexError:
         print(f'No record named {results_file} found in _datafile table in {session.bind.url}')
         return [0,0]
