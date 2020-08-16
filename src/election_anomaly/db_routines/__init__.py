@@ -53,7 +53,7 @@ def append_to_composing_reporting_unit_join(session,ru):
     if 'Id' not in ru.columns:
         ru_static = ru_static.merge(ru_cdf[['Name','Id']],on='Name',how='left')
 
-    # create a list of rows to append to the ComposingReportingUnitJoin table
+    # create a list of rows to append to the ComposingReportingUnitJoin element
     cruj_dframe_list = []
     for i in range(ru['length'].max()):
         # check that all components of all Reporting Units are themselves ReportingUnits
