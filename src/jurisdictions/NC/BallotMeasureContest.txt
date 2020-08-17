@@ -1,2 +1,3 @@
 Name	ElectionDistrict	Election
 REQUIRE PHOTO ID TO VOTE	North Carolina	2018 General
+REQUIRE PHOTO ID TO 	North Carolina	2018 General
