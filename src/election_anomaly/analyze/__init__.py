@@ -294,11 +294,6 @@ def get_data_for_scatter(session, jurisdiction_id, subdivision_type_id,
 	"""Since this could be data across 2 elections, grab data one election at a time"""
 	db = session.bind.url.database
 
-	#top_ru_id, top_ru = ui.pick_record_from_db(session,'ReportingUnit',required=True,db_idx=jurisdiction_id)
-	#election_id,election = ui.pick_record_from_db(session,'Election',required=True,db_idx=election_id)
-
-	#sub_rutype = dbr.name_from_id(session, 'ReportingUnitType', subdivision_type_id)
-
 	# get names from ids
 	top_ru = dbr.name_from_id(session,'ReportingUnit',jurisdiction_id).replace(" ","-")
 	election = dbr.name_from_id(session,'Election',election_id).replace(" ","-")
@@ -356,8 +351,6 @@ def get_data_for_scatter(session, jurisdiction_id, subdivision_type_id,
 	else:
 		csj = contest_selection
 
-	#csj = csj[csj.Candidate_Id.isin([candidate_id])]
-
 	# find ReportingUnits of the correct type that are subunits of top_ru
 	sub_ru_ids = child_rus_by_id(session,[jurisdiction_id],ru_type=[subdivision_type_id, ''])
 	if not sub_ru_ids:
@@ -371,14 +364,6 @@ def get_data_for_scatter(session, jurisdiction_id, subdivision_type_id,
 	# find all children of subReportingUnits
 	children_of_subs_ids = child_rus_by_id(session,sub_ru_ids)
 	ru_children = df['ReportingUnit'].loc[children_of_subs_ids]
-
-	# check for any reporting units that should be included in roll-up but were missed
-	# TODO list can be long and irrelevant. Instead list ReportingUnitTypes of the missing
-	# missing = [str(x) for x in all_subs_ids if x not in children_of_subs_ids]
-	# if missing:
-	# TODO report these out to the export directory
-	#	ui.report_problems(missing,msg=f'The following reporting units are nested in {top_ru["Name"]} '
-	#							f'but are not nested in any {sub_rutype} nested in {top_ru["Name"]}')
 
 	# limit to relevant vote counts
 	ecsvcj = df['ElectionContestSelectionVoteCountJoin'][
@@ -404,7 +389,6 @@ def get_data_for_scatter(session, jurisdiction_id, subdivision_type_id,
 	# filter based on 
 
 	# cleanup for purposes of flexibility
-	#unsummed = unsummed.drop(columns='VoteCount_Id')
 	unsummed = unsummed[['ReportingUnit', 'Count', 'Selection', 'Contest_Id', 'Candidate_Id']]
 	unsummed.rename(columns={'ReportingUnit': 'Name'}, inplace=True)
 
@@ -439,14 +423,9 @@ def create_bar(session, top_ru_id, contest_type, contest, election_id, datafile_
 	# Get name of db for error messages
 	db = session.bind.url.database
 
-	#top_ru_id, top_ru = ui.pick_record_from_db(session,'ReportingUnit',required=True,db_idx=top_ru_id)
-	#election_id,election = ui.pick_record_from_db(session,'Election',required=True,db_idx=election_id)
 	# get names from ids
 	top_ru = dbr.name_from_id(session,'ReportingUnit',top_ru_id).replace(" ","-")
 	election = dbr.name_from_id(session,'Election',election_id).replace(" ","-")
-	#sub_rutype = dbr.name_from_id(session, 'ReportingUnitType', subdivision_type_id)
-
-	#sub_rutype = dbr.name_from_id(session, 'ReportingUnitType', sub_rutype_id)
 
 	# pull relevant tables
 	df = {}
