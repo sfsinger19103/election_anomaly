@@ -274,6 +274,7 @@ def ensure_juris_files(juris_path,project_root,ignore_empty=False):
         if not created:
             cf_df = pd.read_csv(os.path.join(juris_path,f'{juris_file}.txt'), sep='\t', encoding='iso=8859-1')
             if set(cf_df.columns) != set(temp.columns):
+                print(juris_file)
                 cols = '\t'.join(temp.columns.to_list())
                 column_errors.append(f'Columns of {juris_file}.txt need to be (tab-separated):\n '
                                     f' {cols}\n')
