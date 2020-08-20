@@ -551,8 +551,15 @@ class Analyzer():
         self.session = Session()
 
 
-    def display_options(self, input, verbose=False):
-        results = dbr.get_input_options(self.session, input, verbose)
+    def display_options(self, input, verbose=False, filters=None):
+        if not verbose:
+            results = dbr.get_input_options(self.session, input, False)
+        else:
+            if not filters:
+                df = pd.DataFrame(dbr.get_input_options(self.session, input, True))
+                results = dbr.package_display_results(df)
+            else:
+                results = dbr.get_filtered_input_options(self.session, input, filters)
         if results:
             return results
         return None
@@ -645,6 +652,7 @@ class Analyzer():
             print("Data not created.")
             return
         jurisdiction_id = dbr.name_to_id(self.session, 'ReportingUnit', jurisdiction)
+        print(jurisdiction_id)
         results_info = dbr.get_datafile_info(self.session, self.d['results_file_short'])
         agg_results = a.create_bar(self.session, jurisdiction_id, contest_type, contest,
                         results_info[1], results_info[0])
@@ -663,6 +671,34 @@ class Analyzer():
         count_item_type = [count_type for count_type in count_item_types if count_type in input_str][0]
         selection_type = input_str[len(count_item_type) + 1:]
         return count_item_type, selection_type
+
+
+    def export_outlier_data(self, jurisdiction, subdivision_type, contest=None):
+        """ Exports data either for a single contest or for all contests ina
+		jurisdiction, broken down by a specific reporting unit type """
+        data = [
+            {
+                "contest": "contest_1",
+                "ballot_type": "total votes",
+                "label": "North Carolina;Bladen County",
+                "selection_1": "Jane Doe",
+                "selection_2": "John Smith",
+                "votes_at_stake": 1000,
+                "margin": 0.25,
+                "score": 0.73,
+            },
+            {
+                "contest": "ballot_measure_1",
+                "ballot_type": "absentee-mail",
+                "label": "North Carolina;Chatham County",
+                "selection_1": "Yes",
+                "selection_2": "No",
+                "votes_at_stake": 2400,
+                "margin": 0.1,
+                "score": 0.9,
+            }
+        ]
+        return data
 
 
 def get_filename(path):
