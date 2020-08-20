@@ -152,7 +152,7 @@ def find_dupes(df):
 def pick_munger(mungers_dir='mungers',project_root=None, munger_name=None):
 	munger_path = os.path.join(project_root,mungers_dir,munger_name)
 	error = jm.ensure_munger_files(munger_path,project_root=project_root)
-
+	
 	munger_path = os.path.join(mungers_dir,munger_name)
 
 	if not error:
@@ -336,6 +336,7 @@ def get_runtime_parameters(required_keys, optional_keys=None,param_file='run_tim
 
 	parser = ConfigParser()
 	p = parser.read(param_file)
+
 	if len(p) == 0:
 		raise FileNotFoundError
 

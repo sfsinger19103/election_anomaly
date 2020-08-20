@@ -9,7 +9,8 @@ import pandas as pd
 from pprint import pprint
 import sys
 import ntpath
-from election_anomaly import analyze_via_pandas as avp
+from election_anomaly import analyze as a
+from election_anomaly import visualize as v
 from election_anomaly import juris_and_munger as jm
 from election_anomaly import preparation as prep
 
@@ -176,72 +177,6 @@ class SingleDataLoader():
 		if err == dict():
 			err = None
 		return err
-
-
-class Analyzer():
-	def __new__(self):
-		""" Checks if parameter file exists and is correct. If not, does
-		not create DataLoader object. """
-		try:
-			d, parameter_err = ui.get_runtime_parameters(analyze_pars, param_file='analyze.par')
-		except FileNotFoundError as e:
-			print("Parameter file not found. Ensure that it is located" \
-				" in the current directory. Analyzer object not created.")
-			return None
-
-		if parameter_err:
-			print("Parameter file missing requirements.")
-			print(parameter_err)
-			print("Analyzer object not created.")
-			return None
-
-		return super().__new__(self)
-
-	def __init__(self):
-		self.d, self.parameter_err = ui.get_runtime_parameters(analyze_pars,param_file='analyze.par')
-
-		eng = dbr.sql_alchemy_connect(paramfile=self.d['db_paramfile'],
-			db_name=self.d['db_name'])
-		Session = sessionmaker(bind=eng)
-		self.session = Session()
-
-	def display_options(self, input):
-		results = dbr.get_input_options(self.session, input)
-		if results:
-			return results
-		return None
-
-	def top_counts_by_vote_type(self, rollup_unit, sub_unit):
-		d, error = ui.get_runtime_parameters(['rollup_directory'], param_file='analyze.par')
-		if error:
-			print("Parameter file missing requirements.")
-			print(error)
-			print("Data not created.")
-			return
-		else:
-			rollup_unit_id = dbr.name_to_id(self.session, 'ReportingUnit', rollup_unit)
-			sub_unit_id = dbr.name_to_id(self.session, 'ReportingUnitType', sub_unit)
-			results_info = dbr.get_datafile_info(self.session, self.d['results_file_short_name'])
-			rollup = avp.create_rollup(self.session, d['rollup_directory'], top_ru_id=rollup_unit_id,
-				sub_rutype_id=sub_unit_id, sub_rutype_othertext='', datafile_id_list=results_info[0], 
-				election_id=results_info[1])
-			return
-
-	def top_counts(self, rollup_unit, sub_unit):
-		d, error = ui.get_runtime_parameters(['rollup_directory'], param_file='analyze.par')
-		if error:
-			print("Parameter file missing requirements.")
-			print(error)
-			print("Data not created.")
-			return
-		else:
-			rollup_unit_id = dbr.name_to_id(self.session, 'ReportingUnit', rollup_unit)
-			sub_unit_id = dbr.name_to_id(self.session, 'ReportingUnitType', sub_unit)
-			results_info = dbr.get_datafile_info(self.session, self.d['results_file_short_name'])
-			rollup = avp.create_rollup(self.session, d['rollup_directory'], top_ru_id=rollup_unit_id,
-				sub_rutype_id=sub_unit_id, sub_rutype_othertext='', datafile_id_list=results_info[0], 
-				election_id=results_info[1], by_vote_type=False)
-			return
 
 
 class JurisdictionPrepper():
@@ -583,6 +518,189 @@ def make_par_files(dir: str, munger_name: str, top_ru: str, election: str, downl
 			p.write(par_text)
 	return
 
+
+class Analyzer():
+    def __new__(self):
+        """ Checks if parameter file exists and is correct. If not, does
+        not create DataLoader object. """
+        try:
+            d, parameter_err = ui.get_runtime_parameters(['db_paramfile', 
+                'db_name', 'results_file'])
+        except FileNotFoundError as e:
+            print("Parameter file not found. Ensure that it is located" \
+                " in the current directory. Analyzer object not created.")
+            return None
+
+        if parameter_err:
+            print("Parameter file missing requirements.")
+            print(parameter_err)
+            print("Analyzer object not created.")
+            return None
+
+        return super().__new__(self)
+
+
+    def __init__(self):
+        self.d, self.parameter_err = ui.get_runtime_parameters(['db_paramfile', 
+            'db_name', 'results_file'])
+        self.d['results_file_short'] = get_filename(self.d['results_file'])
+
+        eng = dbr.sql_alchemy_connect(paramfile=self.d['db_paramfile'],
+            db_name=self.d['db_name'])
+        Session = sessionmaker(bind=eng)
+        self.session = Session()
+
+
+    def display_options(self, input, verbose=False, filters=None):
+        if not verbose:
+            results = dbr.get_input_options(self.session, input, False)
+        else:
+            if not filters:
+                df = pd.DataFrame(dbr.get_input_options(self.session, input, True))
+                results = dbr.package_display_results(df)
+            else:
+                results = dbr.get_filtered_input_options(self.session, input, filters)
+        if results:
+            return results
+        return None
+
+
+    def top_counts_by_vote_type(self, rollup_unit, sub_unit):
+        d, error = ui.get_runtime_parameters(['rollup_directory'])
+        if error:
+            print("Parameter file missing requirements.")
+            print(error)
+            print("Data not created.")
+            return
+        else:
+            rollup_unit_id = dbr.name_to_id(self.session, 'ReportingUnit', rollup_unit)
+            sub_unit_id = dbr.name_to_id(self.session, 'ReportingUnitType', sub_unit)
+            results_info = dbr.get_datafile_info(self.session, self.d['results_file_short'])
+            rollup = a.create_rollup(self.session, d['rollup_directory'], top_ru_id=rollup_unit_id,
+                sub_rutype_id=sub_unit_id, sub_rutype_othertext='', datafile_id_list=results_info[0], 
+                election_id=results_info[1])
+            return
+
+
+    def top_counts(self, rollup_unit, sub_unit):
+        d, error = ui.get_runtime_parameters(['rollup_directory'])
+        if error:
+            print("Parameter file missing requirements.")
+            print(error)
+            print("Data not created.")
+            return
+        else:
+            rollup_unit_id = dbr.name_to_id(self.session, 'ReportingUnit', rollup_unit)
+            sub_unit_id = dbr.name_to_id(self.session, 'ReportingUnitType', sub_unit)
+            results_info = dbr.get_datafile_info(self.session, self.d['results_file_short'])
+            rollup = a.create_rollup(self.session, d['rollup_directory'], top_ru_id=rollup_unit_id,
+                sub_rutype_id=sub_unit_id, sub_rutype_othertext='', datafile_id_list=results_info[0], 
+                election_id=results_info[1], by_vote_type=False)
+            return
+
+
+    def scatter(self, jurisdiction, subdivision_type, 
+            h_election, h_category, h_count, # horizontal axis params
+            v_election, v_category, v_count, # vertical axis params
+            fig_type=None):
+        """Used to create a scatter plot based on selected inputs. The fig_type parameter
+        is used when the user wants to actually create the visualization; this uses plotly
+        so any image extension that is supported by plotly is usable here. Currently supports 
+        html, png, jpeg, webp, svg, pdf, and eps. Note that some filetypes may need plotly-orca
+        installed as well."""
+        d, error = ui.get_runtime_parameters(['rollup_directory'])
+        if error:
+            print("Parameter file missing requirements.")
+            print(error)
+            print("Data not created.")
+            return
+        jurisdiction_id = dbr.name_to_id(self.session, 'ReportingUnit', jurisdiction)
+        subdivision_type_id = dbr.name_to_id(self.session, 'ReportingUnitType', subdivision_type)
+        h_election_id = dbr.name_to_id(self.session, 'Election', h_election)
+        v_election_id = dbr.name_to_id(self.session, 'Election', v_election)
+        # *_type is either candidates or contests
+        h_count_item_type, h_type = self.split_category_input(h_category)
+        v_count_item_type, v_type = self.split_category_input(v_category)
+        if h_count == 'All Candidates' or h_count == 'All Contests':
+            h_count_id = -1
+        elif h_type == 'candidates':
+            h_count_id = dbr.name_to_id(self.session, 'Candidate', h_count) 
+        elif h_type == 'contests':
+            h_count_id = dbr.name_to_id(self.session, 'CandidateContest', h_count) 
+        if v_count == 'All Candidates' or v_count == 'All Contests':
+            v_count_id = -1
+        elif v_type == 'candidates':
+            v_count_id = dbr.name_to_id(self.session, 'Candidate', v_count) 
+        elif v_type == 'contests':
+            v_count_id = dbr.name_to_id(self.session, 'CandidateContest', v_count) 
+        h_count_item_type, h_type = self.split_category_input(h_category)
+        v_count_item_type, v_type = self.split_category_input(v_category)
+        agg_results = a.create_scatter(self.session, jurisdiction_id, subdivision_type_id, 
+            h_election_id, h_count_item_type, h_count_id, h_type, 
+            v_election_id, v_count_item_type, v_count_id, v_type) 
+        if fig_type:
+            v.plot('scatter', agg_results, fig_type, d['rollup_directory'])
+        return agg_results
+
+    
+    def bar(self, jurisdiction, contest_type=None, contest=None, fig_type=None):
+        """contest_type is one of state, congressional, state-senate, state-house"""
+        d, error = ui.get_runtime_parameters(['rollup_directory'])
+        if error:
+            print("Parameter file missing requirements.")
+            print(error)
+            print("Data not created.")
+            return
+        jurisdiction_id = dbr.name_to_id(self.session, 'ReportingUnit', jurisdiction)
+        print(jurisdiction_id)
+        results_info = dbr.get_datafile_info(self.session, self.d['results_file_short'])
+        agg_results = a.create_bar(self.session, jurisdiction_id, contest_type, contest,
+                        results_info[1], results_info[0])
+        if fig_type:
+            for agg_result in agg_results:
+                v.plot('bar', agg_result, fig_type, d['rollup_directory'])
+        return agg_results
+
+
+    def split_category_input(self, input_str):
+        """ Helper function. Takes an input from the front end that is the cartesian 
+        product of the CountItemType and {'Candidate', 'Contest'}. So something like:
+        Total Candidates or Absentee Contests. Cleans this and returns 
+        something usable for the system to identify what the user is asking for."""
+        count_item_types = self.display_options('count_item_type')
+        count_item_type = [count_type for count_type in count_item_types if count_type in input_str][0]
+        selection_type = input_str[len(count_item_type) + 1:]
+        return count_item_type, selection_type
+
+
+    def export_outlier_data(self, jurisdiction, subdivision_type, contest=None):
+        """ Exports data either for a single contest or for all contests ina
+		jurisdiction, broken down by a specific reporting unit type """
+        data = [
+            {
+                "contest": "contest_1",
+                "ballot_type": "total votes",
+                "label": "North Carolina;Bladen County",
+                "selection_1": "Jane Doe",
+                "selection_2": "John Smith",
+                "votes_at_stake": 1000,
+                "margin": 0.25,
+                "score": 0.73,
+            },
+            {
+                "contest": "ballot_measure_1",
+                "ballot_type": "absentee-mail",
+                "label": "North Carolina;Chatham County",
+                "selection_1": "Yes",
+                "selection_2": "No",
+                "votes_at_stake": 2400,
+                "margin": 0.1,
+                "score": 0.9,
+            }
+        ]
+        return data
+
+
 def get_filename(path):
-	head, tail = ntpath.split(path)
-	return tail or ntpath.basename(head)
+    head, tail = ntpath.split(path)
+    return tail or ntpath.basename(head)
