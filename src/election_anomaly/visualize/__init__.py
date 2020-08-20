@@ -110,10 +110,8 @@ def parse_data(data):
     labels = []
     x = []
     y = []
-    scores = []
-    for contest in data['counts']:
-        labels.append(contest['name'])
-        x.append(contest['x'])
-        y.append(contest['y'])
-        scores.append(contest['score'])
-    return labels, x, y, scores
+    for result in data['counts']:
+        labels.append(result['name'])
+        x.append(result['x'])
+        y.append(result['y'])
+    return labels, x, y

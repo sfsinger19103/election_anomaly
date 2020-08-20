@@ -266,28 +266,21 @@ def create_scatter(session, jurisdiction_id, subdivision_type_id,
 		"y-count_item_type": v_category,
 		"x": x,
 		"y": y,
-		"counts": {}
+		"counts": []
 	}
-	reporting_units = unsummed.Name.unique()
-	for reporting_unit in reporting_units:
-		results["counts"][reporting_unit] = {}
-
-	for i, row in unsummed.iterrows():
-		if row.Selection == x:
-			if x in results["counts"][row.Name]:
-				results["counts"][row.Name]["x"] += row.Count
-			else:
-				results["counts"][row.Name]["x"] = row.Count
-		elif row.Selection == y:
-			if y in results["counts"][row.Name]:
-				results["counts"][row.Name]["y"] += row.Count
-			else:
-				results["counts"][row.Name]["y"] = row.Count
+	pivot_df = pd.pivot_table(unsummed, values='Count',
+		index=['Name'], columns='Selection').reset_index()
+	for i, row in pivot_df.iterrows():
+		results['counts'].append({
+			'name': row['Name'],
+			'x': row[x],
+			'y': row[y],
+		})			
 	# only keep the ones where there are an (x, y) to graph
-	to_keep = {}
-	for key in results['counts']:
-		if len(results['counts'][key]) == 2:
-			to_keep[key] = results['counts'][key]
+	to_keep = []
+	for result in results['counts']:
+		if len(result) == 3: #need reporting unit, x, and y
+			to_keep.append(result)
 	results['counts'] = to_keep
 	return results
 
@@ -536,24 +529,18 @@ def create_bar(session, top_ru_id, contest_type, contest, election_id, datafile_
 			"count_item_type": temp_df.iloc[0]['CountItemType'],
 			"x": x,
 			"y": y,
-			"margin": temp_df.iloc[0]['margins'],
-			"votes_at_stake": temp_df.iloc[0]['margin_ratio'], 
 			"counts": []
 		}
-		pivot_df = pd.pivot_table(temp_df, values='Count', 
-			index=['ReportingUnit_Id', 'Name', 'score', 'margins'], \
-			columns='Selection', aggfunc=np.mean).sort_values('score', ascending=False).reset_index()
+
+		pivot_df = pd.pivot_table(temp_df, values='Count',
+			index=['Name'], columns='Selection').reset_index()
 
 		for i, row in pivot_df.iterrows():
 			results['counts'].append({
 				'name': row['Name'],
 				'x': row[x],
 				'y': row[y],
-				'score': row['score'],
-				'margin': row['margins']
-			})
-			if i == 7:
-				break
+			})			
 		result_list.append(results)
 		
 	return result_list
