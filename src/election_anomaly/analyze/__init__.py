@@ -11,6 +11,9 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 from pandas.api.types import is_numeric_dtype
 from election_anomaly import db_routines as dbr
+import scipy.spatial.distance as dist
+from scipy import stats
+import math
 
 
 def child_rus_by_id(session,parents,ru_type=None):
@@ -371,7 +374,6 @@ def get_data_for_scatter(session, jurisdiction_id, subdivision_type_id,
 		ru_children,left_on='ChildReportingUnit_Id',right_index=True).merge(
 		sub_ru,left_on='ParentReportingUnit_Id',right_index=True,suffixes=['','_Parent'])
 	unsummed.rename(columns={'Name_Parent':'ReportingUnit'},inplace=True)
-
 	# add columns with names
 	unsummed = mr.enum_col_from_id_othertext(unsummed,'CountItemType',df['CountItemType'])
 	unsummed = unsummed.merge(contest_selection,how='left',left_on='ContestSelectionJoin_Id',right_index=True)
@@ -483,24 +485,36 @@ def create_bar(session, top_ru_id, contest_type, contest, election_id, datafile_
 	unsummed = mr.enum_col_from_id_othertext(unsummed,'CountItemType',df['CountItemType'])
 	unsummed = unsummed.merge(contest_selection,how='left',left_on='ContestSelectionJoin_Id',right_index=True)
 
-	# Some cleanup: Rename, drop a duplicated column 	
+	# cleanup: Rename, drop a duplicated column
 	rename = {
 		'Name_Parent': 'ParentName',
-		'ReportingUnitType_Id_Parent': 'ParentReportingUnitType_Id',
-		'OtherReportingUnitType_Parent': 'ParentOtherReportingUnitType'
+		'ReportingUnitType_Id_Parent': 'ParentReportingUnitType_Id'
 	}
 	unsummed.rename(columns=rename, inplace=True)
-	unsummed.drop(columns=['ChildReportingUnit_Id', 'ElectionContestJoin_Id', 'ContestSelectionJoin_Id'],
-				inplace=True)
+	unsummed.drop(columns=['_datafile_Id', 'OtherReportingUnitType', 
+		'ChildReportingUnit_Id', 'ElectionContestJoin_Id','OtherReportingUnitType_Parent', 
+		'ContestSelectionJoin_Id'],
+		inplace=True)
+	unsummed = unsummed[unsummed['ParentReportingUnit_Id'] != top_ru_id]
 
 	ranked = assign_anomaly_score(unsummed)
-	top_ranked = get_most_anomalous(ranked, 3)
+	ranked_margin = calculate_margins(ranked)
+	votes_at_stake = calculate_votes_at_stake(ranked_margin)
+	top_ranked = get_most_anomalous(votes_at_stake, 3)
 
 	# package into list of dictionary
 	result_list = []
 	ids = top_ranked['unit_id'].unique()
 	for id in ids:
 		temp_df = top_ranked[top_ranked['unit_id'] == id]
+
+		# some cleaning here to make the pivoting work
+		scores_df = temp_df[temp_df['rank'] != 1]
+		scores_df = scores_df[['ReportingUnit_Id', 'score', 'margins']]
+		scores_df.rename(columns={'score': 'max_score', 'margins': 'max_margins'}, inplace=True)
+		temp_df = temp_df.merge(scores_df, how='inner', on='ReportingUnit_Id')
+		temp_df.drop(columns=['score', 'margins'], inplace=True)
+		temp_df.rename(columns={'max_score': 'score', 'max_margins': 'margins'}, inplace=True)
 
 		candidates = temp_df['Candidate_Id'].unique()
 		x = dbr.name_from_id(session, 'Candidate', candidates[0])
@@ -520,6 +534,7 @@ def create_bar(session, top_ru_id, contest_type, contest, election_id, datafile_
 
 		pivot_df = pd.pivot_table(temp_df, values='Count',
 			index=['Name'], columns='Selection').reset_index()
+
 		for i, row in pivot_df.iterrows():
 			results['counts'].append({
 				'name': row['Name'],
@@ -538,20 +553,83 @@ def assign_anomaly_score(data):
 	distinct combination of contest, reporting unit type, and vote type. Each 
 	combination of those would get assigned an ID. This means rows may get added
 	to the dataframe if needed."""
-	import numpy as np
-	data['score'] = np.random.rand(data.shape[0])
 
-	# assign unit_ids to contest, ru_type, and count type
-	df_unit = data[['Contest_Id', 'ReportingUnitType_Id', 'CountItemType']].drop_duplicates()
+	######### FOR TESTING PURPOSES ONLY!!!!! ###########
+	#data = data[data['Contest_Id'] == 14949] # only 2 candidates
+	#data = data[data['Contest_Id'] == 14777] # 3 candidates
+	#data = data[(data['Contest_Id'] == 14949) | (data['Contest_Id'] == 14777)]
+	#data = data[data['Contest_Id'] == 14917] # this has infinite margins
+
+	# Assign a ranking for each candidate by votes for each contest
+	total_data = data[(data['CountItemType'] == 'total') & 
+					(data['ReportingUnit_Id'] == data['ParentReportingUnit_Id'])]
+	ranked_df = total_data.groupby(['Contest_Id', 'Selection'], as_index=False)['Count'] \
+				.sum().sort_values(['Contest_Id', 'Count'], ascending=False)
+	ranked_df['rank'] = ranked_df.groupby('Contest_Id')['Count'].rank('dense', ascending=False)
+	ranked_df['contest_total'] = ranked_df['Count'].sum()
+	ranked_df.rename(columns={'Count':'ind_total'}, inplace=True)
+
+	# Group data by parent info. This works because each child is also its own
+	# parent in the DB table
+	grouped_df = data.groupby(['ParentReportingUnit_Id', 'ParentName', 
+			'ParentReportingUnitType_Id', 'Candidate_Id',
+            'CountItemType', 'Contest_Id', 'Contest', 'Selection', 
+            'contest_type', 'contest_district_type'], as_index=False)['Count'].sum().reset_index()
+	grouped_df.drop(columns='index', inplace=True)
+	grouped_df.rename(columns={
+		'ParentReportingUnit_Id': 'ReportingUnit_Id',
+		'ParentName': 'Name',	
+		'ParentReportingUnitType_Id': 'ReportingUnitType_Id'
+	}, inplace=True)
+	grouped_df = grouped_df.merge(ranked_df, how='inner', on=['Contest_Id', 'Selection'])
+
+	# assign unit_ids to unique combination of contest, ru_type, and count type
+	df_unit = grouped_df[['Contest_Id', 'ReportingUnitType_Id', 'CountItemType']].drop_duplicates()
 	df_unit = df_unit.reset_index()
 	df_unit['unit_id'] = df_unit.index
-	data = data.merge(df_unit, how='left', on=['Contest_Id', 'ReportingUnitType_Id', 'CountItemType'])
+	df_with_units = grouped_df.merge(df_unit, how='left', on=['Contest_Id', 'ReportingUnitType_Id', 'CountItemType'])
 
-	return data
+	# loop through each unit ID and assign anomaly scores
+	unit_ids = df_with_units['unit_id'].unique()
+	df = pd.DataFrame()
+	# for each unit ID
+	for unit_id in unit_ids:
+		# grab all the data there
+		temp_df = df_with_units[df_with_units['unit_id'] == unit_id]
+		total = temp_df.groupby('ReportingUnit_Id')['Count'].sum().reset_index()
+		total.rename(columns={'Count': 'reporting_unit_total'}, inplace=True)
+		temp_df = temp_df.merge(total, how='inner', on='ReportingUnit_Id')
+		# pivot so each candidate gets own column
+		scored_df = pd.DataFrame()
+		for i in range(2, int(temp_df['rank'].max()) + 1):
+			selection_df = temp_df[temp_df['rank'].isin([1, i])]
+			if selection_df.shape[0] >= 5:
+				pivot_df = pd.pivot_table(selection_df, values='Count', \
+					index=['ReportingUnit_Id', 'reporting_unit_total'], \
+					columns='Selection').sort_values('ReportingUnit_Id').reset_index()
+				pivot_df_values = pivot_df.drop(columns=['ReportingUnit_Id', 'reporting_unit_total'])
+				to_drop = [selection_df[selection_df['rank'] == 1]['Selection'].unique()[0], \
+					selection_df[selection_df['rank'] == i]['Selection'].unique()[0]]
+				# pass in proportions instead of raw vlaues
+				vote_proportions = pivot_df_values.div(pivot_df['reporting_unit_total'], axis=0)
+				np.nan_to_num(vote_proportions, copy=False)
+				# assign z score and then add back into final DF
+				scored = euclidean_zscore(vote_proportions.to_numpy())
+				#scored = density_score(vote_proportions)
+				pivot_df['score'] = scored
+				pivot_df = pivot_df[['ReportingUnit_Id', to_drop[1], 'score']]
+				pivot_df['Selection'] = to_drop[1]
+				pivot_df.rename(columns={to_drop[1]: 'Count'}, inplace=True)
+				selection_df = selection_df.merge(pivot_df, how='left', \
+					on=['ReportingUnit_Id', 'Selection', 'Count'])
+				scored_df = pd.concat([scored_df, selection_df])
+		df = pd.concat([df, scored_df])
+	df['score'] = df['score'].fillna(0)
+	return df
 
 
 def get_most_anomalous(data, n):
-	"""gets the n contests with the highest individual anomaly score"""
+	"""gets the n contests with the highest margin ratio score"""
 	# get rid of all contest-counttypes with 0 votes
 	# not sure we really want to do this in final version
 	zeros_df = data[['Contest_Id', 'ReportingUnitType_Id', 'CountItemType', 'ReportingUnit_Id', 'Count']]
@@ -562,26 +640,109 @@ def get_most_anomalous(data, n):
 	data.rename(columns={'Count_x':'Count'}, inplace=True)
 	data.drop(columns=['Count_y'], inplace=True)
 
-	# Now do the filtering on most anomalous
-	df = data.groupby('unit_id')['score'].max().reset_index()
-	df.rename(columns={'score': 'max_score'}, inplace=True)
-	data = data.merge(df, on='unit_id')
-	unique_scores = sorted(set(df['max_score']), reverse=True)
-	top_scores = unique_scores[:n]
-	result = data[data['max_score'].isin(top_scores)]
+	margins = list(data['margin_ratio'].unique())
+	margins.sort(reverse=True)
+	top_margins = margins[0:n]
+	data = data[data['margin_ratio'].isin(top_margins)]
 
-	# Eventually we want to return the winner and the most anomalous
-	# for each contest grouping (unit). For now, just 2 random ones
-	ids = result['unit_id'].unique()
+	# now we get the top 8 reporting unit IDs, in terms of anomaly score, of the winner and most anomalous
+	ids = data['unit_id'].unique()
 	df = pd.DataFrame()
 	for id in ids:
-		temp_df = result[result['unit_id'] == id]
-		unique = temp_df['Candidate_Id'].unique()
-		candidates = unique[0:2]
-		candidate_df = temp_df[temp_df['Candidate_Id'].isin(candidates)]
-		unique = candidate_df['ReportingUnit_Id'].unique()
-		reporting_units = unique[0:8]
-		df_final = candidate_df[candidate_df['ReportingUnit_Id'].isin(reporting_units)]. \
-			sort_values(['ReportingUnit_Id', 'score'], ascending=False)
+		temp_df = data[data['unit_id'] == id]
+		max_score = temp_df['score'].max()
+		rank = temp_df[temp_df['score'] == max_score].iloc[0]['rank']
+		temp_df = temp_df[temp_df['rank'].isin([1, rank])]
+		scores = list(temp_df['score'].unique())
+		scores.sort(reverse=True)
+		top_scores = scores[0:8]
+		reporting_units = temp_df[temp_df['score'].isin(top_scores)]['ReportingUnit_Id'].unique()
+		df_final = temp_df[temp_df['ReportingUnit_Id'].isin(reporting_units)]
 		df = pd.concat([df, df_final])
+	return df
+
+
+def euclidean_zscore(li):
+    """Take a list of vectors -- all in the same R^k,
+    returns a list of the z-scores of the vectors -- each relative to the ensemble"""
+    distance_list = [sum([dist.euclidean(item,y) for y in li]) for item in li]
+    if len(set(distance_list)) == 1:
+        # if all distances are the same, which yields z-score nan values
+        return [0]*len(li)
+    else:
+        return list(stats.zscore(distance_list))
+
+
+def density_score(points):
+	"""Take a list of vectors -- all in the same R^k,
+	return a list of comparison of density with or without the anomaly"""
+	density_list = [0] * len(points)
+	x_order = list(points[:, 0])
+	xs = points[:, 0]
+	xs.sort()
+	head, *tail = xs
+	density = (tail[-2] - tail[0]) / (len(tail) - 1)
+	total_density = (xs[-2] - xs[0]) / (len(xs) - 1)
+	density_asc = total_density / density
+	density_asc_xval = xs[0]
+
+	# Sort in reverse order
+	xs = xs[::-1]
+	head, *tail = xs
+	density = (tail[-2] - tail[0]) / (len(tail) - 1)
+	total_density = (xs[-2] - xs[0]) / (len(xs) - 1)
+	density_desc = total_density / density
+	density_desc_xval = xs[0]
+	if density_asc > density_desc:
+		i = x_order.index(density_asc_xval)
+		density_list[i] = density_asc
+	else:
+		i = x_order.index(density_desc_xval)
+		density_list[i] = density_desc
+	return density_list
+
+
+def calculate_margins(data):
+	"""Takes a dataframe with an anomaly score and assigns
+	a margin score"""
+	rank_1_df = data[data['rank'] == 1][['unit_id', 'ReportingUnit_Id', 'Count']]
+	rank_1_df = rank_1_df.rename(columns={'Count': 'rank_1_total'})
+	data = data.merge(rank_1_df, how='inner', on=['unit_id', 'ReportingUnit_Id'])
+	data['margins'] = (data['rank_1_total'] - data['Count']) / data['contest_total']
+	data = data[data['margins'] != math.inf]
+	data = data[data['margins'] != -math.inf]
+	return data
+
+
+def calculate_votes_at_stake(data):
+	"""Move the most anomalous pairing to the equivalent of the second-most anomalous
+	and calculate the differences in votes that would be returned"""
+	df = pd.DataFrame()
+	unit_ids = data['unit_id'].unique()
+	for unit_id in unit_ids:
+		temp_df = data[data['unit_id'] == unit_id]
+		if temp_df.shape[0] > 2:
+			max_anomaly_score = temp_df['score'].max() 
+			reporting_unit_id = temp_df[temp_df['score'] == max_anomaly_score] \
+				.iloc[0]['ReportingUnit_Id']
+			selection = temp_df.loc[temp_df['score'] == max_anomaly_score] \
+				.iloc[0]['Selection']
+			anomalous_df = temp_df[(temp_df['ReportingUnit_Id'] == reporting_unit_id) & \
+				(((temp_df['Selection'] == selection)  & \
+					(temp_df['score'] == max_anomaly_score)) |
+				(temp_df['rank'] == 1))].sort_values('score', ascending=False)
+			next_max_score = temp_df[temp_df['score'] < max_anomaly_score]['score'].max()
+			next_reporting_unit_id = temp_df.loc[temp_df['score'] == next_max_score] \
+				.iloc[0]['ReportingUnit_Id']
+			next_anomalous_df =temp_df[(temp_df['ReportingUnit_Id'] == next_reporting_unit_id) & \
+				(((temp_df['Selection'] == selection)  & \
+					(temp_df['score'] == next_max_score)) |
+				(temp_df['rank'] == 1))].sort_values('score', ascending=False)
+			temp_df['margin_ratio'] = (anomalous_df.iloc[0]['margins'] - next_anomalous_df.iloc[0]['margins']) \
+				/ anomalous_df.iloc[0]['margins'] 
+		else:
+			temp_df['margin_ratio'] = 0
+		df = pd.concat([df, temp_df])
+	df = df[df['margin_ratio'] != math.inf]
+	df = df[df['margin_ratio'] != -math.inf]
 	return df
