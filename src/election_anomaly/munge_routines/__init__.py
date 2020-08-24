@@ -547,8 +547,8 @@ def raw_elements_to_cdf(
     )
 
     # fill ElectionContestJoin
-    csj = working[['Election_Id','Contest_Id']].drop_duplicates()
-    e = dbr.insert_to_cdf_db(session.bind,csj,'ElectionContestJoin')
+    ecj = working[['Election_Id','Contest_Id']].drop_duplicates()
+    e = dbr.insert_to_cdf_db(session.bind,ecj,'ElectionContestJoin')
     if e:
         ui.add_error(err,'munge_error',f'Error filling ElectionContestJoin: {e}')
     col_map = {c:c for c in ['Contest_Id','Election_Id']}
