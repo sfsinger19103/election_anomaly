@@ -187,7 +187,7 @@ def create_table(metadata,id_seq,name,table_type,dirpath, create_indices: list=N
     # create indices for efficiency
     if create_indices:
         for li in create_indices:
-            Index(f'{t}_append', *[t.c[x] for x in li])
+            Index(f'{t}_append', *[t.c[x] for x in li],unique=True)
     return
 
 
