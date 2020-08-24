@@ -532,15 +532,22 @@ def create_bar(session, top_ru_id, contest_type, contest, election_id, datafile_
 			"counts": []
 		}
 
+		# Contests are chosen by the margin ratio (votes at stake)
+		# and are ordered for display by the anomaly score
 		pivot_df = pd.pivot_table(temp_df, values='Count',
 			index=['Name'], columns='Selection').reset_index()
+		score_df = temp_df.groupby('Name')['score', 'margins', 'margin_ratio'].mean()
+		pivot_df = pivot_df.merge(score_df, how='inner', on='Name')\
+			.sort_values('score', ascending=False).reset_index()
 
 		for i, row in pivot_df.iterrows():
 			results['counts'].append({
 				'name': row['Name'],
 				'x': row[x],
 				'y': row[y],
-			})			
+			})
+			if i == 7:
+				break
 		result_list.append(results)
 		
 	return result_list
@@ -557,7 +564,7 @@ def assign_anomaly_score(data):
 	######### FOR TESTING PURPOSES ONLY!!!!! ###########
 	#data = data[data['Contest_Id'] == 14949] # only 2 candidates
 	#data = data[data['Contest_Id'] == 14777] # 3 candidates
-	#data = data[(data['Contest_Id'] == 14949) | (data['Contest_Id'] == 14777)]
+	data = data[(data['Contest_Id'] == 14949) | (data['Contest_Id'] == 14777)]
 	#data = data[data['Contest_Id'] == 14917] # this has infinite margins
 
 	# Assign a ranking for each candidate by votes for each contest
