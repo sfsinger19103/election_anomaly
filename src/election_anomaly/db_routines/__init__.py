@@ -481,10 +481,10 @@ def append_id_to_dframe(engine: sqlalchemy.engine, df: pd.DataFrame, table, col_
 
 	df_cols = list(col_map.keys())
 
-
-	# create temp db table with info from df, without index
-	df = mr.generic_clean(df)
-	df[df_cols].fillna('').to_sql(temp_table, engine,index_label='dataframe_index')
+	# create temp db table with info from df, ensuring unique index in dataframe_index
+	working = mr.generic_clean(df)
+	working['dataframe_index'] = range(working.shape[0])
+	working[df_cols].fillna('').to_sql(temp_table, engine,index_label='dataframe_index')
 	# TODO fillna('') probably redundant
 
 	# join <table>_Id
@@ -497,7 +497,7 @@ def append_id_to_dframe(engine: sqlalchemy.engine, df: pd.DataFrame, table, col_
 	q = sql.SQL("SELECT t.*, tt.dataframe_index FROM {tt} tt LEFT JOIN {t} t ON {on_clause}").format(
 		tt=sql.Identifier(temp_table),t=sql.Identifier(table),on_clause=on_clause
 	)
-	w = mr.generic_clean(pd.read_sql_query(q, connection).set_index('dataframe_index'))
+	w = mr.generic_clean(pd.read_sql_query(q, connection))
 
 	# drop temp db table
 	q = sql.SQL("DROP TABLE {temp_table}").format(temp_table=sql.Identifier(temp_table))
@@ -506,7 +506,7 @@ def append_id_to_dframe(engine: sqlalchemy.engine, df: pd.DataFrame, table, col_
 	connection.commit()
 
 	connection.close()
-	return df.join(w[['Id']]).rename(columns={'Id':f'{table}_Id'})
+	return working.merge(w[['dataframe_index','Id']],on='dataframe_index').rename(columns={'Id':f'{table}_Id'})
 
 
 def get_column_names(cursor, table: str) -> (list, dict):
