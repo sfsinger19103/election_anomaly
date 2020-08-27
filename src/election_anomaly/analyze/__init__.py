@@ -247,9 +247,9 @@ def get_data_for_scatter(session, jurisdiction_id, subdivision_type_id,
 	return unsummed
 
 
-def create_bar(session, top_ru_id, contest_type, contest, election_id, datafile_id_list):
+def create_bar(session, top_ru_id, subdivision_type_id, contest_type, contest, election_id):
 	df = pull_data_tables(session)
-	ru, sub_ru, ru_children = create_hierarchies(session, df, top_ru_id, subdivision_type_id=9)
+	ru, sub_ru, ru_children = create_hierarchies(session, df, top_ru_id, subdivision_type_id)
 	candidate_columns = ['Contest_Id','Contest','Selection_Id','Selection','ElectionDistrict_Id',
 		'Candidate_Id']
 	contest_selection = create_contests(df, ru, candidate_columns)
