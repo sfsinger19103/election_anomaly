@@ -184,4 +184,4 @@ North Carolina;US Congress House of Representatives District 13	1	North Carolina
 North Carolina;US Congress;Senate	1	North Carolina;US Congress;Senate	
 North Carolina; Bertie County;Board of Commissioners District 3	1	North Carolina; Bertie County;Board of Commissioners District 3	
 North Carolina;District Court Judge District 22B Seat 2	1	North Carolina;District Court Judge District 22B Seat 2	
-North Carolina;General Assembly House of Representatives District 1	1	North Carolina;General Assembly House of Representatives District 1	
+North Carolina;General Assembly House of Representatives District 1	1	North Carolina;General Assembly House of Representatives District 1
