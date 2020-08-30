@@ -17,6 +17,8 @@ import re
 from election_anomaly.db_routines import create_cdf_db as db_cdf
 import os
 import numpy as np
+from sqlalchemy import MetaData, Table, Column, Integer, Float
+from election_anomaly import analyze as a
 
 states = '''Alabama
 Alaska
@@ -769,3 +771,26 @@ def get_relevant_contests(session, filters):
     result_df.columns = result.keys()
     result_df = result_df[result_df['parent'].isin(units)]
     return result_df
+
+
+def get_jurisdiction_hierarchy(session, jurisdiction_id, subdivision_type_id):
+    q = session.execute(f'''
+        SELECT	regexp_split_to_array("Name", ';') unit_array
+        FROM	"ComposingReportingUnitJoin" j
+                JOIN "ReportingUnit" ru ON j."ChildReportingUnit_Id" = ru."Id"
+        WHERE	"ParentReportingUnit_Id" = {jurisdiction_id}
+                AND "ReportingUnitType_Id" = {subdivision_type_id} 
+        LIMIT	1
+    ''').fetchall()
+
+    unit_portions = q[0][0]
+    hierarchy = []
+    for i in range(len(unit_portions)):
+        unit = ";".join(unit_portions[0:i + 1])
+        q = session.execute(f'''
+            SELECT	"ReportingUnitType_Id"
+            FROM	"ReportingUnit"
+            WHERE	"Name" = '{unit}' 
+        ''').fetchall()
+        hierarchy.append(q[0][0])
+    return hierarchy
