@@ -614,6 +614,9 @@ def get_runtime_parameters(required_keys, optional_keys=None, param_file="multi.
 
     if not missing_required_params["missing"]:
         missing_required_params = None
+    else:
+        missing_required_params[f'missing parameter from {param_file}'] = missing_required_params.pop("missing")
+
 
     return d, missing_required_params
 

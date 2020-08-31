@@ -7,3 +7,4 @@ archive_dir=</path/to/folder/for/archiving/uploaded/files>
 top_reporting_unit=<Name of state or other jurisdiction>
 sub_reporting_unit_type=<typically county>
 rollup_directory=</path/to/folder/for/storing/rolled-up/results>
+results_file=<just the name, not the path. File should be in the same directory as this parameter file>
