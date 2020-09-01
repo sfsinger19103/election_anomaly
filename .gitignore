@@ -12,4 +12,3 @@ build
 src/tmp/
 local/
 .DS_Store
-*.ini
