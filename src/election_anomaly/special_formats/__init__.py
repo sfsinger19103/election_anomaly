@@ -48,9 +48,9 @@ def process_expressvote(f_path: str, munger: jm.Munger, err: dict) -> (pd.DataFr
             # pop the blank line
             data.pop(0)
 
-            # get the contest line, candidate line and csv-header line
+            # get the contest line, selection line and csv-header line
             contest = data.pop(0).strip()
-            candidate_line = data.pop(0)
+            selection_line = data.pop(0)
             header_line = data.pop(0)
 
             # get info from header line
@@ -60,13 +60,13 @@ def process_expressvote(f_path: str, munger: jm.Munger, err: dict) -> (pd.DataFr
             vote_type = field_list[1: 1 + v_t_cc]
             assert (len(field_list) - 2) % v_t_cc == 0
 
-            candidate_list = extract_items(candidate_line, w * v_t_cc)
+            selection_list = extract_items(selection_line, w * v_t_cc)
 
-            #  create multi-index from the candidate and votetype, with first index 'county/county'
+            #  create multi-index from the selection and votetype, with first index 'county/county'
             #  and last index 'Total/Total'
             index_array = [
-                [field_list[0]] + [y for z in [[cand] * v_t_cc for cand in candidate_list] for y in z] + ['Total'],
-                [field_list[0]] + vote_type * len(candidate_list) + ['Total']
+                [field_list[0]] + [y for z in [[s] * v_t_cc for s in selection_list] for y in z] + ['Total'],
+                [field_list[0]] + vote_type * len(selection_list) + ['Total']
             ]
             multi_index = pd.MultiIndex.from_arrays(index_array)
 
@@ -85,7 +85,7 @@ def process_expressvote(f_path: str, munger: jm.Munger, err: dict) -> (pd.DataFr
             # Drop contest-total column
             df[contest].drop('Total',axis=1,level=1,inplace=True)
 
-            # move candidate & votetype info to columns
+            # move selection & votetype info to columns
             df[contest] = pd.melt(df[contest],col_level=1,id_vars=[ru_title],var_name='Count',value_name='CountItemType').rename(columns={ru_title:'ReportingUnit'})
 
             # Add columns for contest
