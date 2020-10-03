@@ -1,0 +1,3 @@
+fieldname	datatype
+Foreign_Id	Integer
+Value	String

@@ -1,0 +1,7 @@
+fieldname	datatype
+short_name	String
+file_name	String
+file_date	Date
+download_date	Date
+source	String
+note	String
