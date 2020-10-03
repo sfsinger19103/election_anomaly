@@ -1,2 +1,0 @@
-fieldname	datatype
-Count	Integer

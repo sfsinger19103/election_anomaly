@@ -1,3 +1,0 @@
-not_null_fields
-Count
-CountItemType_Id

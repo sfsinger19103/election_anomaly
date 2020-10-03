@@ -1,3 +1,0 @@
-fieldname	datatype
-Name	String
-Description	String
